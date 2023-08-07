@@ -24,6 +24,9 @@ let sampleMonster = {
   action: async (stateObj, index, array) => {
     //await cardAnimationDiscard(index);
     //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.playerMonstersInPlay.push(sampleMonster)
+    })
     return stateObj;
   }
 }
