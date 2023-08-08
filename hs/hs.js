@@ -188,8 +188,8 @@ async function startEncounter(stateObj) {
     }
     
     state = {...stateObj}
-    //renderScreen(stateObj);
-    renderDivs(state)
+    renderScreen(stateObj);
+    //renderDivs(state)
     return stateObj
 }
 
