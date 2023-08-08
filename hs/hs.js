@@ -103,13 +103,14 @@ const Status = {
   inFight: renderDivs,
   lostFight: renderLostFight,
   wonFight: renderWonFight,
+  chooseEnemyMonster: renderChooseEnemy,
 }
 
 let gameStartState = {
   playerHP: 50,
   encounterDraw: [],
   playerMonstersInPlay: [sampleMonster, sampleMonster],
-  encounterHand: [],
+  encounterHand: [sampleMonster, sampleMonster, sampleMonster, sampleMonsterGrow],
   playerEnergy: 3,
 
   currentEnemyHP: 0,
@@ -118,22 +119,24 @@ let gameStartState = {
 
   fightStarted: false,
   status: Status.inFight,
+  playerToAttackIndex: false,
+  enemyToBeAttackedIndex: false,
 }
 
 
 let state = {...gameStartState};
-renderDivs(state)
+startEncounter(state)
+//renderScreen(state)
 
 
 
 
 async function startEncounter(stateObj) {
-    console.log('inside start encounter');
-    
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
       newState.encounterDraw = [sampleMonster, sampleMonster, sampleMonster, sampleMonsterGrow];
       newState.encounterHand = [...newState.encounterDraw];
+      newState.status = Status.chooseEnemyMonster
     })
     stateObj = shuffleDraw(stateObj);
     await changeState(stateObj);
@@ -209,7 +212,6 @@ async function handleDeaths(stateObj) {
 
       stateObj = immer.produce(stateObj, (newState) => {
         for (let i = 0; i < indexesToDelete.length; i++) {
-          console.log("deleting opponent at index " + i);
           newState.enemyMonstersInPlay.splice(indexesToDelete[i], 1)
         }
       });
@@ -248,17 +250,28 @@ function renderPlayerMonstersInPlay(stateObj) {
   if (stateObj.playerMonstersInPlay.length > 0) {
     console.log("rendering monsters in play")
     stateObj.playerMonstersInPlay.forEach(function (cardObj, index) {
-      console.log('about to render' + stateObj.playerMonstersInPlay[index])
       renderCard(stateObj, stateObj.playerMonstersInPlay, index, "playerMonstersInPlay", functionToAdd=false)
     });
   }
 }
 
 function renderEnemyMonstersInPlay(stateObj) {
+  console.log("rendering enemy monsters in play")
   document.getElementById("enemyMonstersInPlay").innerHTML = "";
   if (stateObj.enemyMonstersInPlay.length > 0) {
     stateObj.enemyMonstersInPlay.forEach(function (cardObj, index) {
       renderCard(stateObj, stateObj.enemyMonstersInPlay, index, "enemyMonstersInPlay", functionToAdd=false)
+    });
+  }
+}
+
+function renderEnemyMonstersToChoose(stateObj) {
+  console.log("rendering enemy monsters to choose")
+  document.getElementById("enemyMonstersInPlay").innerHTML = "";
+  let indexChosen = false;
+  if (stateObj.enemyMonstersInPlay.length > 0) {
+    stateObj.enemyMonstersInPlay.forEach(function (cardObj, index) {
+      renderCard(stateObj, stateObj.enemyMonstersInPlay, index, "enemyMonstersInPlay", isChoice=true, functionToAdd=false)
     });
   }
 }
@@ -283,6 +296,18 @@ async function renderDivs(stateObj) {
   renderHand(stateObj);
   renderPlayerMonstersInPlay(stateObj);
   renderEnemyMonstersInPlay(stateObj);
+}
+
+async function renderChooseEnemy(stateObj) {
+  document.getElementById("app").innerHTML = ""
+  //let topRow = topRowDiv(stateObj, "app")
+  let restOfScreen = renderFightDiv();
+  document.querySelector("#app").append(restOfScreen);
+  
+  
+  renderHand(stateObj);
+  renderPlayerMonstersInPlay(stateObj);
+  renderEnemyMonstersToChoose(stateObj);
 }
 
 function renderFightDiv() {
@@ -316,10 +341,8 @@ async function renderWonFight(stateObj) {
 }
 
 
-function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=false) {
-  console.log("rendering card " + index)
+function renderCard(stateObj, cardArray, index, divName=false, isChoice=false, functionToAdd=false) {
     let cardObj = cardArray[index];
-    console.log("card obj is " + cardObj)
     let cardDiv = document.createElement("Div");
           cardDiv.id = "card-index-"+index;
           cardDiv.classList.add("card");
@@ -388,6 +411,13 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
                 });
               };
           }
+
+          if (isChoice === true) {
+            cardDiv.classList.add("selectable");
+            cardDiv.addEventListener("click", function () {
+              selectThisEnemyIndex(stateObj, index, cardArray);
+            });
+          }
   
           if (functionToAdd) {
             cardDiv.addEventListener("click", function () {
@@ -431,6 +461,17 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
     return stateObj;
   }
 
+  async function selectThisEnemyIndex(stateObj, index, arrayObj) {
+    console.log("you chose " + stateObj.enemyMonstersInPlay[index].name);  
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.enemyToBeAttackedIndex = index
+    })
+    stateObj = await changeStatus(stateObj, Status.inFight)
+    //stateObj = await changeState(stateObj);
+  
+    return stateObj;
+  }
+
   
 // -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
 // -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
@@ -468,7 +509,6 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
 
 function shuffleDraw(stateObj) {
   stateObj = immer.produce(stateObj, (newState) => {
-    console.log("sjuffling array inside an immer loop")
     newState.encounterDraw = shuffleArray(newState.encounterDraw);
   });
   return stateObj;
