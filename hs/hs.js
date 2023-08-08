@@ -1,13 +1,8 @@
-const Status = {
-  inFight: renderDivs,
-}
-
 let sampleMonster = {
   name: "sample",
   baseCost: 1,
-  text: "does nothing",
-  attack: 3,
-  currentHP: 4,
+  attack: 1,
+  currentHP: 3,
   maxHP: 4,
   avatar: "img/fireMonster.png",
 
@@ -16,7 +11,7 @@ let sampleMonster = {
   },
 
   text: (state, index, array) => { 
-    return `Battlecry: Deal 2 damage to a random enemy` 
+    return `Battlecry: Deal 1 damage to a random enemy` 
   },
 
   cost:  (state, index, array) => {
@@ -30,126 +25,114 @@ let sampleMonster = {
       newState.playerMonstersInPlay.push(sampleMonster)
       if (newState.enemyMonstersInPlay.length > 0) {
         let targetIndex = Math.floor(Math.random() * (stateObj.enemyMonstersInPlay.length));
-        newState.enemyMonstersInPlay[targetIndex].currentHP -=2;
+        newState.enemyMonstersInPlay[targetIndex].currentHP -=1;
       }
     })
     return stateObj;
   }
 }
 
-let gameStartState = {
-    playerHP: 50,
-    encounterDraw: [],
-    playerMonstersInPlay: [sampleMonster, sampleMonster],
-    encounterHand: [],
-    playerEnergy: 1,
+let sampleMonsterGrow = {
+  name: "Grow",
+  baseCost: 2,
+  attack: 5,
+  currentHP: 6,
+  maxHP: 6,
+  avatar: "img/flamingbaby.png",
 
-    currentEnemyHP: 0,
-    enemyMonstersInPlay: [sampleMonster, sampleMonster],
-    enemyEnergy: 1,
+  minReq: (state, index, array) => {
+    return array[index].baseCost;
+  },
 
-    fightStarted: false,
-    status: Status.inFight,
+  text: (state, index, array) => { 
+    return `Gain +1/+1 whenever you play a card` 
+  },
+
+  cost:  (state, index, array) => {
+    return array[index].baseCost;
+  },
+  growProperty: 1,
+
+  action: async (stateObj, index, array) => {
+    //await cardAnimationDiscard(index);
+    //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.playerMonstersInPlay.push(array[index])
+    })
+    return stateObj;
+  }
 }
 
+
+
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+//                                                          State Stuff
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+
+const Status = {
+  inFight: renderDivs,
+  lostFight: renderLostFight,
+  wonFight: renderWonFight,
+}
+
+let gameStartState = {
+  playerHP: 50,
+  encounterDraw: [],
+  playerMonstersInPlay: [sampleMonster, sampleMonster],
+  encounterHand: [],
+  playerEnergy: 3,
+
+  currentEnemyHP: 0,
+  enemyMonstersInPlay: [sampleMonster],
+  enemyEnergy: 1,
+
+  fightStarted: false,
+  status: Status.inFight,
+}
 
 
 let state = {...gameStartState};
 renderDivs(state)
 
-// playerMonsterArray = Object.values(playerMonsters);
-// opponentMonsterArray = Object.values(opponentMonsters);
-// fireCardArray = Object.values(fireCardPool);
-// waterCardArray = Object.values(waterCardPool);
 
-function renderHand(stateObj) {
-    document.getElementById("handContainer2").innerHTML = "";
-    if (stateObj.encounterHand.length > 0) {
-      stateObj.encounterHand.forEach(function (cardObj, index) {
-        renderCard(stateObj, stateObj.encounterHand, index, "handContainer2", functionToAdd=false)
-      });
-    }
-}
 
-function renderPlayerMonstersInPlay(stateObj) {
-    document.getElementById("playerMonstersInPlay").innerHTML = "";
-    if (stateObj.playerMonstersInPlay.length > 0) {
-      console.log("rendering monsters in play")
-      stateObj.playerMonstersInPlay.forEach(function (cardObj, index) {
-        console.log('about to render' + stateObj.playerMonstersInPlay[index])
-        renderCard(stateObj, stateObj.playerMonstersInPlay, index, "playerMonstersInPlay", functionToAdd=false)
-      });
-    }
-}
-
-function renderEnemyMonstersInPlay(stateObj) {
-    document.getElementById("enemyMonstersInPlay").innerHTML = "";
-    if (stateObj.enemyMonstersInPlay.length > 0) {
-      stateObj.enemyMonstersInPlay.forEach(function (cardObj, index) {
-        renderCard(stateObj, stateObj.enemyMonstersInPlay, index, "enemyMonstersInPlay", functionToAdd=false)
-      });
-    }
-}
-
-async function renderDivs(stateObj) {
-    if (stateObj.fightStarted === false) {
-      console.log("triggering startEncounter")
-      stateObj = await startEncounter(stateObj);
-      stateObj = immer.produce(stateObj, (newState) => {
-        newState.fightStarted = true;
-      })
-      //await changeState(stateObj);
-      //stateObj = await drawAHand(stateObj);
-    }
-  
-    document.getElementById("app").innerHTML = ""
-    //let topRow = topRowDiv(stateObj, "app")
-    let restOfScreen = renderFightDiv();
-    document.querySelector("#app").append(restOfScreen);
-    
-    
-    renderHand(stateObj);
-    renderPlayerMonstersInPlay(stateObj);
-    renderEnemyMonstersInPlay(stateObj);
-}
-
-function renderFightDiv() {
-    let fightContainer = document.createElement("Div");
-    fightContainer.classList.add("flex-container");
-    fightContainer.setAttribute("id", "battlefield");
-
-    let enemyMonstersDiv = document.createElement("Div");
-    enemyMonstersDiv.classList.add("flex-container");
-    enemyMonstersDiv.setAttribute("id", "enemyMonstersInPlay");
-  
-    let playerMonstersDiv = document.createElement("Div");
-    playerMonstersDiv.classList.add("flex-container");
-    playerMonstersDiv.setAttribute("id", "playerMonstersInPlay");
-  
-    let handDiv = document.createElement("Div");
-    handDiv.setAttribute("id", "handContainer2");
-
-    fightContainer.append(enemyMonstersDiv, playerMonstersDiv, handDiv);
-    return fightContainer;
-}
-
-// function renderCardPile(stateObj, cardArrayObj, divStringName) {
-//     document.getElementById(divStringName).innerHTML = "";
-//     if (cardArrayObj.length > 0) {
-//         cardArrayObj.forEach(function (cardObj, index) {
-//         renderCard(stateObj, cardArrayObj, index, divStringName)
-//         });
-//     }
-// }
-
-//setting up the fight
 
 async function startEncounter(stateObj) {
     console.log('inside start encounter');
     
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
-      newState.encounterDraw = [sampleMonster, sampleMonster, sampleMonster];
+      newState.encounterDraw = [sampleMonster, sampleMonster, sampleMonster, sampleMonsterGrow];
       newState.encounterHand = [...newState.encounterDraw];
     })
     stateObj = shuffleDraw(stateObj);
@@ -157,30 +140,7 @@ async function startEncounter(stateObj) {
     return stateObj
   }
 
-  function shuffleDraw(stateObj) {
-    stateObj = immer.produce(stateObj, (newState) => {
-      console.log("sjuffling array inside an immer loop")
-      newState.encounterDraw = shuffleArray(newState.encounterDraw);
-    });
-    return stateObj;
-  }
-
-  function shuffleArray(array) {
-    return array
-      .map((value) => ({ value, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ value }) => value);
-  }
-
-
-
-//rendering and changing
-  async function renderScreen(stateObj) {
-    let newState = {...stateObj}
-    newState.status(stateObj)
-  }
-
-  async function changeState(newStateObj) {
+async function changeState(newStateObj) {
     let stateObj = {...newStateObj}
     
     if (stateObj.status === Status.inFight) {
@@ -189,9 +149,48 @@ async function startEncounter(stateObj) {
     
     state = {...stateObj}
     renderScreen(stateObj);
-    //renderDivs(state)
     return stateObj
 }
+
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+//                                                          Rendering Stuff
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+  async function renderScreen(stateObj) {
+    let newState = {...stateObj}
+    newState.status(stateObj)
+  }
+
+
 
 async function handleDeaths(stateObj) {
   //push indexes of dead monsters to an array
@@ -216,9 +215,9 @@ async function handleDeaths(stateObj) {
       });
     }
 
-    // if (stateObj.opponentMonster.length == 0) {
-    //   stateObj = resetAfterFight(stateObj)
-    // }
+    if (stateObj.enemyMonstersInPlay.length == 0) {
+      stateObj = renderWonFight(stateObj)
+    }
 
     // if (stateObj.playerMonster.currentHP <= 0) {
     //   stateObj = await changeStatus(stateObj, Status.DeathScreen) ;
@@ -226,6 +225,95 @@ async function handleDeaths(stateObj) {
   }
   return stateObj;
 };
+
+async function changeStatus(stateObj, newStatus, countsAsEventSkipForChangeStatus=false, skipGoldGift=50) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.status = newStatus;
+  })
+  await changeState(stateObj);
+  return stateObj;
+}
+
+function renderHand(stateObj) {
+  document.getElementById("handContainer2").innerHTML = "";
+  if (stateObj.encounterHand.length > 0) {
+    stateObj.encounterHand.forEach(function (cardObj, index) {
+      renderCard(stateObj, stateObj.encounterHand, index, "handContainer2", functionToAdd=false)
+    });
+  }
+}
+
+function renderPlayerMonstersInPlay(stateObj) {
+  document.getElementById("playerMonstersInPlay").innerHTML = "";
+  if (stateObj.playerMonstersInPlay.length > 0) {
+    console.log("rendering monsters in play")
+    stateObj.playerMonstersInPlay.forEach(function (cardObj, index) {
+      console.log('about to render' + stateObj.playerMonstersInPlay[index])
+      renderCard(stateObj, stateObj.playerMonstersInPlay, index, "playerMonstersInPlay", functionToAdd=false)
+    });
+  }
+}
+
+function renderEnemyMonstersInPlay(stateObj) {
+  document.getElementById("enemyMonstersInPlay").innerHTML = "";
+  if (stateObj.enemyMonstersInPlay.length > 0) {
+    stateObj.enemyMonstersInPlay.forEach(function (cardObj, index) {
+      renderCard(stateObj, stateObj.enemyMonstersInPlay, index, "enemyMonstersInPlay", functionToAdd=false)
+    });
+  }
+}
+
+async function renderDivs(stateObj) {
+  if (stateObj.fightStarted === false) {
+    console.log("triggering startEncounter")
+    stateObj = await startEncounter(stateObj);
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.fightStarted = true;
+    })
+    //await changeState(stateObj);
+    //stateObj = await drawAHand(stateObj);
+  }
+
+  document.getElementById("app").innerHTML = ""
+  //let topRow = topRowDiv(stateObj, "app")
+  let restOfScreen = renderFightDiv();
+  document.querySelector("#app").append(restOfScreen);
+  
+  
+  renderHand(stateObj);
+  renderPlayerMonstersInPlay(stateObj);
+  renderEnemyMonstersInPlay(stateObj);
+}
+
+function renderFightDiv() {
+  let fightContainer = document.createElement("Div");
+  fightContainer.classList.add("flex-container");
+  fightContainer.setAttribute("id", "battlefield");
+
+  let enemyMonstersDiv = document.createElement("Div");
+  enemyMonstersDiv.classList.add("flex-container");
+  enemyMonstersDiv.setAttribute("id", "enemyMonstersInPlay");
+
+  let playerMonstersDiv = document.createElement("Div");
+  playerMonstersDiv.classList.add("flex-container");
+  playerMonstersDiv.setAttribute("id", "playerMonstersInPlay");
+
+  let handDiv = document.createElement("Div");
+  handDiv.setAttribute("id", "handContainer2");
+
+  fightContainer.append(enemyMonstersDiv, playerMonstersDiv, handDiv);
+  return fightContainer;
+}
+
+async function renderLostFight(stateObj) {
+  document.getElementById("app").innerHTML = "<p>You lost the fight!</p> <button onClick=changeState(gameStartState)> Click me to retry</button>"
+  //let topRow = topRowDiv(stateObj, "app")
+}
+
+async function renderWonFight(stateObj) {
+  document.getElementById("app").innerHTML = "<p>You won the fight!</p> <button onClick=changeState(gameStartState)> Click me to retry</button>"
+  //let topRow = topRowDiv(stateObj, "app")
+}
 
 
 function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=false) {
@@ -320,6 +408,13 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
   function PlayACardImmer(stateObj, cardIndexInHand) {
     stateObj = immer.produce(stateObj, (newState) => {
       let playedCard = newState.encounterHand[cardIndexInHand]
+      for (let h = 0; h < newState.encounterHand.length; h++) {
+        if (newState.encounterHand[h].growProperty) {
+          newState.encounterHand[h].attack +=1;
+          newState.encounterHand[h].currentHP +=1;
+          newState.encounterHand[h].maxHP +=1;
+        }
+      }
       if (playedCard) {
           newState.encounterHand.splice(cardIndexInHand, 1);
         }
@@ -337,3 +432,51 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
   }
 
   
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+//                                                          Helper Stuff
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+
+function shuffleDraw(stateObj) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    console.log("sjuffling array inside an immer loop")
+    newState.encounterDraw = shuffleArray(newState.encounterDraw);
+  });
+  return stateObj;
+}
+
+function shuffleArray(array) {
+  return array
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
+}
