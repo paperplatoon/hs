@@ -7,14 +7,16 @@ let sampleMonster = {
   baseCost: 1,
   text: "does nothing",
   attack: 3,
-  defense: 4,
+  currentHP: 4,
+  maxHP: 4,
+  avatar: "img/fireMonster.png",
 
   minReq: (state, index, array) => {
     return array[index].baseCost;
   },
 
   text: (state, index, array) => { 
-    return `Do Nothing` 
+    return `Battlecry: Deal 2 damage to a random enemy` 
   },
 
   cost:  (state, index, array) => {
@@ -26,6 +28,10 @@ let sampleMonster = {
     //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
     stateObj = immer.produce(stateObj, (newState) => {
       newState.playerMonstersInPlay.push(sampleMonster)
+      if (newState.enemyMonstersInPlay.length > 0) {
+        let targetIndex = Math.floor(Math.random() * (stateObj.enemyMonstersInPlay.length));
+        newState.enemyMonstersInPlay[targetIndex].currentHP -=2;
+      }
     })
     return stateObj;
   }
@@ -177,7 +183,7 @@ async function startEncounter(stateObj) {
   async function changeState(newStateObj) {
     let stateObj = {...newStateObj}
     
-    if (stateObj.status === Status.InEncounter) {
+    if (stateObj.status === Status.inFight) {
       stateObj = await handleDeaths(stateObj);
     }
     
@@ -187,7 +193,40 @@ async function startEncounter(stateObj) {
     return stateObj
 }
 
-//renderCard(stateObj, stateObj.playerMonstersInPlay, index, "playerMonstersInPlay", functionToAdd=false)
+async function handleDeaths(stateObj) {
+  //push indexes of dead monsters to an array
+  if (stateObj.enemyMonstersInPlay.length > 0) {
+    let indexesToDelete = [];
+    stateObj.enemyMonstersInPlay.forEach(function (monster, index) {
+      if (monster.currentHP <= 0) {
+        console.log("opponent monster at index " + index + " has died.")
+        indexesToDelete.push(index);
+      }
+    });
+    //if a monster has died
+    if (indexesToDelete.length > 0) {
+      indexesToDelete.reverse()
+      //await opponentDeathAnimation(indexesToDelete)
+
+      stateObj = immer.produce(stateObj, (newState) => {
+        for (let i = 0; i < indexesToDelete.length; i++) {
+          console.log("deleting opponent at index " + i);
+          newState.enemyMonstersInPlay.splice(indexesToDelete[i], 1)
+        }
+      });
+    }
+
+    // if (stateObj.opponentMonster.length == 0) {
+    //   stateObj = resetAfterFight(stateObj)
+    // }
+
+    // if (stateObj.playerMonster.currentHP <= 0) {
+    //   stateObj = await changeStatus(stateObj, Status.DeathScreen) ;
+    // }
+  }
+  return stateObj;
+};
+
 
 function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=false) {
   console.log("rendering card " + index)
@@ -220,6 +259,7 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
           cardCost.classList.add("hand-card-cost");
           topCardRowDiv.append(cardCost);
           topCardRowDiv.append(cardName);
+          cardDiv.append(topCardRowDiv);
   
           
           let cardText = document.createElement("P");
@@ -229,9 +269,27 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
           } else {
             cardCost.textContent = cardObj.text;
           }
+
+          let avatar = document.createElement('img');
+          avatar.classList.add("avatar");
+          avatar.src = cardObj.avatar;
           
-          cardDiv.append(topCardRowDiv);
-          cardDiv.append(cardText);
+          
+          cardDiv.append(avatar, cardText);
+
+          let cardStatsDiv = document.createElement("Div");
+          cardStatsDiv.classList.add("card-stats-row")
+
+          let cardAttackDiv = document.createElement("Div");
+          cardAttackDiv.classList.add("attack")
+          cardAttackDiv.textContent = cardObj.attack;
+
+          let cardDefendDiv = document.createElement("Div");
+          cardDefendDiv.classList.add("defense")
+          cardDefendDiv.textContent = cardObj.currentHP;
+
+          cardStatsDiv.append(cardAttackDiv, cardDefendDiv)
+          cardDiv.append(cardStatsDiv);
   
           //if cardArray is the hand, add playable class to the cards if energy > card.minReq
           if (cardArray === stateObj.encounterHand) {
