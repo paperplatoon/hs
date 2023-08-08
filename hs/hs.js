@@ -116,7 +116,8 @@ let gameStartState = {
   encounterDraw: [],
   playerMonstersInPlay: [sampleMonster, sampleMonster],
   encounterHand: [sampleMonster, sampleMonster, sampleMonster, sampleMonsterGrow],
-  playerEnergy: 3,
+  playerCurrentEnergy: 1,
+  playerMaxEnergy: 1,
 
   currentEnemyHP: 0,
   enemyMonstersInPlay: [sampleMonster],
@@ -281,6 +282,13 @@ function renderPlayerMonstersInPlay(stateObj) {
       renderCard(stateObj, stateObj.playerMonstersInPlay, index, "playerMonstersInPlay", functionToAdd=false)
     });
   }
+  let endTurnButton = document.createElement("Button");
+  endTurnButton.classList.add("font5vmin")
+  endTurnButton.addEventListener("click", function() {
+    endTurn(stateObj)
+  })
+  endTurnButton.textContent = "End Turn";
+  document.querySelector("#playerMonstersInPlay").append(endTurnButton);
 }
 
 function renderEnemyMonstersInPlay(stateObj) {
@@ -423,7 +431,7 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
   
           //if cardArray is the hand, add playable class to the cards if energy > card.minReq
           if (cardArray === stateObj.encounterHand) {
-              if (cardObj.minReq(stateObj, index, stateObj.encounterHand) <= stateObj.playerEnergy) {
+              if (cardObj.minReq(stateObj, index, stateObj.encounterHand) <= stateObj.playerCurrentEnergy) {
                 cardDiv.classList.add("playable");
                 cardDiv.addEventListener("click", function () {
                   playACard(stateObj, index, stateObj.encounterHand);
@@ -554,4 +562,29 @@ function shuffleArray(array) {
     .map((value) => ({ value, sort: Math.random() }))
     .sort((a, b) => a.sort - b.sort)
     .map(({ value }) => value);
+}
+
+async function endTurn(stateObj) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.playerMonstersInPlay.forEach(function (monsterObj, index) {
+      monsterObj.canAttack = true;
+    })
+  });
+
+  stateObj = await endTurnIncrement(stateObj);
+  stateObj = await changeState(stateObj);
+
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.playerMaxEnergy += 1;
+    newState.playerCurrentEnergy = newState.playerMaxEnergy;
+  })
+  //stateObj = await drawAHand(stateObj);
+  await changeState(stateObj);
+}
+
+async function endTurnIncrement(stateObj) {
+  stateObj = immer.produce(stateObj, async (newState) => {
+
+  })
+  return stateObj;
 }
