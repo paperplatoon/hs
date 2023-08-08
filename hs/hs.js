@@ -299,7 +299,7 @@ function renderEnemyMonstersToChoose(stateObj) {
   let indexChosen = false;
   if (stateObj.enemyMonstersInPlay.length > 0) {
     stateObj.enemyMonstersInPlay.forEach(function (cardObj, index) {
-      renderCard(stateObj, stateObj.enemyMonstersInPlay, index, "enemyMonstersInPlay", isChoice=true, functionToAdd=false)
+      renderCard(stateObj, stateObj.enemyMonstersInPlay, index, "enemyMonstersInPlay", functionToAdd=false)
     });
   }
 }
@@ -369,7 +369,7 @@ async function renderWonFight(stateObj) {
 }
 
 
-function renderCard(stateObj, cardArray, index, divName=false, isChoice=false, functionToAdd=false) {
+function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=false) {
     let cardObj = cardArray[index];
     let cardDiv = document.createElement("Div");
           cardDiv.id = "card-index-"+index;
@@ -439,6 +439,10 @@ function renderCard(stateObj, cardArray, index, divName=false, isChoice=false, f
                 cardDiv.addEventListener("click", function () {
                   playerMonsterIsAttacking(stateObj, index, stateObj.playerMonstersInPlay);
                 });
+          }
+
+          if (cardArray === stateObj.playerMonstersInPlay && stateObj.playerToAttackIndex === index) {
+            cardDiv.classList.add("is-attacking");
           }
   
           if (functionToAdd) {
