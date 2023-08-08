@@ -6,6 +6,8 @@ let sampleMonster = {
   maxHP: 4,
   avatar: "img/fireMonster.png",
 
+  canAttack: true,
+
   minReq: (state, index, array) => {
     return array[index].baseCost;
   },
@@ -17,7 +19,7 @@ let sampleMonster = {
   cost:  (state, index, array) => {
     return array[index].baseCost;
   },
-
+  
   action: async (stateObj, index, array) => {
     //await cardAnimationDiscard(index);
     //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
@@ -40,6 +42,9 @@ let sampleMonsterGrow = {
   maxHP: 6,
   avatar: "img/flamingbaby.png",
 
+  growProperty: 1,
+  canAttack: false,
+
   minReq: (state, index, array) => {
     return array[index].baseCost;
   },
@@ -51,7 +56,7 @@ let sampleMonsterGrow = {
   cost:  (state, index, array) => {
     return array[index].baseCost;
   },
-  growProperty: 1,
+
 
   action: async (stateObj, index, array) => {
     //await cardAnimationDiscard(index);
@@ -136,23 +141,46 @@ async function startEncounter(stateObj) {
       newState.fightStarted = true;
       newState.encounterDraw = [sampleMonster, sampleMonster, sampleMonster, sampleMonsterGrow];
       newState.encounterHand = [...newState.encounterDraw];
-      newState.status = Status.chooseEnemyMonster
+      newState.status = Status.inFight
     })
     stateObj = shuffleDraw(stateObj);
     await changeState(stateObj);
     return stateObj
-  }
+}
 
 async function changeState(newStateObj) {
     let stateObj = {...newStateObj}
+    console.log("status is: " + stateObj.status)
+    console.log("changing state; attack index is " + stateObj.playerToAttackIndex)
+    console.log("changing state; to be attacked index is " + stateObj.enemyToBeAttackedIndex)
     
     if (stateObj.status === Status.inFight) {
+      console.log("in fight")
+      if (stateObj.playerToAttackIndex !== false) {
+        console.log("conditions triggered")
+        stateObj = await completeAttack(stateObj)
+      }
       stateObj = await handleDeaths(stateObj);
     }
     
     state = {...stateObj}
     renderScreen(stateObj);
     return stateObj
+}
+
+async function completeAttack(stateObj) {
+  console.log("completing attack")
+  stateObj = immer.produce(stateObj, (newState) => {
+    let AttackingMonster = newState.playerMonstersInPlay[newState.playerToAttackIndex]
+    let DefendingMonster = newState.enemyMonstersInPlay[newState.enemyToBeAttackedIndex]
+    DefendingMonster.currentHP -= AttackingMonster.attack
+    AttackingMonster.currentHP -= DefendingMonster.attack
+    AttackingMonster.canAttack = false
+    newState.playerToAttackIndex = false;
+    newState.enemyToBeAttackedIndex = false
+  })
+  await changeState(stateObj);
+  return stateObj
 }
 
 // -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
@@ -346,15 +374,6 @@ function renderCard(stateObj, cardArray, index, divName=false, isChoice=false, f
     let cardDiv = document.createElement("Div");
           cardDiv.id = "card-index-"+index;
           cardDiv.classList.add("card");
-        //   let nonClickableArrays = [stateObj.encounterHand, stateObj.encounterDraw];
-        //   if (nonClickableArrays.includes(cardArray)) {   
-        //   } else if (divName === "deckDiv") {
-        //     cardDiv.classList.add("card-pile-card")
-        //   } else {
-        //     cardDiv.classList.add("card-reward");
-        //     cardDiv.classList.add("playable");
-        //   }
-  
   
           let topCardRowDiv = document.createElement("Div");
           topCardRowDiv.classList.add("card-top-row")
@@ -410,13 +429,16 @@ function renderCard(stateObj, cardArray, index, divName=false, isChoice=false, f
                   playACard(stateObj, index, stateObj.encounterHand);
                 });
               };
-          }
-
-          if (isChoice === true) {
+          } else if (cardArray === stateObj.enemyMonstersInPlay && stateObj.playerToAttackIndex !== false) {
             cardDiv.classList.add("selectable");
             cardDiv.addEventListener("click", function () {
               selectThisEnemyIndex(stateObj, index, cardArray);
             });
+          } else if (cardArray === stateObj.playerMonstersInPlay && cardArray[index].canAttack === true) {
+            cardDiv.classList.add("can-attack");
+                cardDiv.addEventListener("click", function () {
+                  playerMonsterIsAttacking(stateObj, index, stateObj.playerMonstersInPlay);
+                });
           }
   
           if (functionToAdd) {
@@ -461,16 +483,25 @@ function renderCard(stateObj, cardArray, index, divName=false, isChoice=false, f
     return stateObj;
   }
 
-  async function selectThisEnemyIndex(stateObj, index, arrayObj) {
+async function selectThisEnemyIndex(stateObj, index, arrayObj) {
     console.log("you chose " + stateObj.enemyMonstersInPlay[index].name);  
     stateObj = immer.produce(stateObj, (newState) => {
       newState.enemyToBeAttackedIndex = index
     })
     stateObj = await changeStatus(stateObj, Status.inFight)
     //stateObj = await changeState(stateObj);
-  
     return stateObj;
-  }
+}
+
+async function playerMonsterIsAttacking(stateObj, index, arrayObj) {
+  console.log("you are attacking with" + arrayObj[index].name);  
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.playerToAttackIndex = index
+  })
+  stateObj = await changeStatus(stateObj, Status.chooseEnemyMonster)
+  //stateObj = await changeState(stateObj);
+  return stateObj;
+}
 
   
 // -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
