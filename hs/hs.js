@@ -1,9 +1,9 @@
-let sampleMonster = {
-  name: "sample",
+let simpleImp = {
+  name: "simple imp",
   baseCost: 1,
   attack: 1,
-  currentHP: 3,
-  maxHP: 4,
+  currentHP: 2,
+  maxHP: 2,
   avatar: "img/fireMonster.png",
 
   canAttack: true,
@@ -24,7 +24,51 @@ let sampleMonster = {
     //await cardAnimationDiscard(index);
     //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
     stateObj = immer.produce(stateObj, (newState) => {
-      newState.playerMonstersInPlay.push(sampleMonster)
+      newState.playerMonstersInPlay.push(simpleImp)
+      if (newState.enemyMonstersInPlay.length > 0) {
+        let targetIndex = Math.floor(Math.random() * (stateObj.enemyMonstersInPlay.length));
+        newState.enemyMonstersInPlay[targetIndex].currentHP -=1;
+      }
+      newState.playerCurrentEnergy -=array[index].baseCost;
+    })
+    return stateObj;
+  }
+}
+
+let simpleDeathrattleImp = {
+  name: "dying imp",
+  baseCost: 1,
+  attack: 1,
+  currentHP: 2,
+  maxHP: 2,
+  avatar: "img/fireMonster.png",
+
+  canAttack: true,
+
+  minReq: (state, index, array) => {
+    return array[index].baseCost;
+  },
+
+  text: (state, index, array) => { 
+    return `On Death: Deal 1 damage to a random enemy` 
+  },
+
+  cost:  (state, index, array) => {
+    return array[index].baseCost;
+  },
+  
+  action: async (stateObj, index, array) => {
+    //await cardAnimationDiscard(index);
+    //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.playerMonstersInPlay.push(simpleDeathrattleImp)
+      newState.playerCurrentEnergy -=array[index].baseCost;
+    })
+    return stateObj;
+  },
+  onDeath: async (stateObj, index, array) => {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.playerMonstersInPlay.push(simpleDeathrattleImp)
       if (newState.enemyMonstersInPlay.length > 0) {
         let targetIndex = Math.floor(Math.random() * (stateObj.enemyMonstersInPlay.length));
         newState.enemyMonstersInPlay[targetIndex].currentHP -=1;
@@ -34,7 +78,7 @@ let sampleMonster = {
   }
 }
 
-let sampleMonsterGrow = {
+let growingDjinn = {
   name: "Grow",
   baseCost: 2,
   attack: 5,
@@ -63,6 +107,45 @@ let sampleMonsterGrow = {
     //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
     stateObj = immer.produce(stateObj, (newState) => {
       newState.playerMonstersInPlay.push(array[index])
+      newState.playerCurrentEnergy -=array[index].baseCost;
+    })
+    return stateObj;
+  }
+}
+
+let highHealthImp = {
+  name: "high health",
+  baseCost: 1,
+  attack: 1,
+  currentHP: 7,
+  maxHP: 3,
+  avatar: "img/fireMonster.png",
+
+  canAttack: true,
+
+  minReq: (state, index, array) => {
+    return array[index].baseCost;
+  },
+
+  text: (state, index, array) => { 
+    return `Battlecry: Give a random friendly minion +1 attack`
+  },
+
+  cost:  (state, index, array) => {
+    return array[index].baseCost;
+  },
+  
+  action: async (stateObj, index, array) => {
+    //await cardAnimationDiscard(index);
+    //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.playerCurrentEnergy -=array[index].baseCost;
+      let arrayObj = (array === stateObj.playerMonstersInPlay || array === stateObj.encounterHand) ? newState.playerMonstersInPlay : newState.enemyMonstersInPlay
+      arrayObj.push(highHealthImp)
+      if (arrayObj.length > 0) {
+        let targetIndex = Math.floor(Math.random() * (arrayObj.length));
+        arrayObj[targetIndex].attack +=1;
+      }
     })
     return stateObj;
   }
@@ -114,14 +197,15 @@ const Status = {
 let gameStartState = {
   playerHP: 50,
   encounterDraw: [],
-  playerMonstersInPlay: [sampleMonster, sampleMonster],
-  encounterHand: [sampleMonster, sampleMonster, sampleMonster, sampleMonsterGrow],
+  playerMonstersInPlay: [],
+  encounterHand: [],
   playerCurrentEnergy: 1,
   playerMaxEnergy: 1,
 
-  currentEnemyHP: 0,
-  enemyMonstersInPlay: [sampleMonster],
+  currentEnemyHP: 50,
+  enemyMonstersInPlay: [highHealthImp],
   enemyEnergy: 1,
+  enemyMaxEnergy: 1,
 
   fightStarted: false,
   status: Status.inFight,
@@ -140,25 +224,23 @@ startEncounter(state)
 async function startEncounter(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
-      newState.encounterDraw = [sampleMonster, sampleMonster, sampleMonster, sampleMonsterGrow];
-      newState.encounterHand = [...newState.encounterDraw];
+      newState.encounterDraw = [simpleImp, simpleImp, highHealthImp, highHealthImp, growingDjinn, growingDjinn];
       newState.status = Status.inFight
     })
     stateObj = shuffleDraw(stateObj);
+    for (let h=0; h < 4; h++) {
+      stateObj = await drawACard(stateObj)
+    }
+
     await changeState(stateObj);
     return stateObj
 }
 
 async function changeState(newStateObj) {
     let stateObj = {...newStateObj}
-    console.log("status is: " + stateObj.status)
-    console.log("changing state; attack index is " + stateObj.playerToAttackIndex)
-    console.log("changing state; to be attacked index is " + stateObj.enemyToBeAttackedIndex)
     
     if (stateObj.status === Status.inFight) {
-      console.log("in fight")
       if (stateObj.playerToAttackIndex !== false) {
-        console.log("conditions triggered")
         stateObj = await completeAttack(stateObj)
       }
       stateObj = await handleDeaths(stateObj);
@@ -245,17 +327,41 @@ async function handleDeaths(stateObj) {
         }
       });
     }
+  }
 
-    if (stateObj.enemyMonstersInPlay.length == 0) {
+    if (stateObj.currentEnemyHP <= 0) {
       stateObj = renderWonFight(stateObj)
     }
 
-    // if (stateObj.playerMonster.currentHP <= 0) {
-    //   stateObj = await changeStatus(stateObj, Status.DeathScreen) ;
-    // }
-  }
+    if (stateObj.playerMonstersInPlay.length > 0) {
+      let indexesToDelete = [];
+      stateObj.playerMonstersInPlay.forEach(async function (monster, index) {
+        if (monster.currentHP <= 0) {
+          console.log("player monster at index " + index + " has died.")
+          indexesToDelete.push(index);
+          if (stateObj.playerMonstersInPlay[index].onDeath) {
+            stateObj = await stateObj.playerMonstersInPlay[index].onDeath(stateObj, index, stateObj.playerMonstersInPlay);
+          } 
+        }
+      });
+      //if a monster has died
+      if (indexesToDelete.length > 0) {
+        indexesToDelete.reverse()
+        //await opponentDeathAnimation(indexesToDelete)
+
+        for (let i = 0; i < indexesToDelete.length; i++) {  
+          stateObj = immer.produce(stateObj, (newState) => {
+              newState.playerMonstersInPlay.splice(indexesToDelete[i], 1)
+          });
+        }
+      }
+    }
+    if (stateObj.playerHP <= 0) {
+      stateObj = renderLostFight(stateObj)
+    }
+
   return stateObj;
-};
+}
 
 async function changeStatus(stateObj, newStatus, countsAsEventSkipForChangeStatus=false, skipGoldGift=50) {
   stateObj = immer.produce(stateObj, (newState) => {
@@ -277,7 +383,6 @@ function renderHand(stateObj) {
 function renderPlayerMonstersInPlay(stateObj) {
   document.getElementById("playerMonstersInPlay").innerHTML = "";
   if (stateObj.playerMonstersInPlay.length > 0) {
-    console.log("rendering monsters in play")
     stateObj.playerMonstersInPlay.forEach(function (cardObj, index) {
       renderCard(stateObj, stateObj.playerMonstersInPlay, index, "playerMonstersInPlay", functionToAdd=false)
     });
@@ -292,7 +397,6 @@ function renderPlayerMonstersInPlay(stateObj) {
 }
 
 function renderEnemyMonstersInPlay(stateObj) {
-  console.log("rendering enemy monsters in play")
   document.getElementById("enemyMonstersInPlay").innerHTML = "";
   if (stateObj.enemyMonstersInPlay.length > 0) {
     stateObj.enemyMonstersInPlay.forEach(function (cardObj, index) {
@@ -302,7 +406,6 @@ function renderEnemyMonstersInPlay(stateObj) {
 }
 
 function renderEnemyMonstersToChoose(stateObj) {
-  console.log("rendering enemy monsters to choose")
   document.getElementById("enemyMonstersInPlay").innerHTML = "";
   let indexChosen = false;
   if (stateObj.enemyMonstersInPlay.length > 0) {
@@ -314,19 +417,17 @@ function renderEnemyMonstersToChoose(stateObj) {
 
 async function renderDivs(stateObj) {
   if (stateObj.fightStarted === false) {
-    console.log("triggering startEncounter")
+    console.log("triggering startEncounter bc fightStarted is false")
     stateObj = await startEncounter(stateObj);
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
     })
-    //await changeState(stateObj);
-    //stateObj = await drawAHand(stateObj);
   }
 
   document.getElementById("app").innerHTML = ""
-  //let topRow = topRowDiv(stateObj, "app")
+  let topRow = topRowDiv(stateObj)
   let restOfScreen = renderFightDiv();
-  document.querySelector("#app").append(restOfScreen);
+  document.querySelector("#app").append(topRow, restOfScreen);
   
   
   renderHand(stateObj);
@@ -468,6 +569,24 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
           return cardDiv        
 }
 
+function topRowDiv(stateObj) {
+  let topRowDiv = document.createElement("Div");
+  topRowDiv.setAttribute("id", "town-top-row");
+
+  let playerEnergyDiv = document.createElement("Div");
+  playerEnergyDiv.setAttribute("id", "status-text-div");
+  playerEnergyDiv.textContent = `Player Energy: ` + stateObj.playerCurrentEnergy + `/` + stateObj.playerMaxEnergy 
+
+  let opponentEnergyDiv = document.createElement("Div");
+  opponentEnergyDiv.setAttribute("id", "status-text-div");
+  opponentEnergyDiv.textContent = `Enemy Energy: ` + stateObj.enemyEnergy + `/` + stateObj.enemyMaxEnergy 
+
+  topRowDiv.append(playerEnergyDiv, opponentEnergyDiv);
+
+
+  return topRowDiv
+}
+
 
   function PlayACardImmer(stateObj, cardIndexInHand) {
     stateObj = immer.produce(stateObj, (newState) => {
@@ -577,14 +696,55 @@ async function endTurn(stateObj) {
   stateObj = immer.produce(stateObj, (newState) => {
     newState.playerMaxEnergy += 1;
     newState.playerCurrentEnergy = newState.playerMaxEnergy;
+    newState.enemyMaxEnergy += 1
+    newState.enemyEnergy = newState.enemyMaxEnergy
   })
-  //stateObj = await drawAHand(stateObj);
+  stateObj = await drawACard(stateObj);
   await changeState(stateObj);
 }
 
 async function endTurnIncrement(stateObj) {
-  stateObj = immer.produce(stateObj, async (newState) => {
-
+  
+  stateObj.enemyMonstersInPlay.forEach(async function (monsterObj, index) {
+    if (stateObj.playerMonstersInPlay.length > 0) {
+      let playerTargetIndex = Math.floor(Math.random() * stateObj.playerMonstersInPlay.length)
+      stateObj = immer.produce(stateObj, async (newState) => {
+        newState.playerMonstersInPlay[playerTargetIndex].currentHP -= newState.enemyMonstersInPlay[index].attack
+        newState.enemyMonstersInPlay[index].currentHP -= newState.playerMonstersInPlay[playerTargetIndex].attack
+      })
+    } else {
+      stateObj = immer.produce(stateObj, async (newState) => {
+        newState.playerHP -= newState.enemyMonstersInPlay[index].attack
+      })
+    }
   })
+  
+  return stateObj;
+}
+
+async function pause(timeValue) {
+  return new Promise(res => setTimeout(res, timeValue))
+}
+
+async function drawACard(stateObj) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    if (stateObj.encounterHand.length > 6 ) {
+      console.log("hand is full");
+      return newState;
+    }
+
+    // if deck is empty, shuffle discard and change newState to reflect that
+    if (newState.encounterDraw.length === 0) {
+      console.log("you're out of cards!")
+    }
+
+    topCard = newState.encounterDraw.shift();
+    if (!topCard) {
+      return newState;
+    }
+    newState.encounterHand.push(topCard);
+  })
+
+
   return stateObj;
 }

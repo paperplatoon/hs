@@ -860,3 +860,14 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   top: 35vh;
 }
 
+.opponent-windup {
+  animation: opponentWindup 0.5s forwards ;
+}
+
+@keyframes opponentWindup {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(200px); }
+  50% { transform: translateX(-200px); }
+  75% { transform: translateX(-100px); }
+  100% { transform: translateX(0); }
+}
