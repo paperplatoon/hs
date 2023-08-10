@@ -39,8 +39,8 @@ let simpleDeathrattleImp = {
   name: "dying imp",
   baseCost: 1,
   attack: 1,
-  currentHP: 2,
-  maxHP: 2,
+  currentHP: 1,
+  maxHP: 1,
   avatar: "img/fireMonster.png",
 
   canAttack: true,
@@ -68,11 +68,56 @@ let simpleDeathrattleImp = {
   },
   onDeath: async (stateObj, index, array) => {
     stateObj = immer.produce(stateObj, (newState) => {
-      newState.playerMonstersInPlay.push(simpleDeathrattleImp)
       if (newState.enemyMonstersInPlay.length > 0) {
         let targetIndex = Math.floor(Math.random() * (stateObj.enemyMonstersInPlay.length));
         newState.enemyMonstersInPlay[targetIndex].currentHP -=1;
       }
+    })
+    return stateObj;
+  }
+}
+
+let scalingDeathrattleImp = {
+  name: "scaling imp",
+  baseCost: 1,
+  attack: 1,
+  currentHP: 1,
+  maxHP: 1,
+  deathCounter: 0,
+  avatar: "img/fireMonster.png",
+
+  canAttack: true,
+
+  minReq: (state, index, array) => {
+    return array[index].baseCost;
+  },
+
+  text: (state, index, array) => { 
+    return `On Death: Summon a ${2+array[index].deathCounter}/${2+array[index].deathCounter} copy of this minion`  
+  },
+
+  cost:  (state, index, array) => {
+    return array[index].baseCost;
+  },
+  
+  action: async (stateObj, index, array) => {
+    //await cardAnimationDiscard(index);
+    //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.playerMonstersInPlay.push(scalingDeathrattleImp)
+      newState.playerCurrentEnergy -=array[index].baseCost;
+    })
+    return stateObj;
+  },
+  onDeath: async (stateObj, index, array) => {
+    let newDeathrattleImp = {...array[index]};
+    newDeathrattleImp.deathCounter += 1
+    newDeathrattleImp.attack = 1 + newDeathrattleImp.deathCounter
+    newDeathrattleImp.currentHP = 1 + newDeathrattleImp.deathCounter
+    newDeathrattleImp.maxHP = 1 + newDeathrattleImp.deathCounter
+    
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.playerMonstersInPlay.push(newDeathrattleImp)
     })
     return stateObj;
   }
@@ -151,6 +196,40 @@ let highHealthImp = {
   }
 }
 
+let destroyer = {
+  name: "high health",
+  baseCost: 7,
+  attack: 5,
+  currentHP: 12,
+  maxHP: 12,
+  avatar: "img/fireMonster.png",
+
+  canAttack: true,
+
+  minReq: (state, index, array) => {
+    return array[index].baseCost;
+  },
+
+  text: (state, index, array) => { 
+    return `Battlecry: Give a random friendly minion +1 attack`
+  },
+
+  cost:  (state, index, array) => {
+    return array[index].baseCost;
+  },
+  
+  action: async (stateObj, index, array) => {
+    //await cardAnimationDiscard(index);
+    //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.playerCurrentEnergy -=array[index].baseCost;
+      let arrayObj = (array === stateObj.playerMonstersInPlay || array === stateObj.encounterHand) ? newState.playerMonstersInPlay : newState.enemyMonstersInPlay
+      arrayObj.push(destroyer)
+    })
+    return stateObj;
+  }
+}
+
 
 
 // -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
@@ -203,7 +282,7 @@ let gameStartState = {
   playerMaxEnergy: 1,
 
   currentEnemyHP: 50,
-  enemyMonstersInPlay: [highHealthImp],
+  enemyMonstersInPlay: [destroyer],
   enemyEnergy: 1,
   enemyMaxEnergy: 1,
 
@@ -224,7 +303,8 @@ startEncounter(state)
 async function startEncounter(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
-      newState.encounterDraw = [simpleImp, simpleImp, highHealthImp, highHealthImp, growingDjinn, growingDjinn];
+      //newState.encounterDraw = [simpleImp, simpleImp, highHealthImp, highHealthImp, growingDjinn, growingDjinn];
+      newState.encounterDraw = [simpleImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp];
       newState.status = Status.inFight
     })
     stateObj = shuffleDraw(stateObj);
@@ -245,7 +325,6 @@ async function changeState(newStateObj) {
       }
       stateObj = await handleDeaths(stateObj);
     }
-    
     state = {...stateObj}
     renderScreen(stateObj);
     return stateObj
@@ -339,8 +418,9 @@ async function handleDeaths(stateObj) {
         if (monster.currentHP <= 0) {
           console.log("player monster at index " + index + " has died.")
           indexesToDelete.push(index);
-          if (stateObj.playerMonstersInPlay[index].onDeath) {
-            stateObj = await stateObj.playerMonstersInPlay[index].onDeath(stateObj, index, stateObj.playerMonstersInPlay);
+          if (typeof(stateObj.playerMonstersInPlay[index].onDeath) === "function") {
+            
+            
           } 
         }
       });
@@ -350,9 +430,12 @@ async function handleDeaths(stateObj) {
         //await opponentDeathAnimation(indexesToDelete)
 
         for (let i = 0; i < indexesToDelete.length; i++) {  
-          stateObj = immer.produce(stateObj, (newState) => {
+          stateObj = await stateObj.playerMonstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], stateObj.playerMonstersInPlay);
+          stateObj = await immer.produce(stateObj, async (newState) => {
+              console.log("splicing " + newState.playerMonstersInPlay.length)
               newState.playerMonstersInPlay.splice(indexesToDelete[i], 1)
           });
+          console.log("player monsters length " + stateObj.playerMonstersInPlay.length)
         }
       }
     }
