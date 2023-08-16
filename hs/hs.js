@@ -102,15 +102,29 @@ async function changeState(newStateObj) {
 
 async function completeAttack(stateObj) {
   console.log("completing attack")
-  stateObj = immer.produce(stateObj, (newState) => {
-    let AttackingMonster = newState.playerMonstersInPlay[newState.playerToAttackIndex]
-    let DefendingMonster = newState.enemyMonstersInPlay[newState.enemyToBeAttackedIndex]
-    DefendingMonster.currentHP -= AttackingMonster.attack
-    AttackingMonster.currentHP -= DefendingMonster.attack
-    AttackingMonster.canAttack = false
-    newState.playerToAttackIndex = false;
-    newState.enemyToBeAttackedIndex = false
-  })
+  // document.querySelectorAll("#enemyMonstersInPlay .avatar")[0].classList.add("opponent-windup")
+  // pause(500)
+  if (stateObj.enemyToBeAttackedIndex === 99) {
+    console.log("attacking enemy health")
+    stateObj = immer.produce(stateObj, (newState) => {
+      let AttackingMonster = newState.playerMonstersInPlay[newState.playerToAttackIndex]
+      newState.currentEnemyHP -= AttackingMonster.attack
+      AttackingMonster.canAttack = false
+      newState.playerToAttackIndex = false;
+      newState.enemyToBeAttackedIndex = false
+    })
+  } else {
+    stateObj = immer.produce(stateObj, (newState) => {
+      console.log("attacking enemy monster at " + stateObj.enemyToBeAttackedIndex)
+      let AttackingMonster = newState.playerMonstersInPlay[newState.playerToAttackIndex]
+      let DefendingMonster = newState.enemyMonstersInPlay[newState.enemyToBeAttackedIndex]
+      DefendingMonster.currentHP -= AttackingMonster.attack
+      AttackingMonster.currentHP -= DefendingMonster.attack
+      AttackingMonster.canAttack = false
+      newState.playerToAttackIndex = false;
+      newState.enemyToBeAttackedIndex = false
+    })
+  }
   await changeState(stateObj);
   return stateObj
 }
@@ -259,7 +273,6 @@ function renderEnemyMonstersInPlay(stateObj) {
 
 function renderEnemyMonstersToChoose(stateObj) {
   document.getElementById("enemyMonstersInPlay").innerHTML = "";
-  let indexChosen = false;
   if (stateObj.enemyMonstersInPlay.length > 0) {
     stateObj.enemyMonstersInPlay.forEach(function (cardObj, index) {
       renderCard(stateObj, stateObj.enemyMonstersInPlay, index, "enemyMonstersInPlay", functionToAdd=false)
@@ -288,15 +301,16 @@ async function renderDivs(stateObj) {
 }
 
 async function renderChooseEnemy(stateObj) {
+  let topRow = topRowDiv(stateObj)
   document.getElementById("app").innerHTML = ""
   //let topRow = topRowDiv(stateObj, "app")
   let restOfScreen = renderFightDiv();
-  document.querySelector("#app").append(restOfScreen);
+  document.querySelector("#app").append(topRow, restOfScreen);
   
   
   renderHand(stateObj);
   renderPlayerMonstersInPlay(stateObj);
-  renderEnemyMonstersToChoose(stateObj);
+  renderEnemyMonstersInPlay(stateObj);
 }
 
 function renderFightDiv() {
@@ -393,7 +407,7 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
           } else if (cardArray === stateObj.enemyMonstersInPlay && stateObj.playerToAttackIndex !== false) {
             cardDiv.classList.add("selectable");
             cardDiv.addEventListener("click", function () {
-              selectThisEnemyIndex(stateObj, index, cardArray);
+              selectThisEnemyIndex(stateObj, index);
             });
           } else if (cardArray === stateObj.playerMonstersInPlay && cardArray[index].canAttack === true) {
             cardDiv.classList.add("can-attack");
@@ -423,7 +437,7 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
 
 function topRowDiv(stateObj) {
   let topRowDiv = document.createElement("Div");
-  topRowDiv.setAttribute("id", "town-top-row");
+  topRowDiv.setAttribute("id", "top-row");
 
   let playerEnergyDiv = document.createElement("Div");
   playerEnergyDiv.setAttribute("id", "status-text-div");
@@ -433,7 +447,23 @@ function topRowDiv(stateObj) {
   opponentEnergyDiv.setAttribute("id", "status-text-div");
   opponentEnergyDiv.textContent = `Enemy Energy: ` + stateObj.enemyEnergy + `/` + stateObj.enemyMaxEnergy 
 
-  topRowDiv.append(playerEnergyDiv, opponentEnergyDiv);
+  let opponentHealthDiv = document.createElement("Div");
+  opponentHealthDiv.setAttribute("id", "opponent-health-div");
+  opponentHealthDiv.textContent = `Enemy HP: ` + stateObj.currentEnemyHP
+
+  if ( stateObj.playerToAttackIndex !== false) {
+    console.log("making enemy HP selectable")
+    opponentHealthDiv.classList.add("selectable");
+    opponentHealthDiv.addEventListener("click", function () {
+      selectThisEnemyIndex(stateObj, 99);
+    });
+  }
+  
+  let playerHealthDiv = document.createElement("Div");
+  playerHealthDiv.setAttribute("id", "player-health-div");
+  playerHealthDiv.textContent = `Enemy HP: ` + stateObj.playerHP
+
+  topRowDiv.append(playerEnergyDiv, playerHealthDiv, opponentEnergyDiv, opponentHealthDiv);
 
 
   return topRowDiv
@@ -466,8 +496,7 @@ function topRowDiv(stateObj) {
     return stateObj;
   }
 
-async function selectThisEnemyIndex(stateObj, index, arrayObj) {
-    console.log("you chose " + stateObj.enemyMonstersInPlay[index].name);  
+async function selectThisEnemyIndex(stateObj, index) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.enemyToBeAttackedIndex = index
     })
