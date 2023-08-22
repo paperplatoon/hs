@@ -24,12 +24,12 @@ let simpleImp = {
       //await cardAnimationDiscard(index);
       //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.playerMonstersInPlay.push(simpleImp)
-        if (newState.enemyMonstersInPlay.length > 0) {
-          let targetIndex = Math.floor(Math.random() * (stateObj.enemyMonstersInPlay.length));
-          newState.enemyMonstersInPlay[targetIndex].currentHP -=1;
+        newState.player.monstersInPlay.push(simpleImp)
+        if (newState.opponent.monstersInPlay.length > 0) {
+          let targetIndex = Math.floor(Math.random() * (stateObj.opponent.monstersInPlay.length));
+          newState.opponent.monstersInPlay[targetIndex].currentHP -=1;
         }
-        newState.playerCurrentEnergy -=array[index].baseCost;
+        newState.player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
     }
@@ -63,16 +63,16 @@ let simpleImp = {
       //await cardAnimationDiscard(index);
       //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.playerMonstersInPlay.push(simpleDeathrattleImp)
-        newState.playerCurrentEnergy -=array[index].baseCost;
+        newState.player.monstersInPlay.push(simpleDeathrattleImp)
+        newState.player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
     },
     onDeath: async (stateObj, index, array) => {
       stateObj = immer.produce(stateObj, (newState) => {
-        if (newState.enemyMonstersInPlay.length > 0) {
-          let targetIndex = Math.floor(Math.random() * (stateObj.enemyMonstersInPlay.length));
-          newState.enemyMonstersInPlay[targetIndex].currentHP -=1;
+        if (newState.opponent.monstersInPlay.length > 0) {
+          let targetIndex = Math.floor(Math.random() * (stateObj.opponent.monstersInPlay.length));
+          newState.opponent.monstersInPlay[targetIndex].currentHP -=1;
         }
       })
       return stateObj;
@@ -106,8 +106,8 @@ let simpleImp = {
       //await cardAnimationDiscard(index);
       //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.playerMonstersInPlay.push(scalingDeathrattleImp)
-        newState.playerCurrentEnergy -=array[index].baseCost;
+        newState.player.monstersInPlay.push(scalingDeathrattleImp)
+        newState.player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
     },
@@ -119,7 +119,7 @@ let simpleImp = {
       newDeathrattleImp.maxHP = 1 + newDeathrattleImp.deathCounter
       
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.playerMonstersInPlay.push(newDeathrattleImp)
+        newState.player.monstersInPlay.push(newDeathrattleImp)
       })
       return stateObj;
     }
@@ -153,8 +153,8 @@ let simpleImp = {
       //await cardAnimationDiscard(index);
       //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.playerMonstersInPlay.push(array[index])
-        newState.playerCurrentEnergy -=array[index].baseCost;
+        newState.player.monstersInPlay.push(array[index])
+        newState.player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
     }
@@ -186,8 +186,8 @@ let simpleImp = {
       //await cardAnimationDiscard(index);
       //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.playerCurrentEnergy -=array[index].baseCost;
-        let arrayObj = (array === stateObj.playerMonstersInPlay || array === stateObj.encounterHand) ? newState.playerMonstersInPlay : newState.enemyMonstersInPlay
+        newState.player.currentEnergy -=array[index].baseCost;
+        let arrayObj = (array === stateObj.player.monstersInPlay || array === stateObj.player.encounterHand) ? newState.player.monstersInPlay : newState.opponent.monstersInPlay
         arrayObj.push(highHealthImp)
         if (arrayObj.length > 0) {
           let targetIndex = Math.floor(Math.random() * (arrayObj.length));
@@ -224,8 +224,8 @@ let simpleImp = {
       //await cardAnimationDiscard(index);
       //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.playerCurrentEnergy -=array[index].baseCost;
-        let arrayObj = (array === stateObj.playerMonstersInPlay || array === stateObj.encounterHand) ? newState.playerMonstersInPlay : newState.enemyMonstersInPlay
+        newState.player.currentEnergy -=array[index].baseCost;
+        let arrayObj = (array === stateObj.player.monstersInPlay || array === stateObj.player.encounterHand) ? newState.player.monstersInPlay : newState.opponent.monstersInPlay
         arrayObj.push(destroyer)
       })
       return stateObj;
