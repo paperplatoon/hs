@@ -122,13 +122,12 @@ async function changeState(newStateObj) {
 }
 
 async function completeAttack(stateObj) {
-  console.log("completing attack")
   // document.querySelectorAll("#enemyMonstersInPlay .avatar")[0].classList.add("opponent-windup")
   // pause(500)
   if (stateObj.enemyToBeAttackedIndex === 99) {
-    console.log("attacking enemy health")
     stateObj = immer.produce(stateObj, (newState) => {
       let AttackingMonster = newState.player.monstersInPlay[newState.playerToAttackIndex]
+      console.log(AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to the opponent")
       newState.currentEnemyHP -= AttackingMonster.attack
       AttackingMonster.canAttack = false
       newState.playerToAttackIndex = false;
@@ -136,9 +135,9 @@ async function completeAttack(stateObj) {
     })
   } else {
     stateObj = immer.produce(stateObj, (newState) => {
-      console.log("attacking enemy monster at " + stateObj.enemyToBeAttackedIndex)
       let AttackingMonster = newState.player.monstersInPlay[newState.playerToAttackIndex]
       let DefendingMonster = newState.opponent.monstersInPlay[newState.enemyToBeAttackedIndex]
+      console.log(AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to " + DefendingMonster.name + " and took " + DefendingMonster.attack + "damage")
       DefendingMonster.currentHP -= AttackingMonster.attack
       AttackingMonster.currentHP -= DefendingMonster.attack
       AttackingMonster.canAttack = false
@@ -196,7 +195,7 @@ async function handleDeaths(stateObj) {
     let indexesToDelete = [];
     stateObj.opponent.monstersInPlay.forEach(function (monster, index) {
       if (monster.currentHP <= 0) {
-        console.log("opponent monster at index " + index + " has died.")
+        console.log("Enemy's " + monster.name + " has died.")
         indexesToDelete.push(index);
       }
     });
@@ -221,7 +220,7 @@ async function handleDeaths(stateObj) {
       let indexesToDelete = [];
       stateObj.player.monstersInPlay.forEach(async function (monster, index) {
         if (monster.currentHP <= 0) {
-          console.log("player monster at index " + index + " has died.")
+          console.log("Player's " + monster.name + " has died.")
           indexesToDelete.push(index);
           
           } 
@@ -236,10 +235,8 @@ async function handleDeaths(stateObj) {
             stateObj = await stateObj.player.monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], stateObj.player.monstersInPlay);
           }
           stateObj = await immer.produce(stateObj, async (newState) => {
-              console.log("splicing " + newState.player.monstersInPlay.length)
               newState.player.monstersInPlay.splice(indexesToDelete[i], 1)
           });
-          console.log("player monsters length " + stateObj.player.monstersInPlay.length)
         }
       }
     }
@@ -473,7 +470,6 @@ function topRowDiv(stateObj) {
   opponentHealthDiv.textContent = `Enemy HP: ` + stateObj.currentEnemyHP
 
   if ( stateObj.playerToAttackIndex !== false) {
-    console.log("making enemy HP selectable")
     opponentHealthDiv.classList.add("selectable");
     opponentHealthDiv.addEventListener("click", function () {
       selectThisEnemyIndex(stateObj, 99);
@@ -527,7 +523,6 @@ async function selectThisEnemyIndex(stateObj, index) {
 }
 
 async function playerMonsterIsAttacking(stateObj, index, arrayObj) {
-  console.log("you are attacking with" + arrayObj[index].name);  
   stateObj = immer.produce(stateObj, (newState) => {
     newState.playerToAttackIndex = index
   })
@@ -611,20 +606,28 @@ async function endTurn(stateObj) {
 //if the first minions kill player monsters, do the last minions attack HP?
 async function endTurnIncrement(stateObj) {
   for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
-    if (stateObj.player.monstersInPlay.length > 0) {
-      let playerTargetIndex = Math.floor(Math.random() * stateObj.player.monstersInPlay.length)
-      console.log(stateObj.opponent.monstersInPlay[i].name + " deals " + stateObj.opponent.monstersInPlay[i].attack + " damage to " + stateObj.player.monstersInPlay[playerTargetIndex].name)
-      stateObj = await immer.produce(stateObj, async (newState) => {
-        newState.player.monstersInPlay[playerTargetIndex].currentHP -= newState.opponent.monstersInPlay[i].attack
-        newState.opponent.monstersInPlay[i].currentHP -= newState.player.monstersInPlay[playerTargetIndex].attack
-      })
-    } else {
-      stateObj = await immer.produce(stateObj, async (newState) => {
-        console.log(stateObj.opponent.monstersInPlay[i].name + " deals " + stateObj.opponent.monstersInPlay[i].attack + " damage to you.")
-        newState.player.currentHP -= newState.opponent.monstersInPlay[i].attack
-      })
-      stateObj = await changeState(stateObj)
-    }
+    if (stateObj.opponent.monstersInPlay[i].canAttack === true) {
+      if (stateObj.player.monstersInPlay.length > 0) {
+        let playerTargetIndex = Math.floor(Math.random() * stateObj.player.monstersInPlay.length)
+        console.log(stateObj.opponent.monstersInPlay[i].name + " deals " + stateObj.opponent.monstersInPlay[i].attack + " damage to " + stateObj.player.monstersInPlay[playerTargetIndex].name)
+        stateObj = await immer.produce(stateObj, async (newState) => {
+          newState.player.monstersInPlay[playerTargetIndex].currentHP -= newState.opponent.monstersInPlay[i].attack
+          newState.opponent.monstersInPlay[i].currentHP -= newState.player.monstersInPlay[playerTargetIndex].attack
+        })
+      } else {
+        stateObj = await immer.produce(stateObj, async (newState) => {
+          console.log(stateObj.opponent.monstersInPlay[i].name + " deals " + stateObj.opponent.monstersInPlay[i].attack + " damage to you.")
+          newState.player.currentHP -= newState.opponent.monstersInPlay[i].attack
+        })
+        stateObj = await changeState(stateObj)
+      }
+    } 
+  }
+
+  for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
+    stateObj = await immer.produce(stateObj, async (newState) => {
+      newState.opponent.monstersInPlay[i].canAttack = true
+    })
   }
   
   return stateObj;
@@ -634,7 +637,6 @@ async function endTurnIncrement(stateObj) {
 async function enemyTurn(stateObj) {
   
   let currentEnergy = stateObj.opponent.currentEnergy;
-  console.log("triggering enemy turn")
 
   if (currentEnergy > 0) {
     let indexesToDelete = []
@@ -668,7 +670,7 @@ async function pause(timeValue) {
 async function drawACard(stateObj, playerDrawing) {
   if (playerDrawing.encounterHand.length > 6 ) {
     console.log("player's hand is full");
-    return newState;
+    return stateObj;
   }
 
   if (playerDrawing.encounterDraw.length === 0) {
@@ -676,7 +678,6 @@ async function drawACard(stateObj, playerDrawing) {
   }
 
   stateObj = immer.produce(stateObj, (newState) => {
-    // if deck is empty, shuffle discard and change newState to reflect that
     let chosenPlayer = (playerDrawing = stateObj.player) ? newState.player : newState.opponent
     topCard = chosenPlayer.encounterDraw.shift();
     if (!topCard) {

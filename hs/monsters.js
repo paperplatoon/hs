@@ -1,3 +1,5 @@
+//high health not always giving to simple imp 
+
 let simpleImp = {
     name: "simple imp",
     baseCost: 1,
@@ -6,7 +8,7 @@ let simpleImp = {
     maxHP: 2,
     avatar: "img/fireMonster.png",
   
-    canAttack: true,
+    canAttack: false,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
@@ -45,7 +47,7 @@ let simpleImp = {
     maxHP: 1,
     avatar: "img/fireMonster.png",
   
-    canAttack: true,
+    canAttack: false,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
@@ -88,7 +90,7 @@ let simpleImp = {
     deathCounter: 0,
     avatar: "img/fireMonster.png",
   
-    canAttack: true,
+    canAttack: false,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
@@ -168,7 +170,7 @@ let simpleImp = {
     maxHP: 3,
     avatar: "img/fireMonster.png",
   
-    canAttack: true,
+    canAttack: false,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
@@ -188,11 +190,11 @@ let simpleImp = {
       stateObj = immer.produce(stateObj, (newState) => {
         newState.player.currentEnergy -=array[index].baseCost;
         let arrayObj = (array === stateObj.player.monstersInPlay || array === stateObj.player.encounterHand) ? newState.player.monstersInPlay : newState.opponent.monstersInPlay
-        arrayObj.push(highHealthImp)
         if (arrayObj.length > 0) {
-          let targetIndex = Math.floor(Math.random() * (arrayObj.length));
-          arrayObj[targetIndex].attack +=1;
+            let targetIndex = Math.floor(Math.random() * (arrayObj.length));
+            arrayObj[targetIndex].attack +=1;
         }
+        arrayObj.push(highHealthImp)
       })
       return stateObj;
     }
@@ -206,7 +208,7 @@ let simpleImp = {
     maxHP: 12,
     avatar: "img/fireMonster.png",
   
-    canAttack: true,
+    canAttack: false,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
