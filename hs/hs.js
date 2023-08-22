@@ -46,8 +46,8 @@ const Status = {
 let gameStartState = {
 
   player: {
-    currentHP: 10,
-    maxHP: 10,
+    currentHP: 30,
+    maxHP: 30,
 
     currentEnergy: 1,
     maxEnergy: 1,
@@ -67,13 +67,13 @@ let gameStartState = {
 
     encounterDraw: [],
     monstersInPlay: [destroyer],
-    encounterHand: [],
+    encounterHand: [simpleImp, simpleDeathrattleImp, simpleDeathrattleImp],
     
   },
   
 
   currentEnemyHP: 50,
-  enemyMonstersInPlay: [destroyer],
+  enemyMonstersInPlay: [simpleImp],
   enemyEnergy: 1,
   enemyMaxEnergy: 1,
 
@@ -482,7 +482,7 @@ function topRowDiv(stateObj) {
   
   let playerHealthDiv = document.createElement("Div");
   playerHealthDiv.setAttribute("id", "player-health-div");
-  playerHealthDiv.textContent = `Enemy HP: ` + stateObj.player.currentHP
+  playerHealthDiv.textContent = `player HP: ` + stateObj.player.currentHP
 
   topRowDiv.append(playerEnergyDiv, playerHealthDiv, opponentEnergyDiv, opponentHealthDiv);
 
@@ -594,6 +594,8 @@ async function endTurn(stateObj) {
 
   stateObj = await endTurnIncrement(stateObj);
   stateObj = await changeState(stateObj);
+  stateObj = await enemyTurn(stateObj);
+  stateObj = await changeState(stateObj);
 
   stateObj = immer.produce(stateObj, (newState) => {
     newState.player.maxEnergy += 1;
@@ -606,20 +608,55 @@ async function endTurn(stateObj) {
 }
 
 async function endTurnIncrement(stateObj) {
-  
-  stateObj.opponent.monstersInPlay.forEach(async function (monsterObj, index) {
+  console.log("triggering end turn increment")
+  for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
     if (stateObj.player.monstersInPlay.length > 0) {
+      console.log("player monsters in play - dealing " + stateObj.opponent.monstersInPlay[i].attack + " damage")
       let playerTargetIndex = Math.floor(Math.random() * stateObj.player.monstersInPlay.length)
-      stateObj = immer.produce(stateObj, async (newState) => {
-        newState.player.monstersInPlay[playerTargetIndex].currentHP -= newState.opponent.monstersInPlay[index].attack
-        newState.opponent.monstersInPlay[index].currentHP -= newState.player.monstersInPlay[playerTargetIndex].attack
+      stateObj = await immer.produce(stateObj, async (newState) => {
+        newState.player.monstersInPlay[playerTargetIndex].currentHP -= newState.opponent.monstersInPlay[i].attack
+        newState.opponent.monstersInPlay[i].currentHP -= newState.player.monstersInPlay[playerTargetIndex].attack
       })
     } else {
-      stateObj = immer.produce(stateObj, async (newState) => {
-        newState.player.currentHP -= newState.opponent.monstersInPlay[index].attack
+      stateObj = await immer.produce(stateObj, async (newState) => {
+        console.log("no player monsters in play - dealing " + stateObj.opponent.monstersInPlay[i].attack + " damage")
+        newState.player.currentHP -= newState.opponent.monstersInPlay[i].attack
+        console.log("playerHP " + newState.player.currentHP)
       })
+      stateObj = await changeState(stateObj)
     }
-  })
+  }
+  
+  return stateObj;
+}
+
+//in forEach, when a card is spliced, that makes the foreach loop 3 times, but now only 2 cards....
+async function enemyTurn(stateObj) {
+  
+  let currentEnergy = stateObj.opponent.currentEnergy;
+  console.log("triggering enemy turn")
+
+  if (currentEnergy > 0) {
+    let indexesToDelete = []
+    stateObj.opponent.encounterHand.forEach(async function(cardObj, index) {
+      if (cardObj.cost(stateObj, index, stateObj.opponent.encounterHand) <= currentEnergy) {
+        currentEnergy -= cardObj.cost(stateObj, index, stateObj.opponent.encounterHand);
+        stateObj = immer.produce(stateObj, (newState) => {
+          newState.opponent.currentEnergy -= cardObj.cost(stateObj, index, stateObj.opponent.encounterHand)
+          newState.opponent.monstersInPlay.push(cardObj)
+          indexesToDelete.push(index)
+          //newState.opponent.encounterHand.splice(index, 1)
+        })
+      }
+    })
+    indexesToDelete.reverse()
+    for (let i = 0; i < indexesToDelete.length; i++) {
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState.opponent.encounterHand.splice(indexesToDelete[i], 1)
+      })
+     
+    }
+  }
   
   return stateObj;
 }
