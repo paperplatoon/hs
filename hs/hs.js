@@ -95,7 +95,7 @@ async function startEncounter(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
       //newState.encounterDraw = [simpleImp, simpleImp, highHealthImp, highHealthImp, growingDjinn, growingDjinn];
-      newState.player.encounterDraw = [simpleImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp];
+      newState.player.encounterDraw = [simpleImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp, simpleImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp];
       newState.status = Status.inFight
     })
     stateObj = shuffleDraw(stateObj);
@@ -607,21 +607,21 @@ async function endTurn(stateObj) {
   await changeState(stateObj);
 }
 
+//do enemy minions die?
+//if the first minions kill player monsters, do the last minions attack HP?
 async function endTurnIncrement(stateObj) {
-  console.log("triggering end turn increment")
   for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
     if (stateObj.player.monstersInPlay.length > 0) {
-      console.log("player monsters in play - dealing " + stateObj.opponent.monstersInPlay[i].attack + " damage")
       let playerTargetIndex = Math.floor(Math.random() * stateObj.player.monstersInPlay.length)
+      console.log(stateObj.opponent.monstersInPlay[i].name + " deals " + stateObj.opponent.monstersInPlay[i].attack + " damage to " + stateObj.player.monstersInPlay[playerTargetIndex].name)
       stateObj = await immer.produce(stateObj, async (newState) => {
         newState.player.monstersInPlay[playerTargetIndex].currentHP -= newState.opponent.monstersInPlay[i].attack
         newState.opponent.monstersInPlay[i].currentHP -= newState.player.monstersInPlay[playerTargetIndex].attack
       })
     } else {
       stateObj = await immer.produce(stateObj, async (newState) => {
-        console.log("no player monsters in play - dealing " + stateObj.opponent.monstersInPlay[i].attack + " damage")
+        console.log(stateObj.opponent.monstersInPlay[i].name + " deals " + stateObj.opponent.monstersInPlay[i].attack + " damage to you.")
         newState.player.currentHP -= newState.opponent.monstersInPlay[i].attack
-        console.log("playerHP " + newState.player.currentHP)
       })
       stateObj = await changeState(stateObj)
     }

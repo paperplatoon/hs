@@ -199,7 +199,7 @@ let simpleImp = {
   }
   
   let destroyer = {
-    name: "high health",
+    name: "Destroyer",
     baseCost: 7,
     attack: 5,
     currentHP: 12,
