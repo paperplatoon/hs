@@ -627,15 +627,10 @@ async function endTurnIncrement(stateObj) {
           console.log(stateObj.opponent.monstersInPlay[i].name + " deals " + stateObj.opponent.monstersInPlay[i].attack + " damage to you.")
           newState.player.currentHP -= newState.opponent.monstersInPlay[i].attack
         })
-        stateObj = await changeState(stateObj)
       }
+      stateObj = await changeState(stateObj)
+      await pause(5000)
     } 
-  }
-
-  for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
-    stateObj = await immer.produce(stateObj, async (newState) => {
-      newState.opponent.monstersInPlay[i].canAttack = true
-    })
   }
   
   return stateObj;
@@ -668,6 +663,11 @@ async function enemyTurn(stateObj) {
         newState.opponent.encounterHand.splice(indexesToDelete[i], 1)
       })
     }
+  }
+  for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
+    stateObj = await immer.produce(stateObj, async (newState) => {
+      newState.opponent.monstersInPlay[i].canAttack = true
+    })
   }
   return stateObj;
 }

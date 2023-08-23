@@ -24,12 +24,13 @@ let simpleImp = {
     
     action: async (stateObj, index, array, playerObj) => {
       stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj === stateObj.player) ? newState.player : newState.opponent
-        let opponent = (playerObj === stateObj.player) ? newState.opponent : newState.player
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+        let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
 
         let targetIndex = Math.floor(Math.random() * (opponent.monstersInPlay.length+1));
+        console.log('target index for simpleImp is ' + targetIndex)
 
-        if (targetIndex > opponent.monstersInPlay.length || opponent.monstersInPlay.length === 0) {
+        if (targetIndex >= opponent.monstersInPlay.length || opponent.monstersInPlay.length === 0) {
             console.log(array[index].name + " battlecries 1 damage to " + opponent.name )
             opponent.currentHP -= 1;
         } else {
