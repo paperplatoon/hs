@@ -45,7 +45,7 @@ let simpleImp = {
     }
 
     
-  }
+  };
   
   let simpleDeathrattleImp = {
     name: "dying imp",
@@ -91,7 +91,52 @@ let simpleImp = {
       })
       return stateObj;
     }
-  }
+  };
+
+  let healthGrowImp = {
+    name: "Healthify imp",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 2,
+    maxHP: 2,
+    avatar: "img/fireMonster.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `At the end of your turn, this gains 1 HP` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      //await cardAnimationDiscard(index);
+      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+      stateObj = immer.produce(stateObj, (newState) => {
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+
+        player.monstersInPlay.push(healthGrowImp)
+        player.currentEnergy -=array[index].baseCost;
+      })
+      return stateObj;
+    },
+    endOfTurn: async (stateObj, index, array, playerObj) => {
+      stateObj = immer.produce(stateObj, (newState) => {
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+        player.monstersInPlay[index].currentHP += 1;
+        player.monstersInPlay[index].maxHP += 1;
+      })
+      return stateObj;
+    }
+  };
+
+
   
   let scalingDeathrattleImp = {
     name: "scaling imp",
@@ -137,7 +182,7 @@ let simpleImp = {
       })
       return stateObj;
     }
-  }
+  };
   
   let growingDjinn = {
     name: "Grow",

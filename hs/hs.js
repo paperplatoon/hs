@@ -49,8 +49,8 @@ let gameStartState = {
     currentHP: 30,
     maxHP: 30,
 
-    currentEnergy: 1,
-    maxEnergy: 1,
+    currentEnergy: 2,
+    maxEnergy: 2,
 
     encounterDraw: [],
     monstersInPlay: [],
@@ -68,7 +68,7 @@ let gameStartState = {
     maxEnergy: 1,
 
     encounterDraw: [],
-    monstersInPlay: [destroyer],
+    monstersInPlay: [highHealthImp],
     encounterHand: [simpleDeathrattleImp, simpleDeathrattleImp],
 
     name: "opponent",
@@ -99,7 +99,7 @@ async function startEncounter(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
       //newState.encounterDraw = [simpleImp, simpleImp, highHealthImp, highHealthImp, growingDjinn, growingDjinn];
-      newState.player.encounterDraw = [simpleImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp, simpleImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp];
+      newState.player.encounterDraw = [healthGrowImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp, healthGrowImp];
       newState.status = Status.inFight
     })
     stateObj = shuffleDraw(stateObj);
@@ -597,6 +597,14 @@ async function endTurn(stateObj) {
       monsterObj.canAttack = true;
     })
   });
+
+  for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
+    if (typeof(stateObj.player.monstersInPlay[i].endOfTurn) === "function") {
+      stateObj = await stateObj.player.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.player.monstersInPlay, stateObj.player);
+      stateObj = await changeState(stateObj)
+      await pause(750)
+    }  
+  }
 
   stateObj = await endTurnIncrement(stateObj);
   stateObj = await changeState(stateObj);
