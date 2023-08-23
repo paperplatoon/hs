@@ -22,16 +22,23 @@ let simpleImp = {
       return array[index].baseCost;
     },
     
-    action: async (stateObj, index, array) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+    action: async (stateObj, index, array, playerObj) => {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.monstersInPlay.push(simpleImp)
-        if (newState.opponent.monstersInPlay.length > 0) {
-          let targetIndex = Math.floor(Math.random() * (stateObj.opponent.monstersInPlay.length));
-          newState.opponent.monstersInPlay[targetIndex].currentHP -=1;
+        let player = (playerObj === stateObj.player) ? newState.player : newState.opponent
+        let opponent = (playerObj === stateObj.player) ? newState.opponent : newState.player
+
+        let targetIndex = Math.floor(Math.random() * (opponent.monstersInPlay.length+1));
+
+        if (targetIndex > opponent.monstersInPlay.length || opponent.monstersInPlay.length === 0) {
+            console.log(array[index].name + " battlecries 1 damage to " + opponent.name )
+            opponent.currentHP -= 1;
+        } else {
+            console.log(array[index].name + " battlecries 1 damage to " + opponent.monstersInPlay[targetIndex].name)
+            opponent.monstersInPlay[targetIndex].currentHP -=1;
+            
         }
-        newState.player.currentEnergy -=array[index].baseCost;
+        player.monstersInPlay.push(simpleImp)
+        player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
     }

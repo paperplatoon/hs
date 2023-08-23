@@ -55,6 +55,8 @@ let gameStartState = {
     encounterDraw: [],
     monstersInPlay: [],
     encounterHand: [],
+
+    name: "player",
     
   },
 
@@ -67,7 +69,9 @@ let gameStartState = {
 
     encounterDraw: [],
     monstersInPlay: [destroyer],
-    encounterHand: [simpleImp, simpleDeathrattleImp, simpleDeathrattleImp],
+    encounterHand: [simpleImp, simpleImp,simpleImp],
+
+    name: "opponent",
     
   },
   
@@ -137,7 +141,7 @@ async function completeAttack(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       let AttackingMonster = newState.player.monstersInPlay[newState.playerToAttackIndex]
       let DefendingMonster = newState.opponent.monstersInPlay[newState.enemyToBeAttackedIndex]
-      console.log(AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to " + DefendingMonster.name + " and took " + DefendingMonster.attack + "damage")
+      console.log("Player's " + AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to enemy's " + DefendingMonster.name + " and took " + DefendingMonster.attack + " damage")
       DefendingMonster.currentHP -= AttackingMonster.attack
       AttackingMonster.currentHP -= DefendingMonster.attack
       AttackingMonster.canAttack = false
@@ -419,7 +423,7 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
               if (cardObj.minReq(stateObj, index, stateObj.player.encounterHand) <= stateObj.player.currentEnergy) {
                 cardDiv.classList.add("playable");
                 cardDiv.addEventListener("click", function () {
-                  playACard(stateObj, index, stateObj.player.encounterHand);
+                  playACard(stateObj, index, stateObj.player.encounterHand, stateObj.player);
                 });
               };
           } else if (cardArray === stateObj.opponent.monstersInPlay && stateObj.playerToAttackIndex !== false) {
@@ -467,7 +471,11 @@ function topRowDiv(stateObj) {
 
   let opponentHealthDiv = document.createElement("Div");
   opponentHealthDiv.setAttribute("id", "opponent-health-div");
-  opponentHealthDiv.textContent = `Enemy HP: ` + stateObj.currentEnemyHP
+  opponentHealthDiv.textContent = `Enemy HP: ` + stateObj.opponent.currentHP
+
+  let opponentHandDiv = document.createElement("Div");
+  opponentHandDiv.setAttribute("id", "opponent-health-div");
+  opponentHandDiv.textContent = `Enemy Hand: ` + stateObj.opponent.encounterHand.length + ' cards'
 
   if ( stateObj.playerToAttackIndex !== false) {
     opponentHealthDiv.classList.add("selectable");
@@ -480,7 +488,7 @@ function topRowDiv(stateObj) {
   playerHealthDiv.setAttribute("id", "player-health-div");
   playerHealthDiv.textContent = `player HP: ` + stateObj.player.currentHP
 
-  topRowDiv.append(playerEnergyDiv, playerHealthDiv, opponentEnergyDiv, opponentHealthDiv);
+  topRowDiv.append(playerEnergyDiv, playerHealthDiv, opponentEnergyDiv, opponentHealthDiv, opponentHandDiv);
 
 
   return topRowDiv
@@ -504,9 +512,9 @@ function topRowDiv(stateObj) {
     return stateObj;
   }
   
-  async function playACard(stateObj, cardIndexInHand, arrayObj) {
+  async function playACard(stateObj, cardIndexInHand, arrayObj, playerObj) {
     console.log("you played " + stateObj.player.encounterHand[cardIndexInHand].name);  
-    stateObj = await stateObj.player.encounterHand[cardIndexInHand].action(stateObj, cardIndexInHand, arrayObj);
+    stateObj = await stateObj.player.encounterHand[cardIndexInHand].action(stateObj, cardIndexInHand, arrayObj, playerObj);
     stateObj = await PlayACardImmer(stateObj, cardIndexInHand);
     stateObj = await changeState(stateObj);
   
@@ -640,26 +648,27 @@ async function enemyTurn(stateObj) {
 
   if (currentEnergy > 0) {
     let indexesToDelete = []
-    stateObj.opponent.encounterHand.forEach(async function(cardObj, index) {
-      if (cardObj.cost(stateObj, index, stateObj.opponent.encounterHand) <= currentEnergy) {
-        currentEnergy -= cardObj.cost(stateObj, index, stateObj.opponent.encounterHand);
-        stateObj = immer.produce(stateObj, (newState) => {
-          newState.opponent.currentEnergy -= cardObj.cost(stateObj, index, stateObj.opponent.encounterHand)
-          newState.opponent.monstersInPlay.push(cardObj)
-          indexesToDelete.push(index)
-          //newState.opponent.encounterHand.splice(index, 1)
-        })
+    for (let i = 0; i < stateObj.opponent.encounterHand.length; i++) {
+      let cardObj = stateObj.opponent.encounterHand[i];
+      if (cardObj.cost(stateObj, i, stateObj.opponent.encounterHand) <= currentEnergy) {
+        currentEnergy -= cardObj.cost(stateObj, i, stateObj.opponent.encounterHand);
+        stateObj = await stateObj.opponent.encounterHand[i].action(stateObj, i, stateObj.opponent.encounterHand, stateObj.opponent);
+        indexesToDelete.push(i)
+        // stateObj = immer.produce(stateObj, (newState) => {
+        //   newState.opponent.monstersInPlay.push(cardObj)
+        //   indexesToDelete.push(index)
+        //   //newState.opponent.encounterHand.splice(index, 1)
+        // })
       }
-    })
+    }
+    
     indexesToDelete.reverse()
     for (let i = 0; i < indexesToDelete.length; i++) {
-      stateObj = immer.produce(stateObj, (newState) => {
+      stateObj = await immer.produce(stateObj, async (newState) => {
         newState.opponent.encounterHand.splice(indexesToDelete[i], 1)
       })
-     
     }
   }
-  
   return stateObj;
 }
 
