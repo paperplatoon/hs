@@ -629,7 +629,7 @@ async function endTurnIncrement(stateObj) {
         })
       }
       stateObj = await changeState(stateObj)
-      await pause(5000)
+      await pause(1000)
     } 
   }
   
@@ -647,7 +647,6 @@ async function enemyTurn(stateObj) {
       let cardObj = stateObj.opponent.encounterHand[i];
       if (cardObj.cost(stateObj, i, stateObj.opponent.encounterHand) <= currentEnergy) {
         currentEnergy -= cardObj.cost(stateObj, i, stateObj.opponent.encounterHand);
-        stateObj = await stateObj.opponent.encounterHand[i].action(stateObj, i, stateObj.opponent.encounterHand, stateObj.opponent);
         indexesToDelete.push(i)
         // stateObj = immer.produce(stateObj, (newState) => {
         //   newState.opponent.monstersInPlay.push(cardObj)
@@ -659,9 +658,12 @@ async function enemyTurn(stateObj) {
     
     indexesToDelete.reverse()
     for (let i = 0; i < indexesToDelete.length; i++) {
+      stateObj = await stateObj.opponent.encounterHand[indexesToDelete[i]].action(stateObj, indexesToDelete[i], stateObj.opponent.encounterHand, stateObj.opponent);
       stateObj = await immer.produce(stateObj, async (newState) => {
         newState.opponent.encounterHand.splice(indexesToDelete[i], 1)
       })
+      stateObj = await changeState(stateObj)
+      await pause(750)
     }
   }
   for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
