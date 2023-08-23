@@ -62,27 +62,31 @@ let simpleImp = {
     },
   
     text: (state, index, array) => { 
-      return `On Death: Deal 1 damage to a random enemy` 
+      return `On Death: Deal 2 damage to a random enemy minion` 
     },
   
     cost:  (state, index, array) => {
       return array[index].baseCost;
     },
     
-    action: async (stateObj, index, array) => {
+    action: async (stateObj, index, array, playerObj) => {
       //await cardAnimationDiscard(index);
       //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.monstersInPlay.push(simpleDeathrattleImp)
-        newState.player.currentEnergy -=array[index].baseCost;
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+
+        player.monstersInPlay.push(simpleDeathrattleImp)
+        player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
     },
-    onDeath: async (stateObj, index, array) => {
+    onDeath: async (stateObj, index, array, playerObj) => {
       stateObj = immer.produce(stateObj, (newState) => {
-        if (newState.opponent.monstersInPlay.length > 0) {
-          let targetIndex = Math.floor(Math.random() * (stateObj.opponent.monstersInPlay.length));
-          newState.opponent.monstersInPlay[targetIndex].currentHP -=1;
+        let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
+
+        if (opponent.monstersInPlay.length > 0) {
+          let targetIndex = Math.floor(Math.random() * (opponent.monstersInPlay.length));
+          opponent.monstersInPlay[targetIndex].currentHP -=2;
         }
       })
       return stateObj;

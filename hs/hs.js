@@ -69,7 +69,7 @@ let gameStartState = {
 
     encounterDraw: [],
     monstersInPlay: [destroyer],
-    encounterHand: [simpleImp, simpleImp,simpleImp],
+    encounterHand: [simpleDeathrattleImp, simpleDeathrattleImp],
 
     name: "opponent",
     
@@ -132,7 +132,7 @@ async function completeAttack(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       let AttackingMonster = newState.player.monstersInPlay[newState.playerToAttackIndex]
       console.log(AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to the opponent")
-      newState.currentEnemyHP -= AttackingMonster.attack
+      newState.opponent.currentHP -= AttackingMonster.attack
       AttackingMonster.canAttack = false
       newState.playerToAttackIndex = false;
       newState.enemyToBeAttackedIndex = false
@@ -208,11 +208,14 @@ async function handleDeaths(stateObj) {
       indexesToDelete.reverse()
       //await opponentDeathAnimation(indexesToDelete)
 
-      stateObj = immer.produce(stateObj, (newState) => {
-        for (let i = 0; i < indexesToDelete.length; i++) {
-          newState.opponent.monstersInPlay.splice(indexesToDelete[i], 1)
-        }
-      });
+      for (let i = 0; i < indexesToDelete.length; i++) {
+          if (typeof(stateObj.opponent.monstersInPlay[indexesToDelete[i]].onDeath) === "function") {
+            stateObj = await stateObj.opponent.monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], stateObj.opponent.monstersInPlay, stateObj.opponent);
+          }
+          stateObj = immer.produce(stateObj, (newState) => {
+            newState.opponent.monstersInPlay.splice(indexesToDelete[i], 1)
+          })
+      }
     }
   }
 
@@ -236,7 +239,7 @@ async function handleDeaths(stateObj) {
 
         for (let i = 0; i < indexesToDelete.length; i++) {  
           if (typeof(stateObj.player.monstersInPlay[indexesToDelete[i]].onDeath) === "function") {
-            stateObj = await stateObj.player.monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], stateObj.player.monstersInPlay);
+            stateObj = await stateObj.player.monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], stateObj.player.monstersInPlay, stateObj.player);
           }
           stateObj = await immer.produce(stateObj, async (newState) => {
               newState.player.monstersInPlay.splice(indexesToDelete[i], 1)
