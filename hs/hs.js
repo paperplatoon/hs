@@ -69,7 +69,7 @@ let gameStartState = {
 
     encounterDraw: [],
     monstersInPlay: [highHealthImp],
-    encounterHand: [simpleDeathrattleImp, simpleDeathrattleImp],
+    encounterHand: [healthGrowImp, healthGrowImp, healthGrowImp],
 
     name: "opponent",
     
@@ -677,6 +677,15 @@ async function enemyTurn(stateObj) {
       await pause(750)
     }
   }
+
+  for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
+    if (typeof(stateObj.opponent.monstersInPlay[i].endOfTurn) === "function") {
+      stateObj = await stateObj.opponent.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.opponent.monstersInPlay, stateObj.opponent);
+      stateObj = await changeState(stateObj)
+      await pause(750)
+    }  
+  }
+
   for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
     stateObj = await immer.produce(stateObj, async (newState) => {
       newState.opponent.monstersInPlay[i].canAttack = true
