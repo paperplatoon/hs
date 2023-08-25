@@ -615,8 +615,9 @@ async function endTurn(stateObj) {
   for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
     if (typeof(stateObj.player.monstersInPlay[i].endOfTurn) === "function") {
       stateObj = await stateObj.player.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.player.monstersInPlay, stateObj.player);
+      await executeAbility("player", i)
       stateObj = await changeState(stateObj)
-      await addImpact("player", i)
+      await pause(500)
     }  
   }
 
@@ -636,7 +637,6 @@ async function endTurn(stateObj) {
 }
 
 async function addImpact(playerName, index) {
-
   if (index !== "health") {
     let queryString = (playerName === "player") ? "#playerMonstersInPlay .avatar" : "#enemyMonstersInPlay .avatar"
     document.querySelectorAll(queryString)[index].classList.add("opponent-windup")
@@ -648,7 +648,13 @@ async function addImpact(playerName, index) {
     await pause(400)
     document.querySelector(queryString).classList.remove("opponent-windup")
   }
-  
+}
+
+async function executeAbility(playerName, index) {
+  let queryString = (playerName === "player") ? "#playerMonstersInPlay .avatar" : "#enemyMonstersInPlay .avatar"
+  document.querySelectorAll(queryString)[index].classList.add("execute-ability")
+  await pause(750)
+  document.querySelectorAll(queryString)[index].classList.remove("execute-ability")
 }
 
 //do enemy minions die?
@@ -715,8 +721,9 @@ async function enemyTurn(stateObj) {
   for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
     if (typeof(stateObj.opponent.monstersInPlay[i].endOfTurn) === "function") {
       stateObj = await stateObj.opponent.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.opponent.monstersInPlay, stateObj.opponent);
+      await executeAbility("opponent", i)
       stateObj = await changeState(stateObj)
-      await pause(750)
+      await pause(500)
     }  
   }
 

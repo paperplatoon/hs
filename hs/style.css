@@ -912,3 +912,15 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   75% { transform: translateX(-100px); }
   100% { transform: translateX(0); }
 }
+
+.execute-ability {
+  animation: executeAbility 0.75s forwards ;
+}
+
+@keyframes executeAbility {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(20px); height: 14vmin;}
+  50% { transform: translateY(-20px); height: 8vmin;}
+  75% { transform: translateY(-5px); height: 12vmin;}
+  100% { transform: translateY(0); }
+}
