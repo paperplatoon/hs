@@ -4,7 +4,8 @@
 //air - gain attack
 //water - gain health
 
-let simpleImp = {
+
+let sparkingimp = {
     name: "Sparking Imp",
     type: "fire",
     baseCost: 1,
@@ -43,14 +44,14 @@ let simpleImp = {
             opponent.monstersInPlay[targetIndex].currentHP -=1;
             
         }
-        player.monstersInPlay.push(simpleImp)
+        player.monstersInPlay.push(sparkingimp)
         player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
     }
   };
   
-  let simpleDeathrattleImp = {
+  let explosiveimp = {
     name: "Explosive Imp",
     baseCost: 1,
     type: "fire",
@@ -79,7 +80,7 @@ let simpleImp = {
       stateObj = immer.produce(stateObj, (newState) => {
         let player = (playerObj.name === "player") ? newState.player : newState.opponent
 
-        player.monstersInPlay.push(simpleDeathrattleImp)
+        player.monstersInPlay.push(explosiveimp)
         player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
@@ -97,8 +98,8 @@ let simpleImp = {
     }
   };
 
-  let healthGrowImp = {
-    name: "Puddle Imp",
+  let tiderider = {
+    name: "Tide Rider",
     type: "water",
     baseCost: 1,
     attack: 1,
@@ -126,7 +127,7 @@ let simpleImp = {
       stateObj = immer.produce(stateObj, (newState) => {
         let player = (playerObj.name === "player") ? newState.player : newState.opponent
 
-        player.monstersInPlay.push(healthGrowImp)
+        player.monstersInPlay.push(tiderider)
         player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
@@ -143,8 +144,8 @@ let simpleImp = {
 
 
   
-  let scalingDeathrattleImp = {
-    name: "Returning Weeds",
+  let hydraweed = {
+    name: "Hydra Weed",
     type: "earth",
     baseCost: 1,
     attack: 1,
@@ -167,16 +168,17 @@ let simpleImp = {
       return array[index].baseCost;
     },
     
-    action: async (stateObj, index, array) => {
+    action: async (stateObj, index, array, playerObj) => {
       //await cardAnimationDiscard(index);
       //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.monstersInPlay.push(scalingDeathrattleImp)
-        newState.player.currentEnergy -=array[index].baseCost;
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+        player.monstersInPlay.push(hydraweed)
+        player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
     },
-    onDeath: async (stateObj, index, array) => {
+    onDeath: async (stateObj, index, array, playerObj) => {
       let newDeathrattleImp = {...array[index]};
       newDeathrattleImp.deathCounter += 1
       newDeathrattleImp.attack = 1 + newDeathrattleImp.deathCounter
@@ -184,7 +186,8 @@ let simpleImp = {
       newDeathrattleImp.maxHP = 1 + newDeathrattleImp.deathCounter
       
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.monstersInPlay.push(newDeathrattleImp)
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+        player.monstersInPlay.push(newDeathrattleImp)
       })
       return stateObj;
     }
@@ -192,9 +195,9 @@ let simpleImp = {
   
   let growingDjinn = {
     name: "Grow",
-    baseCost: 2,
-    attack: 5,
-    currentHP: 6,
+    baseCost: 3,
+    attack: 2,
+    currentHP: 3,
     maxHP: 6,
     avatar: "img/flamingbaby.png",
   
@@ -225,12 +228,12 @@ let simpleImp = {
     }
   }
   
-  let highHealthImp = {
-    name: "high health",
+  let minorefrit = {
+    name: "Minor Efrit",
     type: "air",
-    baseCost: 1,
+    baseCost: 2,
     attack: 1,
-    currentHP: 7,
+    currentHP: 4,
     maxHP: 3,
     avatar: "img/fireMonster.png",
   
@@ -241,7 +244,7 @@ let simpleImp = {
     },
   
     text: (state, index, array) => { 
-      return `Battlecry: Give a random friendly minion +1 attack`
+      return `Battlecry: Give another random friendly minion +1 attack`
     },
   
     cost:  (state, index, array) => {
@@ -258,7 +261,7 @@ let simpleImp = {
             randIndex = targetIndex
             player.monstersInPlay[targetIndex].attack +=1;
         }
-        player.monstersInPlay.push(highHealthImp)
+        player.monstersInPlay.push(minorefrit)
       })
       if (randIndex >= 0) {
         await executeAbility(playerObj.name, randIndex)

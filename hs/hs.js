@@ -66,9 +66,10 @@ let gameStartState = {
     maxEnergy: 1,
 
     encounterDraw: [
-                    tiderider, tiderider, tiderider, tiderider, 
+                    waverider, waverider, waverider, waverider, 
                     kelpspirit, kelpspirit, kelpspirit, kelpspirit,
-                    oysterspirit, oysterspirit, tidepoollurker, tidepoollurker,
+                    // oysterspirit, oysterspirit, tidepoollurker, tidepoollurker,
+                    // poseidon, poseidon,
                     ],
     monstersInPlay: [],
     encounterHand: [],
@@ -94,14 +95,15 @@ let state = {...gameStartState};
 startEncounter(state)
 //renderScreen(state)
 
-
+let fullMinionDeck = [sparkingimp, explosiveimp, tiderider, hydraweed]
 
 
 async function startEncounter(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
-      //newState.encounterDraw = [simpleImp, simpleImp, highHealthImp, highHealthImp, growingDjinn, growingDjinn];
-      newState.player.encounterDraw = [healthGrowImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp, healthGrowImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp, healthGrowImp];
+      newState.player.encounterDraw = [sparkingimp, explosiveimp, tiderider, hydraweed,
+      oysterspirit, greatoysterspirit, tidepoollurker, poseidon, oystergod, kelpspirit];
+      // newState.player.encounterDraw = [kelpspirit, kelpspirit, kelpspirit, kelpspirit,]
       newState.status = Status.inFight
     })
     stateObj = shuffleDraw(stateObj, stateObj.player);
@@ -199,15 +201,12 @@ async function completeAttack(stateObj) {
     newState.status(stateObj)
   }
 
-
-
-async function handleDeaths(stateObj) {
-  //push indexes of dead monsters to an array
-  if (stateObj.opponent.monstersInPlay.length > 0) {
+async function handleDeathsForPlayer(stateObj, playerObj) {
+  if (playerObj.monstersInPlay.length > 0) {
     let indexesToDelete = [];
-    stateObj.opponent.monstersInPlay.forEach(function (monster, index) {
+    playerObj.monstersInPlay.forEach(function (monster, index) {
       if (monster.currentHP <= 0) {
-        console.log("Enemy's " + monster.name + " has died.")
+        console.log(playerObj.name + "'s " + monster.name + " has died.")
         indexesToDelete.push(index);
       }
     });
@@ -215,46 +214,30 @@ async function handleDeaths(stateObj) {
     if (indexesToDelete.length > 0) {
       indexesToDelete.reverse()
       //await opponentDeathAnimation(indexesToDelete)
-
       for (let i = 0; i < indexesToDelete.length; i++) {
-          if (typeof(stateObj.opponent.monstersInPlay[indexesToDelete[i]].onDeath) === "function") {
-            stateObj = await stateObj.opponent.monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], stateObj.opponent.monstersInPlay, stateObj.opponent);
+          if (typeof(playerObj.monstersInPlay[indexesToDelete[i]].onDeath) === "function") {
+            stateObj = await playerObj.monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], playerObj.monstersInPlay, playerObj);
           }
           stateObj = immer.produce(stateObj, (newState) => {
-            newState.opponent.monstersInPlay.splice(indexesToDelete[i], 1)
+            let player = (playerObj.name === "player") ? newState.player : newState.opponent
+            player.monstersInPlay.splice(indexesToDelete[i], 1)
           })
       }
     }
   }
+  return stateObj
+}
+
+
+
+async function handleDeaths(stateObj) {
+  stateObj = await(handleDeathsForPlayer(stateObj, stateObj.opponent))
 
     if (stateObj.currentEnemyHP <= 0) {
       stateObj = renderWonFight(stateObj)
     }
+    stateObj = await(handleDeathsForPlayer(stateObj, stateObj.player))
 
-    if (stateObj.player.monstersInPlay.length > 0) {
-      let indexesToDelete = [];
-      stateObj.player.monstersInPlay.forEach(async function (monster, index) {
-        if (monster.currentHP <= 0) {
-          console.log("Player's " + monster.name + " has died.")
-          indexesToDelete.push(index);
-          
-          } 
-      });
-      //if a monster has died
-      if (indexesToDelete.length > 0) {
-        indexesToDelete.reverse()
-        //await opponentDeathAnimation(indexesToDelete)
-
-        for (let i = 0; i < indexesToDelete.length; i++) {  
-          if (typeof(stateObj.player.monstersInPlay[indexesToDelete[i]].onDeath) === "function") {
-            stateObj = await stateObj.player.monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], stateObj.player.monstersInPlay, stateObj.player);
-          }
-          stateObj = await immer.produce(stateObj, async (newState) => {
-              newState.player.monstersInPlay.splice(indexesToDelete[i], 1)
-          });
-        }
-      }
-    }
     if (stateObj.player.currentHP <= 0) {
       stateObj = renderLostFight(stateObj)
     }

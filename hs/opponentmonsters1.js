@@ -1,7 +1,7 @@
 //water monsters
 
-let tiderider = {
-    name: "Tide Rider",
+let waverider = {
+    name: "Wave Rider",
     type: "water",
     baseCost: 1,
     attack: 1,
@@ -227,6 +227,95 @@ let tiderider = {
                 }
             }
         }
+      })
+      return stateObj;
+    }
+  };
+
+  let poseidon = {
+    name: "Poseidon",
+    type: "water",
+    baseCost: 4,
+    attack: 3,
+    currentHP: 4,
+    maxHP: 1,
+    avatar: "img/waterpuddle.png",
+    rarity: "rare",
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `End of Turn: All friendly demons gain +1 HP` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      //await cardAnimationDiscard(index);
+      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+      stateObj = immer.produce(stateObj, (newState) => {
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+
+        player.monstersInPlay.push(poseidon)
+        player.currentEnergy -=array[index].baseCost;
+      })
+      return stateObj;
+    },
+    endOfTurn: async (stateObj, index, array, playerObj) => {
+      stateObj = immer.produce(stateObj, (newState) => {
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+        for (let i=0; i < player.monstersInPlay.length; i++) {
+            player.monstersInPlay[i].currentHP +=1
+            player.monstersInPlay[i].maxHP +=1
+        }
+      })
+      return stateObj;
+    }
+  };
+
+  let oystergod = {
+    name: "Oyster God",
+    type: "water",
+    baseCost: 3,
+    attack: 1,
+    currentHP: 6,
+    maxHP: 6,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `End of Turn: owner gains 5 Life` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      //await cardAnimationDiscard(index);
+      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+      stateObj = immer.produce(stateObj, (newState) => {
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+
+        player.monstersInPlay.push(oystergod)
+        player.currentEnergy -=array[index].baseCost;
+      })
+      return stateObj;
+    },
+    endOfTurn: async (stateObj, index, array, playerObj) => {
+      stateObj = immer.produce(stateObj, (newState) => {
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+        player.currentHP += 5;
       })
       return stateObj;
     }
