@@ -902,7 +902,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 }
 
 .opponent-windup {
-  animation: opponentWindup 0.5s forwards ;
+  animation: opponentWindup 0.4s forwards ;
 }
 
 @keyframes opponentWindup {

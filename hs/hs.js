@@ -129,6 +129,8 @@ async function completeAttack(stateObj) {
   // document.querySelectorAll("#enemyMonstersInPlay .avatar")[0].classList.add("opponent-windup")
   // pause(500)
   if (stateObj.enemyToBeAttackedIndex === 99) {
+    await addImpact("player", stateObj.playerToAttackIndex);
+    await addImpact("opponent", "health");
     stateObj = immer.produce(stateObj, (newState) => {
       let AttackingMonster = newState.player.monstersInPlay[newState.playerToAttackIndex]
       console.log(AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to the opponent")
@@ -138,6 +140,8 @@ async function completeAttack(stateObj) {
       newState.enemyToBeAttackedIndex = false
     })
   } else {
+    await addImpact("player", stateObj.playerToAttackIndex);
+    await addImpact("opponent", stateObj.enemyToBeAttackedIndex);
     stateObj = immer.produce(stateObj, (newState) => {
       let AttackingMonster = newState.player.monstersInPlay[newState.playerToAttackIndex]
       let DefendingMonster = newState.opponent.monstersInPlay[newState.enemyToBeAttackedIndex]
@@ -612,7 +616,7 @@ async function endTurn(stateObj) {
     if (typeof(stateObj.player.monstersInPlay[i].endOfTurn) === "function") {
       stateObj = await stateObj.player.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.player.monstersInPlay, stateObj.player);
       stateObj = await changeState(stateObj)
-      await pause(750)
+      await addImpact("player", i)
     }  
   }
 
@@ -631,6 +635,22 @@ async function endTurn(stateObj) {
   await changeState(stateObj);
 }
 
+async function addImpact(playerName, index) {
+
+  if (index !== "health") {
+    let queryString = (playerName === "player") ? "#playerMonstersInPlay .avatar" : "#enemyMonstersInPlay .avatar"
+    document.querySelectorAll(queryString)[index].classList.add("opponent-windup")
+    await pause(400)
+    document.querySelectorAll(queryString)[index].classList.remove("opponent-windup")
+  } else {
+    let queryString = (playerName === "player") ? "#player-health-div" : "#opponent-health-div"
+    document.querySelector(queryString).classList.add("opponent-windup")
+    await pause(400)
+    document.querySelector(queryString).classList.remove("opponent-windup")
+  }
+  
+}
+
 //do enemy minions die?
 //if the first minions kill player monsters, do the last minions attack HP?
 async function endTurnIncrement(stateObj) {
@@ -643,14 +663,18 @@ async function endTurnIncrement(stateObj) {
           newState.player.monstersInPlay[playerTargetIndex].currentHP -= newState.opponent.monstersInPlay[i].attack
           newState.opponent.monstersInPlay[i].currentHP -= newState.player.monstersInPlay[playerTargetIndex].attack
         })
+        await addImpact("opponent", i);
+        await addImpact("player", playerTargetIndex);
       } else {
         stateObj = await immer.produce(stateObj, async (newState) => {
           console.log(stateObj.opponent.monstersInPlay[i].name + " deals " + stateObj.opponent.monstersInPlay[i].attack + " damage to you.")
           newState.player.currentHP -= newState.opponent.monstersInPlay[i].attack
         })
+        await addImpact("opponent", i);
+        await addImpact("player", "health");
       }
+
       stateObj = await changeState(stateObj)
-      await pause(1000)
     } 
   }
   
