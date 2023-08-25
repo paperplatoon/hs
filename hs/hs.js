@@ -95,15 +95,15 @@ let state = {...gameStartState};
 startEncounter(state)
 //renderScreen(state)
 
-let fullMinionDeck = [sparkingimp, explosiveimp, tiderider, hydraweed]
+let fullMinionDeck = [sparkingimp, explosiveimp, tiderider, hydraweed, airmote]
 
 
 async function startEncounter(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
       newState.player.encounterDraw = [sparkingimp, explosiveimp, tiderider, hydraweed,
-      oysterspirit, greatoysterspirit, tidepoollurker, poseidon, oystergod, kelpspirit];
-      // newState.player.encounterDraw = [kelpspirit, kelpspirit, kelpspirit, kelpspirit,]
+      oysterspirit, greatoysterspirit, tidepoollurker, poseidon, oystergod, kelpspirit, minorefrit, airmote];
+      newState.player.encounterDraw = [airmote, airmote, zeus, zeus]
       newState.status = Status.inFight
     })
     stateObj = shuffleDraw(stateObj, stateObj.player);
