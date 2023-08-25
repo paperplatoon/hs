@@ -46,10 +46,10 @@ const Status = {
 let gameStartState = {
 
   player: {
-    currentHP: 30,
+    currentHP: 10,
 
-    currentEnergy: 2,
-    maxEnergy: 2,
+    currentEnergy: 1,
+    maxEnergy: 1,
 
     encounterDraw: [],
     monstersInPlay: [],
@@ -65,9 +65,11 @@ let gameStartState = {
     currentEnergy: 1,
     maxEnergy: 1,
 
-    encounterDraw: [opponentGrowImp, restoreHealthToOwner, opponentGrowImp, restoreHealthToOwner,],
+    encounterDraw: [opponentGrowImp, restoreHealthToOwner, opponentGrowImp, restoreHealthToOwner, 
+                    restoreHealthToOwner2, restoreHealthToOwner2a,restoreHealthToOwner2, restoreHealthToOwner2a,
+                    restoreHealthToOwner3, restoreHealthToOwner3],
     monstersInPlay: [],
-    encounterHand: [restoreHealthToOwner2, restoreHealthToOwner2a, ],
+    encounterHand: [],
 
     name: "opponent",
     
@@ -100,9 +102,11 @@ async function startEncounter(stateObj) {
       newState.player.encounterDraw = [healthGrowImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp, healthGrowImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp, healthGrowImp];
       newState.status = Status.inFight
     })
-    stateObj = shuffleDraw(stateObj);
+    stateObj = shuffleDraw(stateObj, stateObj.player);
+    stateObj = shuffleDraw(stateObj, stateObj.opponent);
     for (let h=0; h < 4; h++) {
       stateObj = await drawACard(stateObj, stateObj.player)
+      stateObj = await drawACard(stateObj, stateObj.opponent)
     }
 
     await changeState(stateObj);
@@ -596,9 +600,10 @@ async function playerMonsterIsAttacking(stateObj, index, arrayObj) {
 // -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
 // -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
 
-function shuffleDraw(stateObj) {
+function shuffleDraw(stateObj, playerShuffling) {
   stateObj = immer.produce(stateObj, (newState) => {
-    newState.player.encounterDraw = shuffleArray(newState.player.encounterDraw);
+    let player = (playerShuffling.name === "player") ? newState.player : newState.opponent
+    player.encounterDraw = shuffleArray(player.encounterDraw);
   });
   return stateObj;
 }
