@@ -253,27 +253,27 @@ let waverider = {
       return stateObj;
     },
     endOfTurn: async (stateObj, index, array, playerObj) => {
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        if (player.monstersInPlay.length > 1) {
-            let targetIndex = Math.floor(Math.random() * (player.monstersInPlay.length));
-
-            if (targetIndex !== index) {
-                player.monstersInPlay[targetIndex].currentHP +=1;
-                player.monstersInPlay[targetIndex].maxHP +=1;
-            } else {
-                if (targetIndex === 0) {
-                    player.monstersInPlay[targetIndex+1].currentHP +=1;
-                    player.monstersInPlay[targetIndex+1].maxHP +=1;
-                } else {
-                    player.monstersInPlay[targetIndex-1].currentHP +=1;
-                    player.monstersInPlay[targetIndex-1].maxHP +=1;
+            stateObj = immer.produce(stateObj, (newState) => {
+                let player = (playerObj.name === "player") ? newState.player : newState.opponent
+                if (playerObj.monstersInPlay.length > 1) {
+                    let targetIndex = Math.floor(Math.random() * (player.monstersInPlay.length));
+        
+                    if (targetIndex !== index) {
+                        player.monstersInPlay[targetIndex].currentHP +=1;
+                        player.monstersInPlay[targetIndex].maxHP +=1;
+                    } else {
+                        if (targetIndex === 0) {
+                            player.monstersInPlay[targetIndex+1].currentHP +=1;
+                            player.monstersInPlay[targetIndex+1].maxHP +=1;
+                        } else {
+                            player.monstersInPlay[targetIndex-1].currentHP +=1;
+                            player.monstersInPlay[targetIndex-1].maxHP +=1;
+                        }
+                    }
                 }
-            }
+              })
+            return stateObj
         }
-      })
-      return stateObj;
-    }
   };
 
   let poseidon = {

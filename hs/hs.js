@@ -88,6 +88,8 @@ let gameStartState = {
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
+
+  cardToBePlayed: false,
 }
 
 
@@ -187,8 +189,6 @@ async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=500) {
   stateObj = await changeState(stateObj)
   let queryString = (playerSummoning.name === "player") ? "#playerMonstersInPlay .card" : "#enemyMonstersInPlay .card"
   let monstersLength = (playerSummoning.name === "player") ? stateObj.player.monstersInPlay.length : stateObj.opponent
-  console.log(queryString)
-  console.log(monstersLength)
   document.querySelectorAll(queryString)[monstersLength-1].classList.add("fade-in")
   await pause(pauseTime)
   document.querySelectorAll(queryString)[monstersLength-1].classList.remove("fade-in")
@@ -401,6 +401,7 @@ async function renderWonFight(stateObj) {
 function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=false) {
     let cardObj = cardArray[index];
     let cardDiv = document.createElement("Div");
+    cardDiv.setAttribute("draggable", "true")
           cardDiv.id = "card-index-"+index;
           cardDiv.classList.add("card");
 
@@ -468,6 +469,29 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
                   cardDiv.addEventListener("click", function () {
                     playACard(stateObj, index, stateObj.player.encounterHand, stateObj.player);
                   });
+
+                  cardDiv.addEventListener("dragstart", (event) => {
+                    console.log("card div id " + cardDiv.id)
+                    event.dataTransfer.setData("text/plain", cardDiv.id);
+                    
+                  });
+        
+                  const monstersDiv = document.querySelector("#playerMonstersInPlay");
+                  monstersDiv.addEventListener("dragover", (event) => {
+                    event.preventDefault();
+                  });
+        
+                  monstersDiv.addEventListener("drop", (event) => {
+                    event.preventDefault();
+                    const cardId = event.dataTransfer.getData("text/plain");
+                    str = cardId.charAt(cardId.length-1) 
+
+                    playACard(stateObj, Number(str), stateObj.player.encounterHand, stateObj.player);
+                    event.stopImmediatePropagation();
+                      
+                    
+                  });
+
                 }
               };
           } else if (cardArray === stateObj.opponent.monstersInPlay && stateObj.playerToAttackIndex !== false) {
@@ -492,6 +516,11 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
             });
           }
 
+          
+        
+
+          
+
           if (cardObj.trigger && cardObj.trigger(stateObj, index, cardArray)) {
             cardDiv.classList.add("trigger-condition-met")
           }
@@ -499,6 +528,15 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
             document.getElementById(divName).appendChild(cardDiv);
           }
           return cardDiv        
+}
+
+async function playCardFromHand(stateObj, index, arrayObj) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.playerToAttackIndex = index
+  })
+  stateObj = await changeStatus(stateObj, Status.chooseEnemyMonster)
+  //stateObj = await changeState(stateObj);
+  return stateObj;
 }
 
 function topRowDiv(stateObj) {
@@ -772,7 +810,7 @@ async function enemyTurn(stateObj) {
   }
 
   for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
-    if (typeof(stateObj.opponent.monstersInPlay[i].endOfTurn) === "function") {
+    if (stateObj.opponent.monstersInPlay[i].endOfTurn) {
       stateObj = await stateObj.opponent.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.opponent.monstersInPlay, stateObj.opponent);
       await executeAbility("opponent", i)
       stateObj = await changeState(stateObj)
