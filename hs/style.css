@@ -29,9 +29,13 @@
 
 .card-top-row {
   display: flex;
+  width: 100%;
   flex-direction: row;
-  justify-content: center;
+  justify-content: start;
+  line-height: 3.5vmin;
+  height: 3.5vmin;
   margin-top: 0.5vmin;
+  background-color: rgb(169, 244, 169);
 }
 
 .card-stats-row {
@@ -56,12 +60,10 @@
   position: relative;
 }
 
-
-
 .defense {
   display:inline-block;
   aspect-ratio: 1;
-  border-image: radial-gradient(red 69%,#0000 70%) 84.5% fill/100%;
+  border-image: radial-gradient(rgb(135, 34, 0) 69%,#0000 70%) 84.5% fill/100%;
   clip-path: polygon(-41% 0,50% 91%, 141% 0);
   color: white;
   text-align: center;
@@ -72,6 +74,63 @@
   height: 2.5vw;
   width: 2vw;
 }
+
+.hand-card-cost {
+  width: 3vmin;
+  border-radius: 70%;
+  height: 3vmin;
+  font-size: 1.2em;
+  padding: 2vmin;
+  margin-left: 1.5vmin;
+  border: 1px solid black;
+  margin-right: 1vmin;
+  text-align: center;
+  line-height: 3vmin;
+  background: linear-gradient(90deg, rgb(242, 208, 255),rgb(167, 94, 230), rgb(240, 127, 255), rgb(192, 23, 243));
+  color: white;
+ }
+
+ #player-energy-div {
+  background: linear-gradient(90deg, rgb(242, 208, 255),rgb(167, 94, 230), rgb(240, 127, 255), rgb(192, 23, 243));
+ }
+
+.fire {
+  background: linear-gradient(90deg, rgb(255, 208, 208),rgb(230, 94, 94), rgb(255, 127, 127), rgb(243, 23, 23));
+}
+
+.fire .defense {
+  border-image: radial-gradient(rgb(190, 0, 0) 69%,#0000 70%) 84.5% fill/100%;
+}
+
+.fire .card-top-row {
+  background-color: rgb(255, 187, 187);
+}
+
+.water {
+  background: linear-gradient(90deg, rgb(208, 255, 252),rgb(94, 230, 212), rgb(127, 255, 232), rgb(23, 243, 217));
+}
+
+.water .defense {
+  border-image: radial-gradient(rgb(0, 63, 190) 69%,#0000 70%) 84.5% fill/100%;
+}
+
+.water .card-top-row {
+  background-color: rgb(166, 183, 243);
+}
+
+.air {
+  background: linear-gradient(90deg, rgb(243, 254, 253),rgb(201, 202, 202), rgb(180, 180, 180), rgb(144, 150, 149));
+}
+
+.air .defense {
+  border-image: radial-gradient(rgb(94, 94, 94) 69%,#0000 70%) 84.5% fill/100%;
+}
+
+.air .card-top-row {
+  background-color: rgb(225, 231, 239);
+}
+
+
 
 .avatar {
   width: 10vmin;
@@ -193,30 +252,11 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   text-align: center;
 }
 
-.player-energy-fire, .hand-card-cost-fire {
-  background: linear-gradient(90deg,rgb(255, 208, 208), rgb(243, 23, 23),rgb(230, 0, 0), rgb(243, 23, 23),rgb(255, 208, 208));
-}
+
 .hand-card-cost-fire {
   background: linear-gradient(90deg, rgb(224, 84, 84),rgb(187, 0, 0), rgb(226, 69, 69));
 }
 
-.player-energy-water, .hand-card-cost-water {
-  background: linear-gradient(90deg,rgb(208, 209, 255), rgb(23, 27, 243),rgb(0, 58, 230), rgb(23, 30, 243),rgb(208, 211, 255));
-}
-
-.energy-cost, .hand-card-cost {
-  width: 3.5vmin;
-  height: 3.5vmin;
-  text-align: center;
-  border-radius: 50%;
-  font-size: 2.5vmin;
-  background-color: rgba(255, 219, 219, 0.916);
-  font-weight: bold;
-  line-height: 3vmin;
-  color: rgb(0, 0, 0);
-  float: right;
-  transition: background-color 0.25s;
- }
 
 
 
@@ -448,16 +488,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   font-size: 2.5vmin;
 }
 
-.hand-card-cost {
-  width: 1.8vmin;
-  height: 1.8vmin;
-  font-size: 1em;
-  padding: 2vmin;
-  margin-right: 3%;
-  line-height: 1.8vmin;
-  background-color: rgb(8, 61, 0);
-  color: white;
- }
+
 
  .fire-energy {
   border: 3px solid rgb(155, 9, 9);

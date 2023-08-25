@@ -374,7 +374,17 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
     let cardDiv = document.createElement("Div");
           cardDiv.id = "card-index-"+index;
           cardDiv.classList.add("card");
-  
+
+          if (cardObj.type === "fire") {
+            cardDiv.classList.add("fire");
+          } else if (cardObj.type === "water") {
+            cardDiv.classList.add("water");
+          } else if (cardObj.type === "earth") {
+            cardDiv.classList.add("earth");
+          } else if (cardObj.type === "air") {
+            cardDiv.classList.add("air");
+          }
+   
           let topCardRowDiv = document.createElement("Div");
           topCardRowDiv.classList.add("card-top-row")
           let cardName = document.createElement("H3");
@@ -465,7 +475,7 @@ function topRowDiv(stateObj) {
   topRowDiv.setAttribute("id", "top-row");
 
   let playerEnergyDiv = document.createElement("Div");
-  playerEnergyDiv.setAttribute("id", "status-text-div");
+  playerEnergyDiv.setAttribute("id", "player-energy-div");
   playerEnergyDiv.textContent = `Player Energy: ` + stateObj.player.currentEnergy + `/` + stateObj.player.maxEnergy 
 
   let opponentEnergyDiv = document.createElement("Div");

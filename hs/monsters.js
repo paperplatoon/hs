@@ -1,12 +1,17 @@
-//high health not always giving to simple imp 
+//high health not always giving to simple imp
+//fire - deal damage
+//earth - healing
+//air - gain attack
+//water - 
 
 let simpleImp = {
-    name: "simple imp",
+    name: "Sparking Imp",
+    type: "fire",
     baseCost: 1,
     attack: 1,
     currentHP: 2,
     maxHP: 2,
-    avatar: "img/fireMonster.png",
+    avatar: "img/flamingbaby.png",
   
     canAttack: false,
   
@@ -48,12 +53,13 @@ let simpleImp = {
   };
   
   let simpleDeathrattleImp = {
-    name: "dying imp",
+    name: "Explosive Imp",
     baseCost: 1,
+    type: "fire",
     attack: 1,
     currentHP: 1,
     maxHP: 1,
-    avatar: "img/fireMonster.png",
+    avatar: "img/firebaby.png",
   
     canAttack: false,
   
@@ -94,12 +100,13 @@ let simpleImp = {
   };
 
   let healthGrowImp = {
-    name: "Healthify imp",
+    name: "Puddle Imp",
+    type: "water",
     baseCost: 1,
     attack: 1,
     currentHP: 2,
     maxHP: 2,
-    avatar: "img/fireMonster.png",
+    avatar: "img/waterpuddle.png",
   
     canAttack: false,
   
@@ -139,13 +146,14 @@ let simpleImp = {
 
   
   let scalingDeathrattleImp = {
-    name: "scaling imp",
+    name: "Returning Weeds",
+    type: "earth",
     baseCost: 1,
     attack: 1,
     currentHP: 1,
     maxHP: 1,
     deathCounter: 0,
-    avatar: "img/fireMonster.png",
+    avatar: "img/plant1.png",
   
     canAttack: false,
   
@@ -221,6 +229,7 @@ let simpleImp = {
   
   let highHealthImp = {
     name: "high health",
+    type: "air",
     baseCost: 1,
     attack: 1,
     currentHP: 7,
