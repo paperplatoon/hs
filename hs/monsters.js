@@ -48,8 +48,6 @@ let simpleImp = {
       })
       return stateObj;
     }
-
-    
   };
   
   let simpleDeathrattleImp = {
@@ -254,18 +252,15 @@ let simpleImp = {
     let randIndex = -10;
       stateObj = immer.produce(stateObj, (newState) => {
         let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        console.log("player set as " + player.name)
         player.currentEnergy -=array[index].baseCost;
         if (player.monstersInPlay.length > 0) {
             let targetIndex = Math.floor(Math.random() * (player.monstersInPlay.length));
             randIndex = targetIndex
-            console.log(randIndex)
             player.monstersInPlay[targetIndex].attack +=1;
         }
         player.monstersInPlay.push(highHealthImp)
       })
       if (randIndex >= 0) {
-        console.log('exe')
         await executeAbility(playerObj.name, randIndex)
       }
       return stateObj;

@@ -47,7 +47,6 @@ let gameStartState = {
 
   player: {
     currentHP: 30,
-    maxHP: 30,
 
     currentEnergy: 2,
     maxEnergy: 2,
@@ -62,14 +61,13 @@ let gameStartState = {
 
   opponent: {
     currentHP: 10,
-    maxHP: 10,
 
     currentEnergy: 1,
     maxEnergy: 1,
 
-    encounterDraw: [],
+    encounterDraw: [opponentGrowImp, restoreHealthToOwner, opponentGrowImp, restoreHealthToOwner,],
     monstersInPlay: [],
-    encounterHand: [ healthGrowImp, highHealthImp],
+    encounterHand: [restoreHealthToOwner2, restoreHealthToOwner2a, ],
 
     name: "opponent",
     
@@ -77,7 +75,6 @@ let gameStartState = {
   
 
   currentEnemyHP: 50,
-  enemyMonstersInPlay: [simpleImp],
   enemyEnergy: 1,
   enemyMaxEnergy: 1,
 
@@ -100,7 +97,7 @@ async function startEncounter(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
       //newState.encounterDraw = [simpleImp, simpleImp, highHealthImp, highHealthImp, growingDjinn, growingDjinn];
-      newState.player.encounterDraw = [healthGrowImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp, healthGrowImp];
+      newState.player.encounterDraw = [healthGrowImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp, healthGrowImp, scalingDeathrattleImp, simpleDeathrattleImp, highHealthImp, healthGrowImp];
       newState.status = Status.inFight
     })
     stateObj = shuffleDraw(stateObj);
@@ -528,7 +525,6 @@ function topRowDiv(stateObj) {
         if (newState.player.encounterHand[h].growProperty) {
           newState.player.encounterHand[h].attack +=1;
           newState.player.encounterHand[h].currentHP +=1;
-          newState.player.encounterHand[h].maxHP +=1;
         }
       }
       if (playedCard) {
@@ -636,7 +632,7 @@ async function endTurn(stateObj) {
       await pause(500)
     }  
   }
-
+  stateObj = await drawACard(stateObj, stateObj.opponent)
   stateObj = await endTurnIncrement(stateObj);
   await pause(500)
   stateObj = await enemyTurn(stateObj);
@@ -767,7 +763,7 @@ async function pause(timeValue) {
 
 async function drawACard(stateObj, playerDrawing) {
   if (playerDrawing.encounterHand.length > 6 ) {
-    console.log("player's hand is full");
+    console.log(playerDrawing.name + "'s hand is full");
     return stateObj;
   }
 
@@ -776,14 +772,12 @@ async function drawACard(stateObj, playerDrawing) {
   }
 
   stateObj = immer.produce(stateObj, (newState) => {
-    let chosenPlayer = (playerDrawing = stateObj.player) ? newState.player : newState.opponent
+    let chosenPlayer = (playerDrawing.name === "player") ? newState.player : newState.opponent
     topCard = chosenPlayer.encounterDraw.shift();
     if (!topCard) {
       return newState;
     }
     chosenPlayer.encounterHand.push(topCard);
   })
-
-
   return stateObj;
 }
