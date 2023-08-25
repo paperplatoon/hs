@@ -657,7 +657,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
     /*background: linear-gradient(215deg, rgba(255, 236, 219, 0.716), rgba(229, 181, 151, 0.7));*/
   }
 
-  button:hover {
+  .end-turn-button:hover {
     background-color: rgb(24, 24, 24);
     color: white;
     cursor: pointer;
@@ -923,4 +923,10 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   50% { transform: translateY(-20px); height: 8vmin;}
   75% { transform: translateY(-5px); height: 12vmin;}
   100% { transform: translateY(0); }
+}
+
+.greyed-out {
+  background-color: grey;
+  color: grey;
+  cursor: wait;
 }

@@ -68,8 +68,8 @@ let gameStartState = {
     maxEnergy: 1,
 
     encounterDraw: [],
-    monstersInPlay: [highHealthImp],
-    encounterHand: [healthGrowImp, healthGrowImp, healthGrowImp],
+    monstersInPlay: [],
+    encounterHand: [ healthGrowImp, highHealthImp],
 
     name: "opponent",
     
@@ -85,6 +85,7 @@ let gameStartState = {
   status: Status.inFight,
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
+  canPlay: true,
 }
 
 
@@ -284,9 +285,15 @@ function renderPlayerMonstersInPlay(stateObj) {
   }
   let endTurnButton = document.createElement("Button");
   endTurnButton.classList.add("font5vmin")
-  endTurnButton.addEventListener("click", function() {
-    endTurn(stateObj)
-  })
+  if (stateObj.canPlay === true) {
+    endTurnButton.classList.add("end-turn-button")
+    endTurnButton.addEventListener("click", function() {
+      endTurn(stateObj)
+    })
+  } else {
+    endTurnButton.classList.add("greyed-out")
+  }
+  
   endTurnButton.textContent = "End Turn";
   document.querySelector("#playerMonstersInPlay").append(endTurnButton);
 }
@@ -438,10 +445,12 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
           //if cardArray is the hand, add playable class to the cards if energy > card.minReq
           if (cardArray === stateObj.player.encounterHand) {
               if (cardObj.minReq(stateObj, index, stateObj.player.encounterHand) <= stateObj.player.currentEnergy) {
-                cardDiv.classList.add("playable");
-                cardDiv.addEventListener("click", function () {
-                  playACard(stateObj, index, stateObj.player.encounterHand, stateObj.player);
-                });
+                if (stateObj.canPlay === true) {
+                  cardDiv.classList.add("playable");
+                  cardDiv.addEventListener("click", function () {
+                    playACard(stateObj, index, stateObj.player.encounterHand, stateObj.player);
+                  });
+                }
               };
           } else if (cardArray === stateObj.opponent.monstersInPlay && stateObj.playerToAttackIndex !== false) {
             cardDiv.classList.add("selectable");
@@ -606,18 +615,32 @@ function shuffleArray(array) {
 }
 
 async function endTurn(stateObj) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.canPlay = false
+  })
+  await changeState(stateObj)
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.player.monstersInPlay.forEach(function (monsterObj, index) {
+      monsterObj.canAttack = false;
+    })
+  });
 
   for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
     if (typeof(stateObj.player.monstersInPlay[i].endOfTurn) === "function") {
       stateObj = await stateObj.player.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.player.monstersInPlay, stateObj.player);
       await executeAbility("player", i)
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState.canPlay = false
+      })
       stateObj = await changeState(stateObj)
       await pause(500)
     }  
   }
 
   stateObj = await endTurnIncrement(stateObj);
+  await pause(500)
   stateObj = await enemyTurn(stateObj);
+  await pause(500)
 
   stateObj = immer.produce(stateObj, (newState) => {
     newState.player.maxEnergy += 1;
@@ -632,6 +655,11 @@ async function endTurn(stateObj) {
     })
   });
   await changeState(stateObj);
+
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.canPlay = true
+  })
+  await changeState(stateObj)
 }
 
 async function addImpact(playerName, index) {
@@ -721,7 +749,6 @@ async function enemyTurn(stateObj) {
       stateObj = await stateObj.opponent.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.opponent.monstersInPlay, stateObj.opponent);
       await executeAbility("opponent", i)
       stateObj = await changeState(stateObj)
-      await pause(500)
     }  
   }
 
@@ -732,6 +759,7 @@ async function enemyTurn(stateObj) {
   }
   return stateObj;
 }
+
 
 async function pause(timeValue) {
   return new Promise(res => setTimeout(res, timeValue))

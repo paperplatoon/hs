@@ -250,18 +250,24 @@ let simpleImp = {
       return array[index].baseCost;
     },
     
-    action: async (stateObj, index, array) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+    action: async (stateObj, index, array, playerObj) => {
+    let randIndex = -10;
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.currentEnergy -=array[index].baseCost;
-        let arrayObj = (array === stateObj.player.monstersInPlay || array === stateObj.player.encounterHand) ? newState.player.monstersInPlay : newState.opponent.monstersInPlay
-        if (arrayObj.length > 0) {
-            let targetIndex = Math.floor(Math.random() * (arrayObj.length));
-            arrayObj[targetIndex].attack +=1;
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+        console.log("player set as " + player.name)
+        player.currentEnergy -=array[index].baseCost;
+        if (player.monstersInPlay.length > 0) {
+            let targetIndex = Math.floor(Math.random() * (player.monstersInPlay.length));
+            randIndex = targetIndex
+            console.log(randIndex)
+            player.monstersInPlay[targetIndex].attack +=1;
         }
-        arrayObj.push(highHealthImp)
+        player.monstersInPlay.push(highHealthImp)
       })
+      if (randIndex >= 0) {
+        console.log('exe')
+        await executeAbility(playerObj.name, randIndex)
+      }
       return stateObj;
     }
   }
