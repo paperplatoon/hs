@@ -489,8 +489,16 @@ function topRowDiv(stateObj) {
   topRowDiv.setAttribute("id", "top-row");
 
   let playerEnergyDiv = document.createElement("Div");
-  playerEnergyDiv.setAttribute("id", "player-energy-div");
-  playerEnergyDiv.textContent = `Player Energy: ` + stateObj.player.currentEnergy + `/` + stateObj.player.maxEnergy 
+  playerEnergyDiv.setAttribute("id", "player-energy-div-top-row");
+
+  playerEnergyTextDiv = document.createElement("Div");
+  playerEnergyTextDiv.textContent = `Player Energy: `
+
+  let playerEnergyCircleDiv = document.createElement("Div");
+  playerEnergyCircleDiv.setAttribute("id", "player-energy-div");
+  playerEnergyCircleDiv.textContent = stateObj.player.currentEnergy + `/` + stateObj.player.maxEnergy 
+  
+  playerEnergyDiv.append(playerEnergyTextDiv, playerEnergyCircleDiv)
 
   let opponentEnergyDiv = document.createElement("Div");
   opponentEnergyDiv.setAttribute("id", "status-text-div");
@@ -767,7 +775,7 @@ async function pause(timeValue) {
 }
 
 async function drawACard(stateObj, playerDrawing) {
-  if (playerDrawing.encounterHand.length > 6 ) {
+  if (playerDrawing.encounterHand.length > 5 ) {
     console.log(playerDrawing.name + "'s hand is full");
     return stateObj;
   }
