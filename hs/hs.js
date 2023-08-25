@@ -402,8 +402,17 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
     let cardObj = cardArray[index];
     let cardDiv = document.createElement("Div");
     cardDiv.setAttribute("draggable", "true")
-          cardDiv.id = "card-index-"+index;
-          cardDiv.classList.add("card");
+          if (cardArray === stateObj.player.encounterHand) {
+            cardDiv.id = "hand-card-index-"+index;
+            cardDiv.classList.add("card");
+          } else if (cardArray === stateObj.player.monstersInPlay) {
+            cardDiv.id = "play-card-index-"+index;
+            cardDiv.classList.add("card");
+          } else {
+            cardDiv.id = "card-index-"+index;
+            cardDiv.classList.add("card");
+          }
+          
 
           if (cardObj.type === "fire") {
             cardDiv.classList.add("fire");
@@ -472,6 +481,7 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
 
                   cardDiv.addEventListener("dragstart", (event) => {
                     console.log("card div id " + cardDiv.id)
+                    console.log("array object is" + cardArray)
                     event.dataTransfer.setData("text/plain", cardDiv.id);
                     
                   });
@@ -484,10 +494,14 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
                   monstersDiv.addEventListener("drop", (event) => {
                     event.preventDefault();
                     const cardId = event.dataTransfer.getData("text/plain");
-                    str = cardId.charAt(cardId.length-1) 
+                    console.log("card id is" + cardId)
+                    if (cardId) {
+                      str = cardId.charAt(cardId.length-1) 
 
                     playACard(stateObj, Number(str), stateObj.player.encounterHand, stateObj.player);
                     event.stopImmediatePropagation();
+                    }
+                    
                       
                     
                   });
