@@ -6,54 +6,7 @@
 
 
   
-  let hydraweed = {
-    name: "Hydra Weed",
-    type: "earth",
-    baseCost: 1,
-    attack: 1,
-    currentHP: 1,
-    maxHP: 1,
-    deathCounter: 0,
-    avatar: "img/plant1.png",
   
-    canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `On Death: Summon a ${2+array[index].deathCounter}/${2+array[index].deathCounter} copy of this minion`  
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.monstersInPlay.push(hydraweed)
-        player.currentEnergy -=array[index].baseCost;
-      })
-      return stateObj;
-    },
-    onDeath: async (stateObj, index, array, playerObj) => {
-      let newDeathrattleImp = {...array[index]};
-      newDeathrattleImp.deathCounter += 1
-      newDeathrattleImp.attack = 1 + newDeathrattleImp.deathCounter
-      newDeathrattleImp.currentHP = 1 + newDeathrattleImp.deathCounter
-      newDeathrattleImp.maxHP = 1 + newDeathrattleImp.deathCounter
-      
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.monstersInPlay.push(newDeathrattleImp)
-      })
-      return stateObj;
-    }
-  };
   
   let growingDjinn = {
     name: "Grow",

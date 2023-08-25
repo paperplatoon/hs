@@ -103,7 +103,7 @@ async function startEncounter(stateObj) {
       newState.fightStarted = true;
       newState.player.encounterDraw = [sparkingimp, explosiveimp, tiderider, hydraweed,
       oysterspirit, greatoysterspirit, tidepoollurker, poseidon, oystergod, kelpspirit, minorefrit, airmote];
-      newState.player.encounterDraw = [airmote, airmote, zeus, zeus]
+      newState.player.encounterDraw = [airmote, GnomeTwins, GnomeTwins, birthingpot]
       newState.status = Status.inFight
     })
     stateObj = shuffleDraw(stateObj, stateObj.player);
@@ -160,6 +160,38 @@ async function completeAttack(stateObj) {
     })
   }
   await changeState(stateObj);
+  return stateObj
+}
+
+async function playDemonFromHand(stateObj, cardIndexInHand, playerSummoning, pauseTime=500) {
+  let cardObj = playerSummoning.encounterHand[cardIndexInHand]
+  stateObj = await immer.produce(stateObj, async (newState) => {
+    let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
+    player.currentEnergy -= cardObj.baseCost;
+  })
+
+  stateObj = await summonDemon(stateObj, cardObj, playerSummoning, pauseTime)
+  // stateObj = immer.produce(stateObj, (newState) => {
+  //   let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
+  //   player.monstersInPlay.push(cardObj)
+  // })
+  // await changeState(stateObj)
+  return stateObj;
+}
+
+async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=500) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
+    player.monstersInPlay.push(cardObj)
+  })
+  stateObj = await changeState(stateObj)
+  let queryString = (playerSummoning.name === "player") ? "#playerMonstersInPlay .card" : "#enemyMonstersInPlay .card"
+  let monstersLength = (playerSummoning.name === "player") ? stateObj.player.monstersInPlay.length : stateObj.opponent
+  console.log(queryString)
+  console.log(monstersLength)
+  document.querySelectorAll(queryString)[monstersLength-1].classList.add("fade-in")
+  await pause(pauseTime)
+  document.querySelectorAll(queryString)[monstersLength-1].classList.remove("fade-in")
   return stateObj
 }
 
@@ -532,11 +564,12 @@ function topRowDiv(stateObj) {
   }
   
   async function playACard(stateObj, cardIndexInHand, arrayObj, playerObj) {
-    console.log("you played " + stateObj.player.encounterHand[cardIndexInHand].name);  
-    stateObj = await stateObj.player.encounterHand[cardIndexInHand].action(stateObj, cardIndexInHand, arrayObj, playerObj);
+    let oldEncounterHand = [...playerObj.encounterHand]
     stateObj = await PlayACardImmer(stateObj, cardIndexInHand);
     stateObj = await changeState(stateObj);
-  
+    console.log("you played " + oldEncounterHand[cardIndexInHand].name);  
+    stateObj = await oldEncounterHand[cardIndexInHand].action(stateObj, cardIndexInHand, arrayObj, playerObj);
+    
     return stateObj;
   }
 

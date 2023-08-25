@@ -64,11 +64,8 @@ let minorefrit = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.monstersInPlay.push(airmote)
-      })
-      return stateObj;
+        stateObj = await playDemonFromHand(stateObj, index, playerObj)
+        return stateObj;
     }, 
 
     endOfTurn: async (stateObj, index, array, playerObj) => {

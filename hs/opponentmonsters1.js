@@ -60,7 +60,7 @@ let waverider = {
     },
   
     text: (state, index, array) => { 
-      return `At the end of your turn, this gains 1 HP` 
+      return `End of Turn: Gain +1 HP` 
     },
   
     cost:  (state, index, array) => {

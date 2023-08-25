@@ -938,6 +938,29 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   100% { transform: translateY(0); }
 }
 
+.fade-in {
+  animation: fadeIn 0.8s forwards ;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    height: 2vh;
+    width: 10vw;
+    transform: translateY(-200px);
+  }
+
+  75% {
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    height: 25vh;
+    width: 13vw;
+    transform: translateY(0px);
+  }
+}
+
 .greyed-out {
   background-color: grey;
   color: grey;
