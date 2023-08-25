@@ -606,11 +606,6 @@ function shuffleArray(array) {
 }
 
 async function endTurn(stateObj) {
-  stateObj = immer.produce(stateObj, (newState) => {
-    newState.player.monstersInPlay.forEach(function (monsterObj, index) {
-      monsterObj.canAttack = true;
-    })
-  });
 
   for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
     if (typeof(stateObj.player.monstersInPlay[i].endOfTurn) === "function") {
@@ -622,9 +617,7 @@ async function endTurn(stateObj) {
   }
 
   stateObj = await endTurnIncrement(stateObj);
-  stateObj = await changeState(stateObj);
   stateObj = await enemyTurn(stateObj);
-  stateObj = await changeState(stateObj);
 
   stateObj = immer.produce(stateObj, (newState) => {
     newState.player.maxEnergy += 1;
@@ -633,6 +626,11 @@ async function endTurn(stateObj) {
     newState.opponent.currentEnergy = newState.opponent.maxEnergy
   })
   stateObj = await drawACard(stateObj, stateObj.player);
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.player.monstersInPlay.forEach(function (monsterObj, index) {
+      monsterObj.canAttack = true;
+    })
+  });
   await changeState(stateObj);
 }
 
