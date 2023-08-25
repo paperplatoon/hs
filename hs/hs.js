@@ -52,7 +52,7 @@ let gameStartState = {
     maxEnergy: 1,
 
     encounterDraw: [],
-    monstersInPlay: [GnomeTwins],
+    monstersInPlay: [GnomeTwins, kelpspirit, kelpspirit],
     encounterHand: [],
 
     name: "player",
@@ -71,7 +71,7 @@ let gameStartState = {
                     // oysterspirit, oysterspirit, tidepoollurker, tidepoollurker,
                     // poseidon, poseidon,
                     ],
-    monstersInPlay: [GnomeTwins],
+    monstersInPlay: [GnomeTwins, kelpspirit, kelpspirit],
     encounterHand: [],
 
     name: "opponent",
@@ -133,14 +133,14 @@ async function changeState(newStateObj) {
     return stateObj
 }
 
-async function completeAttack(stateObj) {
+async function completeAttack(stateObj, attackerIndex = stateObj.playerToAttackIndex, defenderIndex = stateObj.enemyToBeAttackedIndex) {
   // document.querySelectorAll("#enemyMonstersInPlay .avatar")[0].classList.add("opponent-windup")
   // pause(500)
-  if (stateObj.enemyToBeAttackedIndex === 99) {
-    await addImpact("player", stateObj.playerToAttackIndex);
+  if (defenderIndex === 99) {
+    await addImpact("player", attackerIndex);
     await addImpact("opponent", "health");
     stateObj = immer.produce(stateObj, (newState) => {
-      let AttackingMonster = newState.player.monstersInPlay[newState.playerToAttackIndex]
+      let AttackingMonster = newState.player.monstersInPlay[attackerIndex]
       console.log(AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to the opponent")
       newState.opponent.currentHP -= AttackingMonster.attack
       AttackingMonster.canAttack = false
@@ -148,11 +148,11 @@ async function completeAttack(stateObj) {
       newState.enemyToBeAttackedIndex = false
     })
   } else {
-    await addImpact("player", stateObj.playerToAttackIndex);
-    await addImpact("opponent", stateObj.enemyToBeAttackedIndex);
+    await addImpact("player", attackerIndex);
+    await addImpact("opponent", defenderIndex);
     stateObj = immer.produce(stateObj, (newState) => {
-      let AttackingMonster = newState.player.monstersInPlay[newState.playerToAttackIndex]
-      let DefendingMonster = newState.opponent.monstersInPlay[newState.enemyToBeAttackedIndex]
+      let AttackingMonster = newState.player.monstersInPlay[attackerIndex]
+      let DefendingMonster = newState.opponent.monstersInPlay[defenderIndex]
       console.log("Player's " + AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to enemy's " + DefendingMonster.name + " and took " + DefendingMonster.attack + " damage")
       DefendingMonster.currentHP -= AttackingMonster.attack
       AttackingMonster.currentHP -= DefendingMonster.attack
@@ -494,9 +494,10 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
                   monstersDiv.addEventListener("drop", (event) => {
                     event.preventDefault();
                     const cardId = event.dataTransfer.getData("text/plain");
-                    console.log("card id is" + cardId)
+                    
                     if (cardId && cardId[0] === "h") {
                       str = cardId.charAt(cardId.length-1) 
+                      console.log("card id is" + cardId)
 
                       playACard(stateObj, Number(str), stateObj.player.encounterHand, stateObj.player);
                       event.stopImmediatePropagation();
@@ -521,12 +522,13 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
                 });
 
                 cardDiv.addEventListener("dragstart", (event) => {
-                    console.log("dragging " + cardDiv.id)
                     event.dataTransfer.setData("text/plain", cardDiv.id);
+                    console.log("dragging cardiv listener " + cardDiv.id)
                   });
 
-                  const droppableElements = document.querySelectorAll("#enemyMonstersInPlay .card");
-                  console.log(droppableElements.length)
+                  enemyMonsters.addEventListener("dragover", (event) => {
+                    let droppableElements = document.querySelectorAll("#enemyMonstersInPlay .card");
+                    console.log("droppable elements length " + droppableElements.length)
 
                   droppableElements.forEach((element, targetIndex) => {
                     element.addEventListener("dragover", (event) => {
@@ -535,40 +537,24 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
 
                     element.addEventListener("drop", (event) => {
                       event.preventDefault();
-                      const sourceIndex = event.dataTransfer.getData("text/plain");
-                      console.log("dropped card at index " + targetIndex)
+                      const cardId = event.dataTransfer.getData("text/plain");
+                    
+                    if (cardId && cardId[0] === "p") {
+                      str = Number(cardId.charAt(cardId.length-1)) 
+                      console.log("played card id is " + str)
+                      console.log("targeted index is " + targetIndex)
+                      stateObj = completeAttack(stateObj, str, targetIndex)
+
+
+                      event.stopImmediatePropagation();
+                    }
                       // Call your function with the index of the target zone element
                       //yourFunction(targetIndex);
                     });
                   });
+                  })
 
-                
-                
-                
-                  // enemyMonsters.addEventListener("drop", (event) => {
-                  //   event.preventDefault();
-                  //   const sourceIndex = event.dataTransfer.getData("text/plain");
-
-                  //   console.log("card id is" + cardId)
-                  //   if (cardId) {
-                  //     str = cardId.charAt(cardId.length-1) 
-
-                  //   playACard(stateObj, Number(str), stateObj.player.encounterHand, stateObj.player);
-                  //   event.stopImmediatePropagation();
-                  //   }
-                    
-
-                  //   console.log("dopping source index " + sourceIndex)
-                  //   console.log("dopping target index " + targetIndex)
-                
-                  //   if (sourceIndex !== "" && targetIndex !== -1) {
-                  //     // Trigger your function with the indexes
-                  //     // For example: performAction(sourceIndex, targetIndex);
-                  //     console.log("Dragged from #playMonsters index:", sourceIndex);
-                  //     console.log("Dropped on #enemyMonsters index:", targetIndex);
-                  //   }
-                  // });
-                
+    
           }
 
           if (cardArray === stateObj.player.monstersInPlay && stateObj.playerToAttackIndex === index) {
