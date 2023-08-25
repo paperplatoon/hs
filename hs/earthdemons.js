@@ -99,7 +99,7 @@ let hydraweed = {
     potCounter: 0,
     avatar: "img/plant1.png",
   
-    canAttack: false,
+    canAttack: true,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
