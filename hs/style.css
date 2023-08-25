@@ -21,8 +21,13 @@
 
 
 .card h3 {
-  font-size: 0.9vw;
+  font-size: 1.1vw;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  resize: vertical;
+  overflow: auto;
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
   margin-bottom: 0;
 }
@@ -32,8 +37,6 @@
   width: 100%;
   flex-direction: row;
   justify-content: start;
-  line-height: 3.5vmin;
-  height: 3.5vmin;
   margin-top: 0.5vmin;
   background-color: rgb(169, 244, 169);
 }

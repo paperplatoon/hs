@@ -65,9 +65,11 @@ let gameStartState = {
     currentEnergy: 1,
     maxEnergy: 1,
 
-    encounterDraw: [opponentGrowImp, restoreHealthToOwner, opponentGrowImp, restoreHealthToOwner, 
-                    restoreHealthToOwner2, restoreHealthToOwner2a,restoreHealthToOwner2, restoreHealthToOwner2a,
-                    restoreHealthToOwner3, restoreHealthToOwner3],
+    encounterDraw: [
+                    tiderider, tiderider, tiderider, tiderider, 
+                    kelpspirit, kelpspirit, kelpspirit, kelpspirit,
+                    oysterspirit, oysterspirit, tidepoollurker, tidepoollurker,
+                    ],
     monstersInPlay: [],
     encounterHand: [],
 
@@ -497,7 +499,7 @@ function topRowDiv(stateObj) {
   let playerEnergyCircleDiv = document.createElement("Div");
   playerEnergyCircleDiv.setAttribute("id", "player-energy-div");
   playerEnergyCircleDiv.textContent = stateObj.player.currentEnergy + `/` + stateObj.player.maxEnergy 
-  
+
   playerEnergyDiv.append(playerEnergyTextDiv, playerEnergyCircleDiv)
 
   let opponentEnergyDiv = document.createElement("Div");

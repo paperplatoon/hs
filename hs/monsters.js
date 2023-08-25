@@ -1,8 +1,8 @@
 //high health not always giving to simple imp
 //fire - deal damage
-//earth - healing
+//earth - summon more guys
 //air - gain attack
-//water - 
+//water - gain health
 
 let simpleImp = {
     name: "Sparking Imp",

@@ -1,5 +1,7 @@
-let opponentGrowImp = {
-    name: "opGrowImp",
+//water monsters
+
+let tiderider = {
+    name: "Tide Rider",
     type: "water",
     baseCost: 1,
     attack: 1,
@@ -14,7 +16,7 @@ let opponentGrowImp = {
     },
   
     text: (state, index, array) => { 
-      return `At the end of your turn, this gains 1 HP` 
+      return `End of Turn: Gains +1 HP` 
     },
   
     cost:  (state, index, array) => {
@@ -27,7 +29,7 @@ let opponentGrowImp = {
       stateObj = immer.produce(stateObj, (newState) => {
         let player = (playerObj.name === "player") ? newState.player : newState.opponent
 
-        player.monstersInPlay.push(opponentGrowImp)
+        player.monstersInPlay.push(tiderider)
         player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
@@ -42,8 +44,8 @@ let opponentGrowImp = {
     }
   };
 
-  let restoreHealthToOwner = {
-    name: "rest",
+  let oysterspirit = {
+    name: "Oyster Spirit",
     type: "water",
     baseCost: 1,
     attack: 1,
@@ -58,7 +60,7 @@ let opponentGrowImp = {
     },
   
     text: (state, index, array) => { 
-      return `At the end of your turn, owner gains 1 HP` 
+      return `End of Turn: owner gains 1 Life` 
     },
   
     cost:  (state, index, array) => {
@@ -71,7 +73,7 @@ let opponentGrowImp = {
       stateObj = immer.produce(stateObj, (newState) => {
         let player = (playerObj.name === "player") ? newState.player : newState.opponent
 
-        player.monstersInPlay.push(restoreHealthToOwner)
+        player.monstersInPlay.push(oysterspirit)
         player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
@@ -85,8 +87,8 @@ let opponentGrowImp = {
     }
   };
 
-  let restoreHealthToOwner2 = {
-    name: "rest2",
+  let greatoysterspirit = {
+    name: "Great Oyster Spirit",
     type: "water",
     baseCost: 2,
     attack: 1,
@@ -101,7 +103,7 @@ let opponentGrowImp = {
     },
   
     text: (state, index, array) => { 
-      return `At the end of your turn, owner gains 2 HP` 
+      return `End of Turn: owner gains 2 Life` 
     },
   
     cost:  (state, index, array) => {
@@ -114,7 +116,7 @@ let opponentGrowImp = {
       stateObj = immer.produce(stateObj, (newState) => {
         let player = (playerObj.name === "player") ? newState.player : newState.opponent
 
-        player.monstersInPlay.push(restoreHealthToOwner2)
+        player.monstersInPlay.push(greatoysterspirit)
         player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
@@ -128,13 +130,13 @@ let opponentGrowImp = {
     }
   };
 
-  let restoreHealthToOwner2a = {
-    name: "rest2a",
+  let tidepoollurker = {
+    name: "Tidepool Lurker",
     type: "water",
     baseCost: 2,
     attack: 2,
-    currentHP: 3,
-    maxHP: 3,
+    currentHP: 2,
+    maxHP: 2,
     avatar: "img/waterpuddle.png",
   
     canAttack: false,
@@ -144,7 +146,7 @@ let opponentGrowImp = {
     },
   
     text: (state, index, array) => { 
-      return `At the end of your turn, owner gains 1 HP` 
+      return `End of Turn: Gain +1 HP` 
     },
   
     cost:  (state, index, array) => {
@@ -157,7 +159,7 @@ let opponentGrowImp = {
       stateObj = immer.produce(stateObj, (newState) => {
         let player = (playerObj.name === "player") ? newState.player : newState.opponent
 
-        player.monstersInPlay.push(restoreHealthToOwner2a)
+        player.monstersInPlay.push(tidepoollurker)
         player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
@@ -165,19 +167,20 @@ let opponentGrowImp = {
     endOfTurn: async (stateObj, index, array, playerObj) => {
       stateObj = immer.produce(stateObj, (newState) => {
         let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.currentHP += 2;
+        player.monstersInPlay[index].currentHP += 1;
+        player.monstersInPlay[index].maxHP += 1;
       })
       return stateObj;
     }
   };
 
-  let restoreHealthToOwner3 = {
-    name: "rest3",
+  let kelpspirit = {
+    name: "Kelp Spirit",
     type: "water",
-    baseCost: 3,
-    attack: 2,
-    currentHP: 4,
-    maxHP: 4,
+    baseCost: 1,
+    attack: 1,
+    currentHP: 1,
+    maxHP: 1,
     avatar: "img/waterpuddle.png",
   
     canAttack: false,
@@ -187,7 +190,7 @@ let opponentGrowImp = {
     },
   
     text: (state, index, array) => { 
-      return `At the end of your turn, owner gains 2 HP` 
+      return `End of Turn: Give another friendly demon +1 HP` 
     },
   
     cost:  (state, index, array) => {
@@ -200,7 +203,7 @@ let opponentGrowImp = {
       stateObj = immer.produce(stateObj, (newState) => {
         let player = (playerObj.name === "player") ? newState.player : newState.opponent
 
-        player.monstersInPlay.push(restoreHealthToOwner3)
+        player.monstersInPlay.push(kelpspirit)
         player.currentEnergy -=array[index].baseCost;
       })
       return stateObj;
@@ -208,7 +211,22 @@ let opponentGrowImp = {
     endOfTurn: async (stateObj, index, array, playerObj) => {
       stateObj = immer.produce(stateObj, (newState) => {
         let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.currentHP += 2;
+        if (player.monstersInPlay.length > 1) {
+            let targetIndex = Math.floor(Math.random() * (player.monstersInPlay.length));
+
+            if (targetIndex !== index) {
+                player.monstersInPlay[targetIndex].currentHP +=1;
+                player.monstersInPlay[targetIndex].maxHP +=1;
+            } else {
+                if (targetIndex === 0) {
+                    player.monstersInPlay[targetIndex+1].currentHP +=1;
+                    player.monstersInPlay[targetIndex+1].maxHP +=1;
+                } else {
+                    player.monstersInPlay[targetIndex-1].currentHP +=1;
+                    player.monstersInPlay[targetIndex-1].maxHP +=1;
+                }
+            }
+        }
       })
       return stateObj;
     }
