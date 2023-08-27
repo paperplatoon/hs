@@ -49,11 +49,11 @@ let gameStartState = {
   player: {
     currentHP: 10,
 
-    currentEnergy: 1,
-    maxEnergy: 1,
+    currentEnergy: 3,
+    maxEnergy: 3,
 
     encounterDraw: [],
-    monstersInPlay: [oystergod, oystergod, kelpspirit],
+    monstersInPlay: [],
     encounterHand: [],
 
     name: "player",
@@ -63,16 +63,11 @@ let gameStartState = {
   opponent: {
     currentHP: 10,
 
-    currentEnergy: 1,
-    maxEnergy: 1,
+    currentEnergy: 3,
+    maxEnergy: 3,
 
-    encounterDraw: [
-                    waverider, waverider, waverider, waverider, 
-                    kelpspirit, kelpspirit, kelpspirit, kelpspirit,
-                    // oysterspirit, oysterspirit, tidepoollurker, tidepoollurker,
-                    // poseidon, poseidon,
-                    ],
-    monstersInPlay: [GnomeTwins, kelpspirit, kelpspirit],
+    encounterDraw: [],
+    monstersInPlay: [],
     encounterHand: [],
 
     name: "opponent",
@@ -89,7 +84,7 @@ let gameStartState = {
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
-  testingMode: true,
+  testingMode: false,
 
   cardToBePlayed: false,
 }
@@ -105,9 +100,9 @@ let fullMinionDeck = [sparkingimp, explosiveimp, tiderider, hydraweed, airmote]
 async function startEncounter(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
-      newState.player.encounterDraw = [sparkingimp, explosiveimp, tiderider, hydraweed,
-      oysterspirit, greatoysterspirit, tidepoollurker, poseidon, oystergod, kelpspirit, minorefrit, airmote];
+      newState.player.encounterDraw = [...playerWaterStarterMinions];
       newState.status = Status.inFight
+      newState.opponent.encounterDraw = [...enemyWater1Minions]
     })
 
     if (stateObj.testingMode === true) {
@@ -534,9 +529,6 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
             cardDiv.addEventListener("click", function () {
               selectThisEnemyIndex(stateObj, index);
             });
-            if (cardArray[index].canAttack === true) {
-                cardDiv.classList.add("can-attack");
-              }
 
           } else if (cardArray === stateObj.player.monstersInPlay && cardArray[index].canAttack === true) {
             const enemyMonsters = document.querySelector("#enemyMonstersInPlay");
@@ -865,32 +857,31 @@ async function enemyTurn(stateObj) {
   
   let currentEnergy = stateObj.opponent.currentEnergy;
 
-  if (currentEnergy > 0) {
+    //if can play card, push to index
     let indexesToDelete = []
     for (let i = 0; i < stateObj.opponent.encounterHand.length; i++) {
-      let cardObj = stateObj.opponent.encounterHand[i];
-      if (cardObj.cost(stateObj, i, stateObj.opponent.encounterHand) <= currentEnergy) {
-        currentEnergy -= cardObj.cost(stateObj, i, stateObj.opponent.encounterHand);
-        indexesToDelete.push(i)
-        // stateObj = immer.produce(stateObj, (newState) => {
-        //   newState.opponent.monstersInPlay.push(cardObj)
-        //   indexesToDelete.push(index)
-        //   //newState.opponent.encounterHand.splice(index, 1)
-        // })
+      if (currentEnergy > 0) {
+        let cardObj = stateObj.opponent.encounterHand[i];
+        if (cardObj.cost(stateObj, i, stateObj.opponent.encounterHand) <= currentEnergy) {
+          currentEnergy -= cardObj.cost(stateObj, i, stateObj.opponent.encounterHand);
+          indexesToDelete.push(i)
+        }
       }
     }
-    
-    indexesToDelete.reverse()
-    for (let i = 0; i < indexesToDelete.length; i++) {
-      stateObj = await stateObj.opponent.encounterHand[indexesToDelete[i]].action(stateObj, indexesToDelete[i], stateObj.opponent.encounterHand, stateObj.opponent);
-      stateObj = await immer.produce(stateObj, async (newState) => {
-        newState.opponent.encounterHand.splice(indexesToDelete[i], 1)
-      })
-      stateObj = await changeState(stateObj)
-      await pause(750)
+    //play that card
+    if (indexesToDelete.length > 0) {
+      indexesToDelete.reverse()
+      for (let i = 0; i < indexesToDelete.length; i++) {
+        stateObj = await stateObj.opponent.encounterHand[indexesToDelete[i]].action(stateObj, indexesToDelete[i], stateObj.opponent.encounterHand, stateObj.opponent);
+        stateObj = await immer.produce(stateObj, async (newState) => {
+          newState.opponent.encounterHand.splice(indexesToDelete[i], 1)
+        })
+        stateObj = await changeState(stateObj)
+        await pause(750)
+      }
     }
-  }
 
+  //check for opponent end of turn abilities, and set all enemies' canAttacks to true
   for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
     if (stateObj.opponent.monstersInPlay[i].endOfTurn) {
       stateObj = await stateObj.opponent.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.opponent.monstersInPlay, stateObj.opponent);
