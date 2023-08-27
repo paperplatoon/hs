@@ -1,6 +1,7 @@
 
 
-
+// next up - animated deaths
+//animated entrance
 
 // -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
 // -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
@@ -52,7 +53,7 @@ let gameStartState = {
     maxEnergy: 1,
 
     encounterDraw: [],
-    monstersInPlay: [GnomeTwins, kelpspirit, kelpspirit],
+    monstersInPlay: [oystergod, oystergod, kelpspirit],
     encounterHand: [],
 
     name: "player",
@@ -105,7 +106,7 @@ async function startEncounter(stateObj) {
       newState.fightStarted = true;
       newState.player.encounterDraw = [sparkingimp, explosiveimp, tiderider, hydraweed,
       oysterspirit, greatoysterspirit, tidepoollurker, poseidon, oystergod, kelpspirit, minorefrit, airmote];
-      newState.player.encounterDraw = [airmote, GnomeTwins, GnomeTwins, birthingpot]
+      newState.player.encounterDraw = [airmote, GnomeTwins, GnomeTwins, healingspring]
       newState.status = Status.inFight
     })
     stateObj = shuffleDraw(stateObj, stateObj.player);
@@ -401,7 +402,7 @@ async function renderWonFight(stateObj) {
 function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=false) {
     let cardObj = cardArray[index];
     let cardDiv = document.createElement("Div");
-    cardDiv.setAttribute("draggable", "true")
+    
           if (cardArray === stateObj.player.encounterHand) {
             cardDiv.id = "hand-card-index-"+index;
             cardDiv.classList.add("card");
@@ -452,6 +453,7 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
           let avatar = document.createElement('img');
           avatar.classList.add("avatar");
           avatar.src = cardObj.avatar;
+          avatar.setAttribute("draggable", "false")
           
           
           cardDiv.append(avatar, cardText);
@@ -475,6 +477,7 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
               if (cardObj.minReq(stateObj, index, stateObj.player.encounterHand) <= stateObj.player.currentEnergy) {
                 if (stateObj.canPlay === true) {
                   cardDiv.classList.add("playable");
+                  cardDiv.setAttribute("draggable", "true")
                   cardDiv.addEventListener("click", function () {
                     playACard(stateObj, index, stateObj.player.encounterHand, stateObj.player);
                   });
@@ -514,9 +517,20 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
             cardDiv.addEventListener("click", function () {
               selectThisEnemyIndex(stateObj, index);
             });
+            if (cardArray[index].canAttack === true) {
+                cardDiv.classList.add("can-attack");
+              }
+
           } else if (cardArray === stateObj.player.monstersInPlay && cardArray[index].canAttack === true) {
             const enemyMonsters = document.querySelector("#enemyMonstersInPlay");
-            cardDiv.classList.add("can-attack");
+            cardDiv.setAttribute("draggable", "true")
+            if (cardArray[index].type === "water") {
+              cardDiv.classList.add("can-attack-water");
+            } else if (cardArray[index].type === "earth") {
+              cardDiv.classList.add("can-attack-earth");
+            } else {
+              cardDiv.classList.add("can-attack");
+            }
                 cardDiv.addEventListener("click", function () {
                   playerMonsterIsAttacking(stateObj, index, stateObj.player.monstersInPlay);
                 });

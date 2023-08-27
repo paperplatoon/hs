@@ -1,4 +1,24 @@
-//water monsters
+
+//common - 5
+//waverider - 1/1, +1HP eot
+//oysterspirit - 1/1, +1 life
+//tidepool lurker - 2 2/2, eot +1 hp
+//kelp spirit - 1 1/2, eot give another +1
+//great oyster spirit - 2 1/2, eot +2 Life
+
+//rare
+//tiderider - 1/2, +1HP eot
+// 4 mana - 4/4 Restore all minions to full health
+
+
+//epic 
+//poseidon - 4 3/4, all minions end of turn +1
+
+
+//legendary
+//oyster god - 3 1/6, end of turn owner  gains 5 HP
+
+
 
 let waverider = {
     name: "Wave Rider",
@@ -223,8 +243,8 @@ let waverider = {
     type: "water",
     baseCost: 1,
     attack: 1,
-    currentHP: 1,
-    maxHP: 1,
+    currentHP: 2,
+    maxHP: 2,
     avatar: "img/waterpuddle.png",
   
     canAttack: false,
@@ -331,14 +351,14 @@ let waverider = {
     maxHP: 6,
     avatar: "img/waterpuddle.png",
   
-    canAttack: false,
+    canAttack: true,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
     },
   
     text: (state, index, array) => { 
-      return `End of Turn: owner gains 5 Life` 
+      return `Can attack immediately. End of Turn: owner gains 5 Life` 
     },
   
     cost:  (state, index, array) => {
@@ -363,4 +383,51 @@ let waverider = {
       })
       return stateObj;
     }
+  };
+
+  let healingspring = {
+    name: "Healing Spring",
+    type: "water",
+    baseCost: 1,
+    attack: 4,
+    currentHP: 4,
+    maxHP: 4,
+    avatar: "img/plant1.png",
+  
+    canAttack: true,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: Heal all minions to full HP`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      //await cardAnimationDiscard(index);
+      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+      stateObj = await changeState(stateObj)
+
+      for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
+        stateObj = immer.produce(stateObj, (newState) => {
+            newState.player.monstersInPlay[i].currentHP = newState.player.monstersInPlay[i].maxHP
+        })
+      }
+
+      for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
+        stateObj = immer.produce(stateObj, (newState) => {
+            newState.opponent.monstersInPlay[i].currentHP = newState.opponent.monstersInPlay[i].maxHP
+        })
+      }
+      
+      //await pause(250)
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
   };
