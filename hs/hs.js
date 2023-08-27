@@ -89,6 +89,7 @@ let gameStartState = {
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
+  testingMode: true,
 
   cardToBePlayed: false,
 }
@@ -106,15 +107,31 @@ async function startEncounter(stateObj) {
       newState.fightStarted = true;
       newState.player.encounterDraw = [sparkingimp, explosiveimp, tiderider, hydraweed,
       oysterspirit, greatoysterspirit, tidepoollurker, poseidon, oystergod, kelpspirit, minorefrit, airmote];
-      newState.player.encounterDraw = [airmote, GnomeTwins, GnomeTwins, healingspring]
       newState.status = Status.inFight
     })
+
+    if (stateObj.testingMode === true) {
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState.player.encounterDraw = [purifiedoverlord, deityoflight, sacrificialsprite, healingspring];
+        newState.player.monstersInPlay = [purifiedoverlord, deityoflight, sacrificialsprite, healingspring];
+        newState.player.currentEnergy = 15;
+        newState.opponent.monstersInPlay = [GnomeTwins, deityoflight, kelpspirit]
+      })
+      for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
+        stateObj = immer.produce(stateObj, (newState) => {
+          newState.player.monstersInPlay[i].canAttack = true;
+        })
+      }
+    }
+
     stateObj = shuffleDraw(stateObj, stateObj.player);
     stateObj = shuffleDraw(stateObj, stateObj.opponent);
     for (let h=0; h < 4; h++) {
       stateObj = await drawACard(stateObj, stateObj.player)
       stateObj = await drawACard(stateObj, stateObj.opponent)
     }
+
+    
 
     await changeState(stateObj);
     return stateObj
