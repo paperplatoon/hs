@@ -47,7 +47,7 @@ const Status = {
 let gameStartState = {
 
   player: {
-    currentHP: 10,
+    currentHP: 30,
 
     currentEnergy: 1,
     maxEnergy: 1,
@@ -84,7 +84,7 @@ let gameStartState = {
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
-  testingMode: true,
+  testingMode: false,
 
   cardToBePlayed: false,
 }
@@ -107,10 +107,10 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [purifiedoverlord, hypedjinn, healerimp, spreadingfungi];
-        newState.player.monstersInPlay = [kelpspirit, kelpspirit, ];
+        newState.player.encounterDraw = [herbalistimp, fragilespirit, impcub, spreadingfungi];
+        newState.player.monstersInPlay = [kelpspirit, herbalistimp, ];
         newState.player.currentEnergy = 15;
-        newState.player.currentHP = 17
+        newState.player.currentHP = 30
         newState.opponent.monstersInPlay = []
       })
       for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {

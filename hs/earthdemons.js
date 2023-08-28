@@ -244,3 +244,74 @@ let hydraweed = {
         return stateObj;
     },
   };
+
+  let herbalistimp = {
+    name: "Herbalist Imp",
+    type: "earth",
+    baseCost: 2,
+    attack: 1,
+    currentHP: 1,
+    maxHP: 1,
+    potCounter: 0,
+    avatar: "img/plant1.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: summon 2 1/1 Pot Growths`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+      stateObj = await changeState(stateObj)
+      stateObj = await summonDemon(stateObj, potgrowth, playerObj, 500)
+      stateObj = await summonDemon(stateObj, potgrowth, playerObj, 500)
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
+  let impcub = {
+    name: "Imp Cub",
+    type: "earth",
+    baseCost: 2,
+    attack: 1,
+    currentHP: 1,
+    maxHP: 1,
+    avatar: "img/plant1.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: summon a 2/2 Pot Growths`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+      stateObj = await changeState(stateObj)
+      let newpot = {...potgrowth}
+      newpot.attack += 1
+      newpot.currentHP += 1
+      newpot.baseCost += 1
+      newpot.maxHP += 1
+      stateObj = await summonDemon(stateObj, newpot, playerObj, 500)
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };

@@ -22,7 +22,7 @@
 
 let tiderider = {
     name: "Tide Rider",
-    type: "water",
+    type: "earth",
     baseCost: 1,
     attack: 1,
     currentHP: 2,
@@ -60,7 +60,7 @@ let tiderider = {
 
   let greatoysterspirit = {
     name: "Great Oyster Spirit",
-    type: "water",
+    type: "earth",
     baseCost: 2,
     attack: 1,
     currentHP: 2,
@@ -98,7 +98,7 @@ let tiderider = {
 
   let tidepoollurker = {
     name: "Tidepool Lurker",
-    type: "water",
+    type: "earth",
     baseCost: 2,
     attack: 2,
     currentHP: 2,
@@ -137,7 +137,7 @@ let tiderider = {
 
   let kelpspirit = {
     name: "Kelp Spirit",
-    type: "water",
+    type: "earth",
     baseCost: 1,
     attack: 1,
     currentHP: 2,
@@ -190,7 +190,7 @@ let tiderider = {
 
   let poseidon = {
     name: "Poseidon",
-    type: "water",
+    type: "earth",
     baseCost: 4,
     attack: 3,
     currentHP: 4,
@@ -231,7 +231,7 @@ let tiderider = {
 
   let oystergod = {
     name: "Oyster God",
-    type: "water",
+    type: "earth",
     baseCost: 3,
     attack: 1,
     currentHP: 6,
@@ -269,7 +269,7 @@ let tiderider = {
 
   let healingspring = {
     name: "Healing Spring",
-    type: "water",
+    type: "earth",
     baseCost: 3,
     attack: 3,
     currentHP: 3,
@@ -316,7 +316,7 @@ let tiderider = {
 
   let sacrificialsprite = {
     name: "Sacrificial Sprite",
-    type: "water",
+    type: "earth",
     rarity: "rare",
     baseCost: 2,
     attack: 3,
@@ -359,7 +359,7 @@ let tiderider = {
 
   let deityoflight = {
     name: "Deity of Light",
-    type: "water",
+    type: "earth",
     baseCost: 4,
     attack: 4,
     currentHP: 5,
@@ -401,7 +401,7 @@ let tiderider = {
 
   let purifiedoverlord = {
     name: "Purified Overlord",
-    type: "water",
+    type: "earth",
     baseCost: 6,
     attack: 5,
     currentHP: 8,
@@ -459,7 +459,7 @@ let tiderider = {
 
   let corruptingspirit = {
     name: "Corrupting Spirit",
-    type: "water",
+    type: "earth",
     baseCost: 6,
     attack: 5,
     currentHP: 8,
@@ -499,25 +499,11 @@ let tiderider = {
       return stateObj;
     },
 
-    endOfTurn: async (stateObj, index, array, playerObj) => {
-  
-        let playerOutside = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
-        for (let i = 0; i < playerOutside.monstersInPlay.length; i++) {
-          stateObj = immer.produce(stateObj, (newState) => {
-              let playerInside = (playerObj.name === "player") ? newState.player : newState.opponent
-              playerInside.monstersInPlay[i].currentHP = playerInside.monstersInPlay[i].maxHP
-          })
-        }
-  
-        //await pause(250)
-        stateObj = await changeState(stateObj)
-        return stateObj;
-      },
   };
 
-  let voodoodoll = {
-    name: "voodoodoll",
-    type: "water",
+  let poisonousswamp = {
+    name: "Poisonous Swamp",
+    type: "earth",
     baseCost: 2,
     attack: 1,
     currentHP: 3,
@@ -562,7 +548,7 @@ let tiderider = {
 
   let spreadingblessing = {
     name: "Spreading Blessing",
-    type: "water",
+    type: "earth",
     baseCost: 3,
     attack: 2,
     currentHP: 3,
@@ -617,7 +603,7 @@ let tiderider = {
 
   let waterelemental = {
     name: "Water Elemental",
-    type: "water",
+    type: "earth",
     baseCost: 1,
     attack: 1,
     currentHP: 5,
@@ -649,7 +635,7 @@ let tiderider = {
 
   let waterelemental2 = {
     name: "Water Elemental",
-    type: "water",
+    type: "earth",
     baseCost: 2,
     attack: 2,
     currentHP: 6,
@@ -680,7 +666,7 @@ let tiderider = {
 
   let waterelemental3 = {
     name: "Water Elemental",
-    type: "water",
+    type: "earth",
     baseCost: 3,
     attack: 2,
     currentHP: 10,
@@ -711,7 +697,7 @@ let tiderider = {
 
   let bellcasterdeity = {
     name: "Bellcaster Deity",
-    type: "water",
+    type: "earth",
     baseCost: 4,
     attack: 4,
     currentHP: 5,
@@ -745,7 +731,6 @@ let tiderider = {
                 let playerInside = (playerObj.name === "player") ? newState.player : newState.opponent
                 playerInside.monstersInPlay[i].currentHP *= 2
                 playerInside.monstersInPlay[i].maxHP *= 2
-                console.log("looping bellcaster, giving monster " + playerInside.monstersInPlay[i].currentHP + " hp")
             })
             await changeState(stateObj)
       }
@@ -756,7 +741,7 @@ let tiderider = {
 
   let healerimp = {
     name: "Healer Imp",
-    type: "water",
+    type: "earth",
     baseCost: 1,
     attack: 1,
     currentHP: 2,
@@ -794,7 +779,7 @@ let tiderider = {
 
   let kindspirit = {
     name: "Kind Spirit",
-    type: "water",
+    type: "earth",
     baseCost: 3,
     attack: 4,
     currentHP: 6,
@@ -828,7 +813,7 @@ let tiderider = {
 
   let empoweredspirit = {
     name: "Kind Spirit",
-    type: "water",
+    type: "earth",
     baseCost: 4,
     attack: 4,
     currentHP: 5,
@@ -867,7 +852,7 @@ let tiderider = {
 
   let lifegiver = {
     name: "Life Giver",
-    type: "water",
+    type: "earth",
     baseCost: 3,
     attack: 2,
     currentHP: 4,
@@ -902,7 +887,7 @@ let tiderider = {
 
   let hypedjinn = {
     name: "Hype Djinn",
-    type: "water",
+    type: "earth",
     baseCost: 2,
     attack: 1,
     currentHP: 3,
@@ -949,9 +934,140 @@ let tiderider = {
     },
   };
 
+  let lightbornimp = {
+    name: "Lightborn Imp",
+    type: "earth",
+    baseCost: 2,
+    attack: 2,
+    currentHP: 3,
+    maxHP: 3,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: If you have at least 25 health, gain +2/+2` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        if (player.currentHP >= 25) {
+            let newDemon = {...array[index]}
+            newDemon.attack += 2
+            newDemon.currentHP +=2
+            newDemon.maxHP += 2
+
+            stateObj = immer.produce(stateObj, (newState) => {
+                let player = (playerObj.name === "player") ? newState.player : newState.opponent
+                player.currentEnergy -= array[index].baseCost
+            })
+            stateObj = await summonDemon(stateObj, newDemon, playerObj)
+        } else {
+            stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+  let fragilespirit= {
+    name: "Fragile Spirit",
+    type: "earth",
+    baseCost: 3,
+    attack: 4,
+    currentHP: 3,
+    maxHP: 3,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: If you have at least 25 health, double this minion's HP` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        if (player.currentHP >= 25) {
+            let newDemon = {...array[index]}
+            newDemon.currentHP += newDemon.currentHP
+            newDemon.maxHP += newDemon.maxHP
+
+            stateObj = immer.produce(stateObj, (newState) => {
+                let player = (playerObj.name === "player") ? newState.player : newState.opponent
+                player.currentEnergy -= array[index].baseCost
+            })
+            stateObj = await summonDemon(stateObj, newDemon, playerObj)
+        } else {
+            stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+  let cowardlyspirit = {
+    name: "Cowardly Spirit",
+    type: "earth",
+    baseCost: 4,
+    attack: 4,
+    currentHP: 5,
+    maxHP: 3,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: If you have at least 20 health, gain +1/+3` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        if (player.currentHP >= 25) {
+            let newDemon = {...array[index]}
+            newDemon.attack += 1
+            newDemon.currentHP +=3
+            newDemon.maxHP += 3
+
+            stateObj = immer.produce(stateObj, (newState) => {
+                let player = (playerObj.name === "player") ? newState.player : newState.opponent
+                player.currentEnergy -= array[index].baseCost
+            })
+            stateObj = await summonDemon(stateObj, newDemon, playerObj)
+        } else {
+            stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
   let risingtsunami = {
     name: "Rising Tsunami",
-    type: "water",
+    type: "earth",
     baseCost: 5,
     attack: 5,
     currentHP: 5,
@@ -989,7 +1105,7 @@ let tiderider = {
 
   let europesspectre = {
     name: "Europe's Specture",
-    type: "water",
+    type: "earth",
     baseCost: 5,
     attack: 4,
     currentHP: 7,
