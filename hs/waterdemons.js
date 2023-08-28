@@ -357,6 +357,80 @@ let tiderider = {
       }
   };
 
+  let forestnymph = {
+    name: "Forest Nymph",
+    type: "earth",
+    rarity: "rare",
+    baseCost: 2,
+    attack: 2,
+    currentHP: 2,
+    maxHP: 2,
+    avatar: "img/plant1.png",
+  
+    canAttack: true,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When played: Hero gains 3 Life`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+      stateObj = immer.produce(stateObj, (newState) => {
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+        player.currentHP += 3;
+    })
+      stateObj = await changeState(stateObj)
+
+      return stateObj;
+    },
+  };
+
+  let woodsprite = {
+    name: "Wood Sprite",
+    type: "earth",
+    rarity: "rare",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 3,
+    maxHP: 3,
+    avatar: "img/plant1.png",
+  
+    canAttack: true,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When played: Hero gains 1 Life`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+      stateObj = immer.produce(stateObj, (newState) => {
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+        player.currentHP += 1;
+    })
+      stateObj = await changeState(stateObj)
+
+      return stateObj;
+    },
+  };
+
   let deityoflight = {
     name: "Deity of Light",
     type: "earth",
@@ -606,8 +680,8 @@ let tiderider = {
     type: "earth",
     baseCost: 1,
     attack: 1,
-    currentHP: 5,
-    maxHP: 5,
+    currentHP: 4,
+    maxHP: 4,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -638,8 +712,8 @@ let tiderider = {
     type: "earth",
     baseCost: 2,
     attack: 2,
-    currentHP: 6,
-    maxHP: 6,
+    currentHP: 5,
+    maxHP: 5,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -669,8 +743,8 @@ let tiderider = {
     type: "earth",
     baseCost: 3,
     attack: 2,
-    currentHP: 10,
-    maxHP: 10,
+    currentHP: 8,
+    maxHP: 8,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -827,7 +901,7 @@ let tiderider = {
     },
   
     text: (state, index, array) => { 
-      return `When Played: If player's health is 15 or more, gain +3/+3` 
+      return `When Played: If player's health is 30 or more, gain +3/+3` 
     },
   
     cost:  (state, index, array) => {
@@ -839,7 +913,7 @@ let tiderider = {
         stateObj = await changeState(stateObj)
         stateObj = immer.produce(stateObj, (newState) => {
             let player = (playerObj.name === "player") ? newState.player : newState.opponent
-            if (player.currentHP >= 15) {
+            if (player.currentHP >= 30) {
                 player.monstersInPlay[player.monstersInPlay.length-1].attack  += 3;
                 player.monstersInPlay[player.monstersInPlay.length-1].currentHP  += 3;
                 player.monstersInPlay[player.monstersInPlay.length-1].maxHP  += 3;
@@ -866,7 +940,7 @@ let tiderider = {
     },
   
     text: (state, index, array) => { 
-      return `When Played: Both players gain 5 life` 
+      return `When Played: Both players gain 4 life` 
     },
   
     cost:  (state, index, array) => {
@@ -877,8 +951,8 @@ let tiderider = {
         stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
         stateObj = await changeState(stateObj)
         stateObj = immer.produce(stateObj, (newState) => {
-            newState.player.currentHP += 5
-            newState.opponent.currentHP += 5
+            newState.player.currentHP += 4
+            newState.opponent.currentHP += 4
           })
         stateObj = await changeState(stateObj)
         return stateObj;
@@ -1021,6 +1095,49 @@ let tiderider = {
     },
   };
 
+  let minorfragile = {
+    name: "Minor Fragile",
+    type: "earth",
+    baseCost: 2,
+    attack: 3,
+    currentHP: 3,
+    maxHP: 3,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: If you have at least 25 health, double this minion's HP` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        if (player.currentHP >= 25) {
+            let newDemon = {...array[index]}
+            newDemon.currentHP += newDemon.currentHP
+            newDemon.maxHP += newDemon.maxHP
+
+            stateObj = immer.produce(stateObj, (newState) => {
+                let player = (playerObj.name === "player") ? newState.player : newState.opponent
+                player.currentEnergy -= array[index].baseCost
+            })
+            stateObj = await summonDemon(stateObj, newDemon, playerObj)
+        } else {
+            stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
   let cowardlyspirit = {
     name: "Cowardly Spirit",
     type: "earth",
@@ -1037,7 +1154,7 @@ let tiderider = {
     },
   
     text: (state, index, array) => { 
-      return `When Played: If you have at least 20 health, gain +1/+3` 
+      return `When Played: If you have at least 20 health, gain +1/+2` 
     },
   
     cost:  (state, index, array) => {
@@ -1049,8 +1166,52 @@ let tiderider = {
         if (player.currentHP >= 25) {
             let newDemon = {...array[index]}
             newDemon.attack += 1
-            newDemon.currentHP +=3
-            newDemon.maxHP += 3
+            newDemon.currentHP +=2
+            newDemon.maxHP += 2
+
+            stateObj = immer.produce(stateObj, (newState) => {
+                let player = (playerObj.name === "player") ? newState.player : newState.opponent
+                player.currentEnergy -= array[index].baseCost
+            })
+            stateObj = await summonDemon(stateObj, newDemon, playerObj)
+        } else {
+            stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+  let  = {
+    name: "Cowardly Spirit",
+    type: "earth",
+    baseCost: 4,
+    attack: 4,
+    currentHP: 5,
+    maxHP: 3,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: If you have at least 25 health, gain +1/+2` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        if (player.currentHP >= 25) {
+            let newDemon = {...array[index]}
+            newDemon.attack += 1
+            newDemon.currentHP +=2
+            newDemon.maxHP += 2
 
             stateObj = immer.produce(stateObj, (newState) => {
                 let player = (playerObj.name === "player") ? newState.player : newState.opponent
@@ -1068,6 +1229,7 @@ let tiderider = {
   let risingtsunami = {
     name: "Rising Tsunami",
     type: "earth",
+    rarity: "legendary",
     baseCost: 5,
     attack: 5,
     currentHP: 5,

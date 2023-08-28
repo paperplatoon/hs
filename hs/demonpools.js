@@ -20,40 +20,44 @@ let allplayerEarthMinion = [
     purifiedoverlord, risingtsunami, europesspectre, corruptingspirit,
 ]
 
-//high life payoff
+//high life payoff - 13
 let highLifeEarthMinions = [
-    //1 mana
-    oysterspirit, 
-    //2 mana
-    greatoysterspirit, sacrificialsprite, lightbornimp,
-    //3 mana
-    lifegiver, oystergod, fragilespirit,
-    //4 mana
-    cowardlyspirit, 
+    //2 - 1 mana
+    oysterspirit, woodsprite, 
+    //5 - 2 mana
+    greatoysterspirit, sacrificialsprite, lightbornimp, forestnymph, minorfragile,
+    //4 - 3 mana
+    lifegiver, oystergod, fragilespirit, kindspirit, //kindspirit gives opponent life
+    //2 - 4 mana
+    cowardlyspirit, empoweredspirit,
 ]
 
-//high minion HP payoff
+//high minion HP payoff - 16
 let highHPEarthMinions = [
-    //1 mana
+    //4 - 1 mana
     tiderider, kelpspirit, healerimp, waterelemental,
-    //2 mana
-    poisonousswamp, hypedjinn, waterelemental2, tidepoollurker,
-    //3 mana
-    healingspring, waterelemental3, spreadingblessing,
-     //5+ - legendary
-     purifiedoverlord, risingtsunami, europesspectre
+    //3 - 2 mana
+    poisonousswamp, hypedjinn, tidepoollurker,
+    //2 - 3 mana
+    healingspring, spreadingblessing,  
+    //3 - 4 mana
+    poseidon, deityoflight, bellcasterdeity,
+     //4 - 5+ - legendary
+     purifiedoverlord, risingtsunami, europesspectre, corruptingspirit,
 ]
 
 //healinhg payoff
 
-//big minions payoff
+//simple elementals - 20
 let bigMinionEarthMinions = [
-    //1 mana
-    waterelemental,
-    //2 mana
-    waterelemental2,
-    //3 mana
-    healingspring, waterelemental3, spreadingblessing,
+    //3 - 1 mana
+    waterelementalcommon, waterelementalrare, waterelementalepic,
+    //4 - 2 mana
+    waterelemental2common, waterelemental2rare, waterelemental2epic, waterelemental2epicB,
+    //5 - 3 mana
+    waterelemental3common, waterelemental3rare, waterelemental3rareB, waterelemental3epic, waterelemental3epicB,
+    //8 - 4 mana
+    waterelemental4common, waterelemental4rare, waterelemental4rareB, waterelemental4rareC, waterelemental4epic, waterelemental4epicB, waterelemental4epicC, waterelemental4legendary,
 ]
 
 let allplayerWaterMinion = [
