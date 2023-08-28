@@ -84,7 +84,7 @@ let gameStartState = {
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
-  testingMode: false,
+  testingMode: true,
 
   cardToBePlayed: false,
 }
@@ -107,11 +107,11 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [purifiedoverlord, hypedjinn, healerimp, europesspectre];
-        newState.player.monstersInPlay = [healerimp, hypedjinn, purifiedoverlord];
+        newState.player.encounterDraw = [purifiedoverlord, hypedjinn, healerimp, spreadingfungi];
+        newState.player.monstersInPlay = [kelpspirit, kelpspirit, ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 17
-        newState.opponent.monstersInPlay = [GnomeTwins, deityoflight, kelpspirit]
+        newState.opponent.monstersInPlay = []
       })
       for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
         stateObj = immer.produce(stateObj, (newState) => {
@@ -187,25 +187,25 @@ async function playDemonFromHand(stateObj, cardIndexInHand, playerSummoning, pau
   })
 
   stateObj = await summonDemon(stateObj, cardObj, playerSummoning, pauseTime)
-  // stateObj = immer.produce(stateObj, (newState) => {
-  //   let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
-  //   player.monstersInPlay.push(cardObj)
-  // })
-  // await changeState(stateObj)
   return stateObj;
 }
 
-async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=500) {
-  stateObj = immer.produce(stateObj, (newState) => {
-    let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
-    player.monstersInPlay.push(cardObj)
-  })
+async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=500, pushToEnd=true) {
+    console.log("pushe to end " + cardObj.name)
+    stateObj = immer.produce(stateObj, (newState) => {
+      let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
+      player.monstersInPlay.push(cardObj)
+    })
   stateObj = await changeState(stateObj)
-  let queryString = (playerSummoning.name === "player") ? "#playerMonstersInPlay .card" : "#enemyMonstersInPlay .card"
-  let monstersLength = (playerSummoning.name === "player") ? stateObj.player.monstersInPlay.length : stateObj.opponent.monstersInPlay.length
-  document.querySelectorAll(queryString)[monstersLength-1].classList.add("fade-in")
-  await pause(pauseTime)
-  document.querySelectorAll(queryString)[monstersLength-1].classList.remove("fade-in")
+  if (pushToEnd) {
+    let queryString = (playerSummoning.name === "player") ? "#playerMonstersInPlay .card" : "#enemyMonstersInPlay .card"
+    let monstersLength = (playerSummoning.name === "player") ? stateObj.player.monstersInPlay.length : stateObj.opponent.monstersInPlay.length
+    document.querySelectorAll(queryString)[monstersLength-1].classList.add("fade-in")
+    await pause(pauseTime)
+    document.querySelectorAll(queryString)[monstersLength-1].classList.remove("fade-in")
+  }
+  
+  
   return stateObj
 }
 
@@ -497,7 +497,6 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
 
                   cardDiv.addEventListener("dragstart", (event) => {
                     console.log("card div id " + cardDiv.id)
-                    console.log("array object is" + cardArray)
                     event.dataTransfer.setData("text/plain", cardDiv.id);
                     
                   });
@@ -764,8 +763,8 @@ async function endTurn(stateObj) {
       monsterObj.canAttack = false;
     })
   });
-
-  for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
+  let arraylength = stateObj.player.monstersInPlay.length
+  for (let i = arraylength-1; i > -1; i--) {
     if (typeof(stateObj.player.monstersInPlay[i].endOfTurn) === "function") {
       stateObj = await stateObj.player.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.player.monstersInPlay, stateObj.player);
       await executeAbility("player", i)
@@ -817,7 +816,6 @@ async function addImpact(playerName, index) {
 }
 
 async function executeAbility(playerName, index) {
-  console.log("executing abiliting for ")
   let queryString = (playerName === "player") ? "#playerMonstersInPlay .avatar" : "#enemyMonstersInPlay .avatar"
   document.querySelectorAll(queryString)[index].classList.add("execute-ability")
   await pause(750)

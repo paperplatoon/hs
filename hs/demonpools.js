@@ -20,4 +20,17 @@ let allplayerWaterMinion = [
     purifiedoverlord, risingtsunami, europesspectre
 ]
 
+let allplayerEartjMinion = [
+    //5 - 1 mana
+    birthingpot, gnometwins, 
+    //6 - 2 mana
+    hydraweed, spreadingfungi,
+    //6 - 3 mana
+    
+    //4 - 4 mana
+    proudmama,
+    //3 - legendary
+    purifiedoverlord, risingtsunami, europesspectre
+]
+
 let playerWaterHighValueMinions = [waterelemental3, poseidon, oystergod, deityoflight, purifiedoverlord,]

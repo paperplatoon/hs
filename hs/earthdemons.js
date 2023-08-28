@@ -1,7 +1,11 @@
+//1 mana - 
+//hydraweed
+
+
 let hydraweed = {
     name: "Hydra Weed",
     type: "earth",
-    baseCost: 1,
+    baseCost: 2,
     attack: 1,
     currentHP: 1,
     maxHP: 1,
@@ -89,7 +93,7 @@ let hydraweed = {
       }
   };
 
-  let GnomeTwins = {
+  let gnometwins = {
     name: "Gnome Twins",
     type: "earth",
     baseCost: 1,
@@ -125,6 +129,91 @@ let hydraweed = {
     },
   };
 
+  let spreadingfungi = {
+    name: "Spreading Fungi",
+    type: "earth",
+    baseCost: 2,
+    attack: 1,
+    currentHP: 1,
+    maxHP: 1,
+    potCounter: 0,
+    avatar: "img/plant1.png",
+  
+    canAttack: true,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `End of Turn: summon a copy of this`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+
+    endOfTurn: async (stateObj, index, array, playerObj) => {
+        stateObj = await summonDemon(stateObj, array[index], playerObj, 500, false)
+        stateObj = await changeState(stateObj)
+        return stateObj;
+      }
+
+  };
+
+  let proudmama = {
+    name: "Proud Mama",
+    type: "earth",
+    baseCost: 4,
+    attack: 1,
+    currentHP: 3,
+    maxHP: 1,
+    potCounter: 0,
+    avatar: "img/plant1.png",
+  
+    canAttack: true,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: summon a copy of your highest HP minion`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+        
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        if (player.monstersInPlay.length > 1) {
+            let maxHPIndex = false;
+            let maxHP = 0;
+
+            for (let i=0; i < player.monstersInPlay.length-1; i++) {
+                if (player.monstersInPlay[i].currentHP > maxHP) {
+                    maxHP = player.monstersInPlay[i].currentHP
+                    maxHPIndex = i
+                }
+            }
+
+        stateObj = await summonDemon(stateObj, player.monstersInPlay[maxHPIndex], playerObj, 500)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
   let potgrowth = {
     name: "Pot Growth",
     type: "earth",
@@ -150,13 +239,8 @@ let hydraweed = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.monstersInPlay.push(potgrowth)
-        player.currentEnergy -=array[index].baseCost;
-      })
-      return stateObj;
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+        return stateObj;
     },
   };
