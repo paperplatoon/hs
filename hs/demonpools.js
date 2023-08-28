@@ -3,16 +3,21 @@ let enemyWater1Minions = [waverider, waverider, oysterspirit, oysterspirit, kelp
     waterelementalenemy2, waterelementalenemy3, waterelementalenemy3, waterelementalenemy3, waterelementalenemy4,
 ]
 
-let playerWaterStarterMinions = [oysterspirit,  tiderider, kelpspirit, tidepoollurker, waterelemental,
-                                waterelemental, waterelemental2, waterelemental2, waterelemental2, greatoysterspirit, sacrificialsprite, 
-                                waterelemental3, waterelemental3, healingspring, poseidon, ]
+let playerWaterStarterMinions = [tiderider,  tiderider, kelpspirit, waterelemental, waterelemental,
+                                 waterelemental2, waterelemental2, voodoodoll, voodoodoll, spreadingblessing,   
+                                spreadingblessing, waterelemental3, corruptingspirit, healingspring, europesspectre, ]
 
 let allplayerWaterMinion = [
-    oysterspirit,  tiderider, kelpspirit, waterelemental,
-    tidepoollurker, greatoysterspirit, sacrificialsprite, waterelemental2,
-    healingspring, oystergod, waterelemental3,
-    poseidon, deityoflight,
-    purifiedoverlord,
+    //5 - 1 mana
+    oysterspirit,  tiderider, kelpspirit, waterelemental, healerimp,
+    //6 - 2 mana
+    tidepoollurker, greatoysterspirit, sacrificialsprite, waterelemental2, voodoodoll, hypedjinn,
+    //6 - 3 mana
+    healingspring, oystergod, waterelemental3, spreadingblessing, kindspirit, lifegiver,
+    //4 - 4 mana
+    poseidon, deityoflight, bellcasterdeity, empoweredspirit,
+    //3 - legendary
+    purifiedoverlord, risingtsunami, europesspectre
 ]
 
 let playerWaterHighValueMinions = [waterelemental3, poseidon, oystergod, deityoflight, purifiedoverlord,]

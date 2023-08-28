@@ -14,7 +14,7 @@ let sparkingimp = {
     },
   
     text: (state, index, array) => { 
-      return `Battlecry: Deal 1 damage to a random enemy` 
+      return `When Played: deal 1 damage to a random enemy` 
     },
   
     cost:  (state, index, array) => {
@@ -27,13 +27,10 @@ let sparkingimp = {
         let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
 
         let targetIndex = Math.floor(Math.random() * (opponent.monstersInPlay.length+1));
-        console.log('target index for simpleImp is ' + targetIndex)
 
         if (targetIndex >= opponent.monstersInPlay.length || opponent.monstersInPlay.length === 0) {
-            console.log(array[index].name + " battlecries 1 damage to " + opponent.name )
             opponent.currentHP -= 1;
         } else {
-            console.log(array[index].name + " battlecries 1 damage to " + opponent.monstersInPlay[targetIndex].name)
             opponent.monstersInPlay[targetIndex].currentHP -=1;
             
         }

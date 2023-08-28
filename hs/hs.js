@@ -49,8 +49,8 @@ let gameStartState = {
   player: {
     currentHP: 10,
 
-    currentEnergy: 3,
-    maxEnergy: 3,
+    currentEnergy: 1,
+    maxEnergy: 1,
 
     encounterDraw: [],
     monstersInPlay: [],
@@ -63,8 +63,8 @@ let gameStartState = {
   opponent: {
     currentHP: 10,
 
-    currentEnergy: 3,
-    maxEnergy: 3,
+    currentEnergy: 1,
+    maxEnergy: 1,
 
     encounterDraw: [],
     monstersInPlay: [],
@@ -107,9 +107,10 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [purifiedoverlord, deityoflight, sacrificialsprite, healingspring];
-        newState.player.monstersInPlay = [purifiedoverlord, deityoflight, sacrificialsprite, healingspring];
+        newState.player.encounterDraw = [purifiedoverlord, hypedjinn, healerimp, europesspectre];
+        newState.player.monstersInPlay = [healerimp, hypedjinn, purifiedoverlord];
         newState.player.currentEnergy = 15;
+        newState.player.currentHP = 17
         newState.opponent.monstersInPlay = [GnomeTwins, deityoflight, kelpspirit]
       })
       for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
@@ -201,7 +202,7 @@ async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=500) {
   })
   stateObj = await changeState(stateObj)
   let queryString = (playerSummoning.name === "player") ? "#playerMonstersInPlay .card" : "#enemyMonstersInPlay .card"
-  let monstersLength = (playerSummoning.name === "player") ? stateObj.player.monstersInPlay.length : stateObj.opponent
+  let monstersLength = (playerSummoning.name === "player") ? stateObj.player.monstersInPlay.length : stateObj.opponent.monstersInPlay.length
   document.querySelectorAll(queryString)[monstersLength-1].classList.add("fade-in")
   await pause(pauseTime)
   document.querySelectorAll(queryString)[monstersLength-1].classList.remove("fade-in")
@@ -816,6 +817,7 @@ async function addImpact(playerName, index) {
 }
 
 async function executeAbility(playerName, index) {
+  console.log("executing abiliting for ")
   let queryString = (playerName === "player") ? "#playerMonstersInPlay .avatar" : "#enemyMonstersInPlay .avatar"
   document.querySelectorAll(queryString)[index].classList.add("execute-ability")
   await pause(750)

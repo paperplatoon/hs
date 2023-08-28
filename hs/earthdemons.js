@@ -106,7 +106,7 @@ let hydraweed = {
     },
   
     text: (state, index, array) => { 
-      return `When Played: Summon another Gnome Twin`  
+      return `When Played: summon another Gnome Twin`  
     },
   
     cost:  (state, index, array) => {

@@ -14,7 +14,7 @@ let minorefrit = {
     },
   
     text: (state, index, array) => { 
-      return `Battlecry: Give another random friendly minion +1 attack`
+      return `WHen Played: give another random friendly minion +1 attack`
     },
   
     cost:  (state, index, array) => {

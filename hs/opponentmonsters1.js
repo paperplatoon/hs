@@ -27,14 +27,8 @@ let waverider = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-
-        player.monstersInPlay.push(tiderider)
-        player.currentEnergy -=array[index].baseCost;
-      })
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
       return stateObj;
     },
     endOfTurn: async (stateObj, index, array, playerObj) => {
@@ -73,14 +67,8 @@ let waverider = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-
-        player.monstersInPlay.push(oysterspirit)
-        player.currentEnergy -=array[index].baseCost;
-      })
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
       return stateObj;
     },
     endOfTurn: async (stateObj, index, array, playerObj) => {
@@ -91,6 +79,8 @@ let waverider = {
       return stateObj;
     }
   };
+
+  
 
 
   let waterelementalenemy = {
@@ -118,17 +108,12 @@ let waverider = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-
-        player.monstersInPlay.push(waterelemental)
-        player.currentEnergy -=array[index].baseCost;
-      })
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
       return stateObj;
     },
   };
+
 
   let waterelementalenemy2 = {
     name: "Water Elemental+",
@@ -155,14 +140,8 @@ let waverider = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-
-        player.monstersInPlay.push(waterelemental)
-        player.currentEnergy -=array[index].baseCost;
-      })
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
       return stateObj;
     },
   };
@@ -192,14 +171,8 @@ let waverider = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-
-        player.monstersInPlay.push(waterelemental)
-        player.currentEnergy -=array[index].baseCost;
-      })
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
       return stateObj;
     },
   };
@@ -229,14 +202,8 @@ let waverider = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-
-        player.monstersInPlay.push(waterelemental)
-        player.currentEnergy -=array[index].baseCost;
-      })
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
       return stateObj;
     },
   };
