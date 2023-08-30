@@ -397,7 +397,7 @@ let tiderider = {
   let woodsprite = {
     name: "Wood Sprite",
     type: "earth",
-    rarity: "rare",
+    rarity: "common",
     baseCost: 1,
     attack: 1,
     currentHP: 3,
@@ -429,6 +429,48 @@ let tiderider = {
 
       return stateObj;
     },
+  };
+
+  let lightspark = {
+    name: "Lightspark",
+    type: "earth",
+    rarity: "common",
+    baseCost: 1,
+    attack: 2,
+    currentHP: 1,
+    maxHP: 1,
+    avatar: "img/plant1.png",
+  
+    canAttack: true,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `On Death: Hero gains 1 Life`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+
+    onDeath: async (stateObj, index, array, playerObj) => {
+        stateObj = immer.produce(stateObj, (newState) => {
+            let player = (playerObj.name === "player") ? newState.player : newState.opponent
+            player.currentHP += 1;
+        })
+          
+          //await pause(250)
+        return stateObj;
+      }
   };
 
   let deityoflight = {
@@ -1038,6 +1080,50 @@ let tiderider = {
             newDemon.attack += 2
             newDemon.currentHP +=2
             newDemon.maxHP += 2
+
+            stateObj = immer.produce(stateObj, (newState) => {
+                let player = (playerObj.name === "player") ? newState.player : newState.opponent
+                player.currentEnergy -= array[index].baseCost
+            })
+            stateObj = await summonDemon(stateObj, newDemon, playerObj)
+        } else {
+            stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+  let sicklyifrit = {
+    name: "Sickly Ifrit",
+    type: "earth",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 3,
+    maxHP: 3,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: If you have at least 25 health, gain +3/+3` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        if (player.currentHP >= 25) {
+            let newDemon = {...array[index]}
+            newDemon.attack += 3
+            newDemon.currentHP +=3
+            newDemon.maxHP += 3
 
             stateObj = immer.produce(stateObj, (newState) => {
                 let player = (playerObj.name === "player") ? newState.player : newState.opponent

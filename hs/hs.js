@@ -84,7 +84,7 @@ let gameStartState = {
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
-  testingMode: false,
+  testingMode: true,
 
   cardToBePlayed: false,
 }
@@ -94,7 +94,6 @@ let state = {...gameStartState};
 startEncounter(state)
 //renderScreen(state)
 
-let fullMinionDeck = [sparkingimp, explosiveimp, tiderider, hydraweed, airmote]
 
 
 async function startEncounter(stateObj) {
@@ -107,8 +106,8 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [herbalistimp, fragilespirit, impcub, spreadingfungi];
-        newState.player.monstersInPlay = [kelpspirit, herbalistimp, ];
+        newState.player.encounterDraw = [imprecruiter, impcub, spreadingfungi, herbalistimp];
+        newState.player.monstersInPlay = [ ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 30
         newState.opponent.monstersInPlay = []

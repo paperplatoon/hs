@@ -80,7 +80,7 @@ let waverider = {
     }
   };
 
-  let waterelementalcommon = {
+  let eartheelementalcommon = {
     name: "Water Elemental",
     type: "water",
     rarity: "common",
@@ -115,7 +115,7 @@ let waverider = {
   
 
 
-  let waterelementalrare = {
+  let eartheelementalrare = {
     name: "Water Elemental",
     type: "water",
     rarity: "rare",
@@ -147,7 +147,7 @@ let waverider = {
     },
   };
 
-  let waterelementalepic = {
+  let eartheelementalepic = {
     name: "Water Elemental",
     type: "water",
     rarity: "epic",
@@ -180,7 +180,7 @@ let waverider = {
   };
 
 
-  let waterelementalenemy2common = {
+  let eartheelemental2common = {
     name: "Water Elemental+",
     type: "water",
     rarity: "common",
@@ -212,7 +212,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy2rare = {
+  let eartheelemental2rare = {
     name: "Water Elemental+",
     type: "water",
     rarity: "rare",
@@ -244,7 +244,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy2epic = {
+  let eartheelemental2epic = {
     name: "Water Elemental+",
     type: "water",
     rarity: "epic",
@@ -276,7 +276,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy2epicB = {
+  let eartheelemental2epicB = {
     name: "Water Elemental+",
     type: "water",
     rarity: "epic",
@@ -308,7 +308,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy3common = {
+  let eartheelemental3common = {
     name: "Water Elemental++",
     type: "water",
     rarity: "common",
@@ -340,7 +340,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy3rare = {
+  let eartheelemental3rare = {
     name: "Water Elemental++",
     type: "water",
     rarity: "rare",
@@ -372,7 +372,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy3rareB = {
+  let eartheelemental3rareB = {
     name: "Water Elemental++",
     type: "water",
     rarity: "rare",
@@ -404,7 +404,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy3epic = {
+  let eartheelemental3epic = {
     name: "Water Elemental++",
     type: "water",
     rarity: "epic",
@@ -436,7 +436,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy3epicB = {
+  let eartheelemental3epicB = {
     name: "Water Elemental++",
     type: "water",
     rarity: "epic",
@@ -468,7 +468,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy4common = {
+  let eartheelemental4common = {
     name: "Water Elemental+++",
     type: "water",
     rarity: "common",
@@ -500,7 +500,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy4rare = {
+  let eartheelemental4rare = {
     name: "Water Elemental+++",
     type: "water",
     rarity: "rare",
@@ -532,7 +532,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy4rareB = {
+  let eartheelemental4rareB = {
     name: "Water Elemental+++",
     type: "water",
     rarity: "rare",
@@ -564,7 +564,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy4rareC = {
+  let eartheelemental4rareC = {
     name: "Water Elemental+++",
     type: "water",
     rarity: "rare",
@@ -596,7 +596,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy4epic = {
+  let eartheelemental4epic = {
     name: "Water Elemental+++",
     type: "water",
     rarity: "epic",
@@ -628,7 +628,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy4epicB = {
+  let eartheelemental4epicB = {
     name: "Water Elemental+++",
     type: "water",
     rarity: "epic",
@@ -660,7 +660,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy4epicC = {
+  let eartheelemental4epicC = {
     name: "Water Elemental+++",
     type: "water",
     rarity: "epic",
@@ -692,7 +692,7 @@ let waverider = {
     },
   };
 
-  let waterelementalenemy4legendary = {
+  let eartheelemental4legendary = {
     name: "Water Elemental+++",
     type: "water",
     rarity: "legendary",

@@ -1,10 +1,91 @@
-//1 mana - 
-//hydraweed
 
 
-let hydraweed = {
-    name: "Hydra Weed",
-    type: "earth",
+
+let beaverspirit = {
+    name: "Beaver Spirit",
+    type: "Water",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 3,
+    maxHP: 3,
+    deathCounter: 0,
+    avatar: "img/plant1.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: If you have at 25 Life, summon a 2/2 Dam`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+        if (playerObj.currentHP >= 25) {
+            let newpot = {...potgrowth}
+            newpot.attack += 1
+            newpot.currentHP += 1
+            newpot.baseCost += 1
+            newpot.maxHP += 1
+            newpot.name = "River Dam"
+            stateObj = await summonDemon(stateObj, newpot, playerObj, 500)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+  let attunedNaturalist = {
+    name: "Attuned Naturalist",
+    type: "Water",
+    baseCost: 3,
+    attack: 2,
+    currentHP: 4,
+    maxHP: 4,
+    avatar: "img/plant1.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: If you have at 30 Life, summon a 6/6 Pot Growth`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+        if (playerObj.currentHP >= 30) {
+            let newpot = {...potgrowth}
+            newpot.attack += 5
+            newpot.currentHP += 5
+            newpot.baseCost += 5
+            newpot.maxHP += 5
+            stateObj = await summonDemon(stateObj, newpot, playerObj, 500)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+
+
+let tinyhydra = {
+    name: "Tiny Hydra",
+    type: "Water",
     baseCost: 2,
     attack: 1,
     currentHP: 1,
@@ -49,6 +130,46 @@ let hydraweed = {
       })
       return stateObj;
     }
+  };
+
+  let imprecruiter = {
+    name: "Imp Recruiter",
+    type: "earth",
+    baseCost: 3,
+    attack: 1,
+    currentHP: 6,
+    maxHP: 6,
+    impCounter: 0,
+    avatar: "img/plant1.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `End of Turn: Summon a ${1+array[index].impCounter}/${1+array[index].impCounter} Imp`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      //await cardAnimationDiscard(index);
+      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+      stateObj = await playDemonFromHand(stateObj, index, playerObj)
+      return stateObj;
+    },
+
+    endOfTurn: async (stateObj, index, array, playerObj) => {
+        let newpot = {...potgrowth}
+        newpot.name = "Imp"
+
+        stateObj = await summonDemon(stateObj, newpot, playerObj)
+        return stateObj;
+      }
   };
 
   
@@ -247,7 +368,7 @@ let hydraweed = {
 
   let herbalistimp = {
     name: "Herbalist Imp",
-    type: "earth",
+    type: "water",
     baseCost: 2,
     attack: 1,
     currentHP: 1,
