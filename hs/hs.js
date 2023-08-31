@@ -106,7 +106,7 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [imprecruiter, impcub, spreadingfungi, herbalistimp];
+        newState.player.encounterDraw = [beaverspirit, impcub, redfish, herbalistimp];
         newState.player.monstersInPlay = [ ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 30
@@ -206,6 +206,20 @@ async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=500, pu
   
   
   return stateObj
+}
+
+async function createPot(stateObj, playerSummoning, attack=0, currentHP=0, baseCost=0, maxHP=0, name=false, pauseTime=500) {
+  let newpot = {...potgrowth}
+  newpot.attack += attack
+  newpot.currentHP += currentHP
+  newpot.baseCost += baseCost
+  newpot.maxHP += maxHP
+  if (name) {
+    newpot.name = name
+  }
+  stateObj = await summonDemon(stateObj, newpot, playerSummoning)
+
+return stateObj
 }
 
 // -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   

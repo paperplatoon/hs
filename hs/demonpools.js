@@ -9,14 +9,14 @@ let playerWaterStarterMinions = [tiderider,  tiderider, kelpspirit, eartheelemen
 
 
 let waterMinions = [
-    //1 mana - 
-    gnometwins, birthingpot, beaverspirit,
-    //2 mana - 
-    tinyhydra, spreadingfungi, impcub, herbalistimp, 
+    //5 - 1 mana - 
+    gnometwins, birthingpot, beaverspirit, redfish, schoolleader,
+    //5 - 2 mana - 
+    tinyhydra, spreadingfungi, impcub, herbalistimp, golemmaker,
     //3 mana - 
-    attunedNaturalist, 
+    attunedNaturalist, imprecruiter, 
     //4 mana - 
-    proudmama,
+    proudmama, ashamedmama,
 ]
 
 //gainLife function where heroes gain life and have an extraLifegain property that can be changed by cards' action and onDeath functions to only be active

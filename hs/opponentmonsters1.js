@@ -282,8 +282,8 @@ let waverider = {
     rarity: "epic",
     baseCost: 2,
     attack: 1,
-    currentHP: 6,
-    maxHP: 6,
+    currentHP: 7,
+    maxHP: 7,
     elemental: true,
     avatar: "img/waterpuddle.png",
   

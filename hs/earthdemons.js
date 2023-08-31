@@ -29,13 +29,7 @@ let beaverspirit = {
         stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
         stateObj = await changeState(stateObj)
         if (playerObj.currentHP >= 25) {
-            let newpot = {...potgrowth}
-            newpot.attack += 1
-            newpot.currentHP += 1
-            newpot.baseCost += 1
-            newpot.maxHP += 1
-            newpot.name = "River Dam"
-            stateObj = await summonDemon(stateObj, newpot, playerObj, 500)
+            stateObj = await createPot(stateObj, playerObj, attack=1, currentHP=1, baseCost=1, maxHP=1, name="River Dam", pauseTime=500)
         }
         stateObj = await changeState(stateObj)
         return stateObj;
@@ -250,6 +244,154 @@ let tinyhydra = {
     },
   };
 
+  let schoolleader = {
+    name: "School Leader",
+    type: "water",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 3,
+    maxHP: 3,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: If you have at least 2 other minions, summon a 1/1 fish` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        if (playerObj.monstersInPlay.length >= 2) {
+            let newDemon = {...potgrowth}
+            newDemon.name = "Fish"
+            stateObj = immer.produce(stateObj, (newState) => {
+                let player = (playerObj.name === "player") ? newState.player : newState.opponent
+                player.currentEnergy -= array[index].baseCost
+            })
+            stateObj = await summonDemon(stateObj, newDemon, playerObj)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+  let golemmaker = {
+    name: "Golem Maker",
+    type: "water",
+    baseCost: 2,
+    attack: 1,
+    currentHP: 2,
+    maxHP: 2,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: Summon a 1/1 pot growth. It gets +1/+1 for each other minion.` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        let newDemon = {...potgrowth}
+        console.log("mip quals " + player.monstersInPlay.length)
+        newDemon.attack += player.monstersInPlay.length-1
+        newDemon.currentHP += player.monstersInPlay.length-1
+        newDemon.maxHP += player.monstersInPlay.length-1
+
+        stateObj = await summonDemon(stateObj, newDemon, playerObj)
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+
+  let bluefish = {
+    name: "Blue Fish",
+    type: "water",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 2,
+    maxHP: 2,
+    avatar: "img/plant1.png",
+  
+    canAttack: true,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return ``  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      //await cardAnimationDiscard(index);
+      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+  
+  let redfish = {
+    name: "Red Fish",
+    type: "water",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 2,
+    maxHP: 2,
+    avatar: "img/plant1.png",
+  
+    canAttack: true,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: add a Blue Fish to your hand`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      //await cardAnimationDiscard(index);
+      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+      stateObj = await changeState(stateObj)
+      //await pause(250)
+      stateObj = immer.produce(stateObj, (newState) => {
+        let player = (playerObj.name === "player") ? newState.player : newState.opponent
+        player.encounterHand.push(bluefish)
+      })
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
   let spreadingfungi = {
     name: "Spreading Fungi",
     type: "earth",
@@ -293,7 +435,7 @@ let tinyhydra = {
     type: "earth",
     baseCost: 4,
     attack: 1,
-    currentHP: 3,
+    currentHP: 1,
     maxHP: 1,
     potCounter: 0,
     avatar: "img/plant1.png",
@@ -306,6 +448,53 @@ let tinyhydra = {
   
     text: (state, index, array) => { 
       return `When Played: summon a copy of your highest HP minion`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+        
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        if (player.monstersInPlay.length > 1) {
+            let maxHPIndex = false;
+            let maxHP = 0;
+
+            for (let i=0; i < player.monstersInPlay.length-1; i++) {
+                if (player.monstersInPlay[i].currentHP > maxHP) {
+                    maxHP = player.monstersInPlay[i].currentHP
+                    maxHPIndex = i
+                }
+            }
+
+        stateObj = await summonDemon(stateObj, player.monstersInPlay[maxHPIndex], playerObj, 500)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+  let ashamedmama = {
+    name: "Ashamed Mama",
+    type: "earth",
+    baseCost: 4,
+    attack: 2,
+    currentHP: 2,
+    maxHP: 1,
+    potCounter: 0,
+    avatar: "img/plant1.png",
+  
+    canAttack: true,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: summon a copy of your lowest HP minion`  
     },
   
     cost:  (state, index, array) => {
