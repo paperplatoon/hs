@@ -3,7 +3,7 @@
 
 let beaverspirit = {
     name: "Beaver Spirit",
-    type: "Water",
+    type: "earth",
     baseCost: 1,
     attack: 1,
     currentHP: 3,
@@ -18,7 +18,41 @@ let beaverspirit = {
     },
   
     text: (state, index, array) => { 
-      return `When Played: If you have at 25 Life, summon a 2/2 Dam`  
+      return `When Played: If you control another Beaver Spirit, summon a 4/4 Dam Spirit`  
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        console.log("playing Beaver")
+        stateObj = await playDemonFromHand(stateObj, index, playerObj)
+        if (playerObj.monstersInPlay.filter(monster => (monster.name === "Beaver Spirit")).length > 0) {
+            stateObj = await createNewMinion(stateObj, playerObj, 4, 4, 4, 4, name="Dam Spirit", minion=potgrowth, pauseTime=500)
+        }
+        return stateObj;
+    },
+  };
+
+  let treespirit = {
+    name: "Tree Spirit",
+    type: "earth",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 3,
+    maxHP: 3,
+    deathCounter: 0,
+    avatar: "img/plant1.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: If you have at 25 Life, summon a 2/2 Sappling Spirit`  
     },
   
     cost:  (state, index, array) => {
@@ -27,18 +61,16 @@ let beaverspirit = {
     
     action: async (stateObj, index, array, playerObj) => {
         stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-        if (playerObj.currentHP >= 25) {
-            stateObj = await createPot(stateObj, playerObj, attack=1, currentHP=1, baseCost=1, maxHP=1, name="River Dam", pauseTime=500)
+        if (playerObj.currentHP >= (25 - playerObj.lifeRequirementReduction)) {
+            stateObj = await createNewMinion(stateObj, playerObj, attack=1, currentHP=1, baseCost=1, maxHP=1, name="Sappling Spirit")
         }
-        stateObj = await changeState(stateObj)
         return stateObj;
     },
   };
 
-  let attunedNaturalist = {
+  let attunednaturalist = {
     name: "Attuned Naturalist",
-    type: "Water",
+    type: "earth",
     baseCost: 3,
     attack: 2,
     currentHP: 4,
@@ -52,7 +84,7 @@ let beaverspirit = {
     },
   
     text: (state, index, array) => { 
-      return `When Played: If you have at 30 Life, summon a 6/6 Pot Growth`  
+      return `When Played: If you have at 30 Life, summon a 6/6 Sappling Spirit`  
     },
   
     cost:  (state, index, array) => {
@@ -61,16 +93,9 @@ let beaverspirit = {
     
     action: async (stateObj, index, array, playerObj) => {
         stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-        if (playerObj.currentHP >= 30) {
-            let newpot = {...potgrowth}
-            newpot.attack += 5
-            newpot.currentHP += 5
-            newpot.baseCost += 5
-            newpot.maxHP += 5
-            stateObj = await summonDemon(stateObj, newpot, playerObj, 500)
+        if (playerObj.currentHP >= (30 - playerObj.lifeRequirementReduction)) {
+            stateObj = await createNewMinion(stateObj, playerObj, attack=5, currentHP=5, baseCost=5, maxHP=5, name="Sappling Spirit")
         }
-        stateObj = await changeState(stateObj)
         return stateObj;
     },
   };
@@ -87,7 +112,7 @@ let tinyhydra = {
     deathCounter: 0,
     avatar: "img/plant1.png",
   
-    canAttack: false,
+    canAttack: true,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
@@ -102,27 +127,18 @@ let tinyhydra = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.monstersInPlay.push(hydraweed)
-        player.currentEnergy -=array[index].baseCost;
-      })
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
       return stateObj;
     },
     onDeath: async (stateObj, index, array, playerObj) => {
-      let newDeathrattleImp = {...array[index]};
-      newDeathrattleImp.deathCounter += 1
-      newDeathrattleImp.attack = 1 + newDeathrattleImp.deathCounter
-      newDeathrattleImp.currentHP = 1 + newDeathrattleImp.deathCounter
-      newDeathrattleImp.maxHP = 1 + newDeathrattleImp.deathCounter
-      
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.monstersInPlay.push(newDeathrattleImp)
-      })
-      return stateObj;
+        let newDeathCounter = (array[index].deathCounter + 1)
+        let increaseVal = newDeathCounter + array[index].attack
+        newDemon = await createNewMinion(stateObj, playerObj, increaseVal, increaseVal, increaseVal, increaseVal, name=array[index].name, minion=array[index], 500, "deathCounter", 1, stateChange=false)
+        stateObj = immer.produce(stateObj, (newState) => {
+            let player = (playerObj.name === "player") ? newState.player : newState.opponent
+            player.monstersInPlay.push(newDemon)
+          })
+        return stateObj;
     }
   };
 
@@ -572,7 +588,7 @@ let tinyhydra = {
     },
   
     text: (state, index, array) => { 
-      return `When Played: summon 2 1/1 Pot Growths`  
+      return `When Played: summon two 1/1 Pot Growths`  
     },
   
     cost:  (state, index, array) => {

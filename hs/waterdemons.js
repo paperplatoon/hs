@@ -28,6 +28,7 @@ let tiderider = {
     currentHP: 2,
     maxHP: 2,
     avatar: "img/waterpuddle.png",
+    hpToGain: 1,
   
     canAttack: false,
   
@@ -36,7 +37,7 @@ let tiderider = {
     },
   
     text: (state, index, array) => { 
-      return `End of Turn: Gain +1 HP` 
+      return `End of Turn: Gain +${array[index].hpToGain} HP` 
     },
   
     cost:  (state, index, array) => {
@@ -49,11 +50,7 @@ let tiderider = {
       return stateObj;
     },
     endOfTurn: async (stateObj, index, array, playerObj) => {
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.monstersInPlay[index].currentHP += 1;
-        player.monstersInPlay[index].maxHP += 1;
-      })
+      stateObj = await gainHP(stateObj, playerObj, index, array[index].hpToGain, inHand=false)
       return stateObj;
     }
   };
@@ -65,6 +62,7 @@ let tiderider = {
     attack: 1,
     currentHP: 2,
     maxHP: 2,
+    lifeGain: 2,
     avatar: "img/waterpuddle.png",
   
     canAttack: false,
@@ -74,7 +72,7 @@ let tiderider = {
     },
   
     text: (state, index, array) => { 
-      return `End of Turn: owner gains 2 Life` 
+      return `End of Turn: owner gains ${array[index].lifeGain} Life` 
     },
   
     cost:  (state, index, array) => {
@@ -88,10 +86,7 @@ let tiderider = {
       return stateObj;
     },
     endOfTurn: async (stateObj, index, array, playerObj) => {
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.currentHP += 2;
-      })
+      stateObj = await gainLife(stateObj, playerObj, array[index].lifeGain)
       return stateObj;
     }
   };
@@ -126,12 +121,8 @@ let tiderider = {
       return stateObj;
     },
     endOfTurn: async (stateObj, index, array, playerObj) => {
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.monstersInPlay[index].currentHP += 1;
-        player.monstersInPlay[index].maxHP += 1;
-      })
-      return stateObj;
+        stateObj = await gainLife(stateObj, playerObj, array[index].lifeGain)
+        return stateObj;
     }
   };
 

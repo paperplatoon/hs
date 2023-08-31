@@ -14,7 +14,7 @@ let waterMinions = [
     //5 - 2 mana - 
     tinyhydra, spreadingfungi, impcub, herbalistimp, golemmaker,
     //3 mana - 
-    attunedNaturalist, imprecruiter, 
+    attunednaturalist, imprecruiter, 
     //4 mana - 
     proudmama, ashamedmama,
 ]
