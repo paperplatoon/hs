@@ -111,8 +111,8 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [beaverspirit, beaverspirit, tinyhydra, beaverspirit];
-        newState.player.monstersInPlay = [tinyhydra, beaverspirit ];
+        newState.player.encounterDraw = [redfish, gnometwins, schoolleader, beaverspirit];
+        newState.player.monstersInPlay = [beaverspirit ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 26
         newState.opponent.monstersInPlay = [kelpspirit, poseidon]
@@ -221,7 +221,7 @@ async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=500, pu
 }
 
 //changes state with summonDemon
-async function createNewMinion(stateObj, playerSummoning, attack=0, currentHP=0, baseCost=0, maxHP=0, name="Elemental", minion=potgrowth, pauseTime=500, 
+async function createNewMinion(stateObj, playerSummoning, attack=1, currentHP=1, baseCost=1, maxHP=1, name="Elemental", minion=potgrowth, pauseTime=500, 
                               property1name=false, property1valIncrease=1, stateChange=true) {
   console.log("state Change ceateNewMinon" + stateChange)
   let newpot = {...minion}
@@ -248,6 +248,15 @@ async function gainLife(stateObj, playerSummoning, lifeToGain) {
   stateObj = immer.produce(stateObj, (newState) => {
     let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
     player.currentHP += lifeToGain;
+  })
+  await changeState(stateObj)
+  return stateObj;
+}
+
+async function addCardToHand(stateObj, playerSummoning, cardObj) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
+    player.encounterHand.push(cardObj);
   })
   await changeState(stateObj)
   return stateObj;

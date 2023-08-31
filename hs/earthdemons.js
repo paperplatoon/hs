@@ -8,23 +8,17 @@ let beaverspirit = {
     attack: 1,
     currentHP: 3,
     maxHP: 3,
-    deathCounter: 0,
     avatar: "img/plant1.png",
-  
     canAttack: false,
-  
     minReq: (state, index, array) => {
       return array[index].baseCost;
     },
-  
     text: (state, index, array) => { 
       return `When Played: If you control another Beaver Spirit, summon a 4/4 Dam Spirit`  
     },
-  
     cost:  (state, index, array) => {
       return array[index].baseCost;
     },
-    
     action: async (stateObj, index, array, playerObj) => {
         console.log("playing Beaver")
         stateObj = await playDemonFromHand(stateObj, index, playerObj)
@@ -44,21 +38,16 @@ let beaverspirit = {
     maxHP: 3,
     deathCounter: 0,
     avatar: "img/plant1.png",
-  
     canAttack: false,
-  
     minReq: (state, index, array) => {
       return array[index].baseCost;
     },
-  
     text: (state, index, array) => { 
       return `When Played: If you have at 25 Life, summon a 2/2 Sappling Spirit`  
     },
-  
     cost:  (state, index, array) => {
       return array[index].baseCost;
     },
-    
     action: async (stateObj, index, array, playerObj) => {
         stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
         if (playerObj.currentHP >= (25 - playerObj.lifeRequirementReduction)) {
@@ -76,21 +65,17 @@ let beaverspirit = {
     currentHP: 4,
     maxHP: 4,
     avatar: "img/plant1.png",
-  
     canAttack: false,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
     },
-  
     text: (state, index, array) => { 
       return `When Played: If you have at 30 Life, summon a 6/6 Sappling Spirit`  
     },
-  
     cost:  (state, index, array) => {
       return array[index].baseCost;
     },
-    
     action: async (stateObj, index, array, playerObj) => {
         stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
         if (playerObj.currentHP >= (30 - playerObj.lifeRequirementReduction)) {
@@ -111,21 +96,17 @@ let tinyhydra = {
     maxHP: 1,
     deathCounter: 0,
     avatar: "img/plant1.png",
-  
     canAttack: true,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
     },
-  
     text: (state, index, array) => { 
       return `On Death: Summon a ${2+array[index].deathCounter}/${2+array[index].deathCounter} copy of this minion`  
     },
-  
     cost:  (state, index, array) => {
       return array[index].baseCost;
     },
-    
     action: async (stateObj, index, array, playerObj) => {
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
       return stateObj;
@@ -151,37 +132,27 @@ let tinyhydra = {
     maxHP: 6,
     impCounter: 0,
     avatar: "img/plant1.png",
-  
     canAttack: false,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
     },
-  
     text: (state, index, array) => { 
       return `End of Turn: Summon a ${1+array[index].impCounter}/${1+array[index].impCounter} Imp`  
     },
-  
     cost:  (state, index, array) => {
       return array[index].baseCost;
     },
-    
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = await playDemonFromHand(stateObj, index, playerObj)
       return stateObj;
     },
-
     endOfTurn: async (stateObj, index, array, playerObj) => {
-        let newpot = {...potgrowth}
-        newpot.name = "Imp"
-
-        stateObj = await summonDemon(stateObj, newpot, playerObj)
+        newDemon = await createNewMinion(stateObj, playerObj, 1, 1, 1, 1, name="Imp", potgrowth, 500, false, 1, false)
+        stateObj = await summonDemon(stateObj, newDemon, playerObj)
         return stateObj;
       }
   };
-
   
 
   let birthingpot = {
@@ -192,34 +163,25 @@ let tinyhydra = {
     currentHP: 1,
     maxHP: 1,
     potCounter: 0,
-    avatar: "img/plant1.png",
-  
+    avatar: "img/plant1.png",  
     canAttack: false,
-  
+
     minReq: (state, index, array) => {
       return array[index].baseCost;
     },
-  
     text: (state, index, array) => { 
       return `End of Turn: Summon a ${1+array[index].potCounter}/${1+array[index].potCounter} Pot Growth`  
     },
-  
     cost:  (state, index, array) => {
       return array[index].baseCost;
     },
-    
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = await playDemonFromHand(stateObj, index, playerObj)
       return stateObj;
     },
 
     endOfTurn: async (stateObj, index, array, playerObj) => {
-        stateObj = immer.produce(stateObj, (newState) => {
-          let player = (playerObj.name === "player") ? newState.player : newState.opponent
-          player.monstersInPlay.push(potgrowth)
-        })
+        stateObj = await createNewMinion(stateObj, playerObj, 1, 1, 1, 1, name="Pot Growth")
         return stateObj;
       }
   };
@@ -234,7 +196,7 @@ let tinyhydra = {
     potCounter: 0,
     avatar: "img/plant1.png",
   
-    canAttack: true,
+    canAttack: false,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
@@ -249,13 +211,8 @@ let tinyhydra = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = await changeState(stateObj)
-      //await pause(250)
       stateObj = await summonDemon(stateObj, array[index], playerObj, 500)
-      stateObj = await changeState(stateObj)
       return stateObj;
     },
   };
@@ -286,15 +243,8 @@ let tinyhydra = {
     action: async (stateObj, index, array, playerObj) => {
         stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
         if (playerObj.monstersInPlay.length >= 2) {
-            let newDemon = {...potgrowth}
-            newDemon.name = "Fish"
-            stateObj = immer.produce(stateObj, (newState) => {
-                let player = (playerObj.name === "player") ? newState.player : newState.opponent
-                player.currentEnergy -= array[index].baseCost
-            })
-            stateObj = await summonDemon(stateObj, newDemon, playerObj)
+            stateObj = await createNewMinion(stateObj, playerObj, 1, 1, 1, 1, name="Fish")
         }
-        stateObj = await changeState(stateObj)
         return stateObj;
     },
   };
@@ -347,7 +297,7 @@ let tinyhydra = {
     maxHP: 2,
     avatar: "img/plant1.png",
   
-    canAttack: true,
+    canAttack: false,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
@@ -362,10 +312,7 @@ let tinyhydra = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = await changeState(stateObj)
       return stateObj;
     },
   };
@@ -379,7 +326,7 @@ let tinyhydra = {
     maxHP: 2,
     avatar: "img/plant1.png",
   
-    canAttack: true,
+    canAttack: false,
   
     minReq: (state, index, array) => {
       return array[index].baseCost;
@@ -394,15 +341,8 @@ let tinyhydra = {
     },
     
     action: async (stateObj, index, array, playerObj) => {
-      //await cardAnimationDiscard(index);
-      //stateObj = gainBlock(stateObj, array[index].baseBlock + (3*array[index].upgrades), array[index].baseCost)
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = await changeState(stateObj)
-      //await pause(250)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.encounterHand.push(bluefish)
-      })
+      stateObj = await addCardToHand(stateObj, playerObj, bluefish)
       stateObj = await changeState(stateObj)
       return stateObj;
     },
