@@ -132,8 +132,8 @@ let tinyhydra = {
     },
     onDeath: async (stateObj, index, array, playerObj) => {
         let newDeathCounter = (array[index].deathCounter + 1)
-        let increaseVal = newDeathCounter + array[index].attack
-        newDemon = await createNewMinion(stateObj, playerObj, increaseVal, increaseVal, increaseVal, increaseVal, name=array[index].name, minion=array[index], 500, "deathCounter", 1, stateChange=false)
+        let increaseVal = newDeathCounter + 1
+        newDemon = await createNewMinion(stateObj, playerObj, increaseVal, increaseVal, increaseVal, increaseVal, name=array[index].name, minion=array[index], 500, "deathCounter", newDeathCounter, stateChange=false)
         stateObj = immer.produce(stateObj, (newState) => {
             let player = (playerObj.name === "player") ? newState.player : newState.opponent
             player.monstersInPlay.push(newDemon)
