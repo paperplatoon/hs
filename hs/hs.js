@@ -111,7 +111,7 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [redfish, gnometwins, schoolleader, beaverspirit];
+        newState.player.encounterDraw = [oystergod, kelpspirit, schoolleader, beaverspirit];
         newState.player.monstersInPlay = [beaverspirit ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 26
@@ -184,7 +184,6 @@ async function completeAttack(stateObj, attackerIndex = stateObj.playerToAttackI
 }
 
 async function playDemonFromHand(stateObj, cardIndexInHand, playerSummoning, pauseTime=500, stateChange=true) {
-  console.log("play demon from hand state change " + stateChange)
   let cardObj = playerSummoning.encounterHand[cardIndexInHand]
   stateObj = await immer.produce(stateObj, async (newState) => {
     let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
@@ -197,8 +196,6 @@ async function playDemonFromHand(stateObj, cardIndexInHand, playerSummoning, pau
 
 //changes state
 async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=500, pushToEnd=true, stateChange=true) {
-  console.log("summon demon stateChange " + stateChange)
-    console.log("pushe to end " + cardObj.name)
     stateObj = immer.produce(stateObj, (newState) => {
       let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
       player.monstersInPlay.push(cardObj)
@@ -207,8 +204,6 @@ async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=500, pu
     stateObj = await changeState(stateObj)
   }
   if (pushToEnd) {
-    console.log("adding inPlay animation")
-    console.log("pauseTime = " + pauseTime)
     let queryString = (playerSummoning.name === "player") ? "#playerMonstersInPlay .card" : "#enemyMonstersInPlay .card"
     let monstersLength = (playerSummoning.name === "player") ? stateObj.player.monstersInPlay.length : stateObj.opponent.monstersInPlay.length
     document.querySelectorAll(queryString)[monstersLength-1].classList.add("fade-in")
@@ -223,7 +218,6 @@ async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=500, pu
 //changes state with summonDemon
 async function createNewMinion(stateObj, playerSummoning, attack=1, currentHP=1, baseCost=1, maxHP=1, name="Elemental", minion=potgrowth, pauseTime=500, 
                               property1name=false, property1valIncrease=1, stateChange=true) {
-  console.log("state Change ceateNewMinon" + stateChange)
   let newpot = {...minion}
   newpot.attack = attack
   newpot.currentHP = currentHP
@@ -251,6 +245,35 @@ async function gainLife(stateObj, playerSummoning, lifeToGain) {
   })
   await changeState(stateObj)
   return stateObj;
+}
+
+async function giveDemonStats(stateObj, playerObj, index, stat1Name, stat1Value, stat2Name=false, stat2Value=false, inHand=false) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    let player = (playerObj.name === "player") ? newState.player : newState.opponent
+    let array = (inHand) ? player.encounterHand : player.monstersInPlay
+    array[index][stat1Name] += stat1Value
+  })
+  await changeState(stateObj)
+  return stateObj;
+}
+
+async function pickRandomOtherIndex(arrayObj, indexToAvoid) {
+  if (arrayObj.length > 1) {
+    console.log("array has " + arrayObj.length + " elements and we're avoiding " + indexToAvoid)
+    let targetIndex = Math.floor(Math.random() * (arrayObj.length));
+
+    if (targetIndex === indexToAvoid) {
+        if (targetIndex === 0) {
+            targetIndex += 1
+        } else {
+            targetIndex -=1
+        }
+    }
+    console.log("target index is " + targetIndex)
+    return targetIndex
+  } else {
+    return false
+  }
 }
 
 async function addCardToHand(stateObj, playerSummoning, cardObj) {
@@ -335,20 +358,17 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
         indexesToDelete.push(index);
       }
     });
-    console.log ('indexes to delete hd1 = ' + indexesToDelete)
     //if a monster has died
     if (indexesToDelete.length > 0) {
       indexesToDelete.reverse()
       //await opponentDeathAnimation(indexesToDelete)
       for (let i = 0; i < indexesToDelete.length; i++) {
           if (typeof(playerObj.monstersInPlay[indexesToDelete[i]].onDeath) === "function") {
-            console.log("triggering onDeath for monster at index " + i)
             stateObj = await playerObj.monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], playerObj.monstersInPlay, playerObj);
           }
           //stateObj = await changeState(stateObj)
           stateObj = immer.produce(stateObj, (newState) => {
             let player = (playerObj.name === "player") ? newState.player : newState.opponent
-            console.log("splicing out monster at index " + indexesToDelete[i])
             player.monstersInPlay.splice(indexesToDelete[i], 1)
           })
       }

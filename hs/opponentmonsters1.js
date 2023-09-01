@@ -80,6 +80,294 @@ let waverider = {
     }
   };
 
+  let earthelementalI = {
+    name: "Earth Elemental I",
+    type: "earth",
+    rarity: "common",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 3,
+    maxHP: 3,
+    elemental: true,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
+  let earthelementalII = {
+    name: "Earth Elemental II",
+    type: "earth",
+    rarity: "common",
+    baseCost: 2,
+    attack: 2,
+    currentHP: 4,
+    maxHP: 4,
+    elemental: true,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
+  let earthelementalIplus = {
+    name: "Earth Elemental I+",
+    type: "earth",
+    rarity: "common",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 4,
+    maxHP: 4,
+    elemental: true,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
+  let waterelementalI = {
+    name: "Water Elemental I",
+    type: "water",
+    rarity: "common",
+    baseCost: 1,
+    attack: 2,
+    currentHP: 2,
+    maxHP: 2,
+    elemental: true,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
+  let waterelementalIplus = {
+    name: "Water Elemental I+",
+    type: "water",
+    rarity: "common",
+    baseCost: 1,
+    attack: 3,
+    currentHP: 2,
+    maxHP: 2,
+    elemental: true,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
+  let fireelementalI = {
+    name: "Fire Elemental I",
+    type: "fire",
+    rarity: "common",
+    baseCost: 1,
+    attack: 3,
+    currentHP: 1,
+    maxHP: 1,
+    elemental: true,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
+  let fireelementalIplus = {
+    name: "Fire Elemental I+",
+    type: "fire",
+    rarity: "common",
+    baseCost: 1,
+    attack: 4,
+    currentHP: 1,
+    maxHP: 1,
+    elemental: true,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
+  let airelementalI = {
+    name: "Air Elemental I",
+    type: "air",
+    rarity: "common",
+    baseCost: 1,
+    attack: 1,
+    currentHP: 3,
+    maxHP: 3,
+    elemental: true,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
+  let airelementalIplus = {
+    name: "Air Elemental I+",
+    type: "air",
+    rarity: "common",
+    baseCost: 1,
+    attack: 2,
+    currentHP: 3,
+    maxHP: 3,
+    elemental: true,
+    avatar: "img/waterpuddle.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `` 
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
+        stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  };
+
   let eartheelementalcommon = {
     name: "Water Elemental",
     type: "water",

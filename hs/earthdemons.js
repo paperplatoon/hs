@@ -274,15 +274,8 @@ let tinyhydra = {
     
     action: async (stateObj, index, array, playerObj) => {
         stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
-        let newDemon = {...potgrowth}
-        console.log("mip quals " + player.monstersInPlay.length)
-        newDemon.attack += player.monstersInPlay.length-1
-        newDemon.currentHP += player.monstersInPlay.length-1
-        newDemon.maxHP += player.monstersInPlay.length-1
-
-        stateObj = await summonDemon(stateObj, newDemon, playerObj)
-        stateObj = await changeState(stateObj)
+        let val = playerObj.monstersInPlay.length+1
+        stateObj = await createNewMinion(stateObj, playerObj, val, val, val, val, name="Pot Growth")
         return stateObj;
     },
   };
