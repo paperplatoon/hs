@@ -111,8 +111,8 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [forestnymph, healingspring, schoolleader, beaverspirit, deityoflight];
-        newState.player.monstersInPlay = [beaverspirit, beaverspirit, deityoflight, ];
+        newState.player.encounterDraw = [healerimp, kindspirit, corruptingspirit, kelpspirit,];
+        newState.player.monstersInPlay = [tiderider, beaverspirit, deityoflight, ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 26
         newState.opponent.monstersInPlay = [kelpspirit, poseidon]
@@ -413,6 +413,18 @@ function renderHand(stateObj) {
       renderCard(stateObj, stateObj.player.encounterHand, index, "handContainer2", functionToAdd=false)
     });
   }
+  let ConjurerSkillButton = document.createElement("Button");
+  //ConjurerSkillButton.classList.add("font5vmin")
+  if (stateObj.canPlay === true && stateObj.player.currentEnergy > 0) {
+    ConjurerSkillButton.classList.add("end-turn-button")
+    ConjurerSkillButton.textContent = "Gain 1 Life"
+    ConjurerSkillButton.addEventListener("click", function() {
+      heroPower(stateObj, stateObj.player)
+    })
+  } else {
+    ConjurerSkillButton.classList.add("greyed-out")
+  }
+  document.getElementById("handContainer2").append(ConjurerSkillButton)
 }
 
 function renderPlayerMonstersInPlay(stateObj) {
@@ -858,6 +870,16 @@ function shuffleArray(array) {
     .map((value) => ({ value, sort: Math.random() }))
     .sort((a, b) => a.sort - b.sort)
     .map(({ value }) => value);
+}
+
+//should hero power cost increase by 1 every time it's played a turn??
+async function heroPower(stateObj, playerObj) {
+  stateObj = await gainLife(stateObj, playerObj, 1) // 1 + playerObj.heroPowerIncrease
+  stateObj = immer.produce(stateObj, (newState) => {
+    let player = (playerObj.name === "player") ? newState.player : newState.opponent
+    player.currentEnergy -= 1; //1 + playerObj.heroPowerCost
+  });
+  await changeState(stateObj)
 }
 
 async function endTurn(stateObj) {

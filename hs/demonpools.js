@@ -44,7 +44,7 @@ let highHPEarthMinions = [
     //4 - 1 mana
     tiderider, kelpspirit, healerimp,
     //3 - 2 mana
-    poisonousswamp, hypedjinn, tidepoollurker,
+    poisonousswamp, hypedjinn, tidepoollurker, deepseasquid,
     //2 - 3 mana
     healingspring, spreadingblessing,  
     //3 - 4 mana
