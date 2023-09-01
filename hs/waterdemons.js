@@ -17,7 +17,7 @@
 
 
 //legendary - 2
-//oyster god - 3 1/6, end of turn owner  gains 5 HP
+//oyster god - 3 1/6, end of turn Summoner  gains 5 HP
 //purifiedoverlord  - 6 5/8, end of turn heal all friendly minions to full 
 
 let tiderider = {
@@ -29,28 +29,16 @@ let tiderider = {
     maxHP: 2,
     avatar: "img/waterpuddle.png",
     hpToGain: 1,
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `End of Turn: Gain +${array[index].hpToGain} HP` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
+    text: (state, index, array) => { `End of Turn: Gain +${array[index].hpToGain} HP` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = await changeState(stateObj)
       return stateObj;
     },
     endOfTurn: async (stateObj, index, array, playerObj) => {
-      stateObj = await gainHP(stateObj, playerObj, index, array[index].hpToGain, inHand=false)
+      stateObj = await giveDemonStats(stateObj, playerObj, index, "currentHP", 1, false, "maxHP", 1)
       return stateObj;
     }
   };
@@ -63,26 +51,13 @@ let tiderider = {
     currentHP: 2,
     maxHP: 2,
     lifeGain: 2,
-    avatar: "img/waterpuddle.png",
-  
+    avatar: "img/waterpuddle.png",  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `End of Turn: owner gains ${array[index].lifeGain} Life` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
+    text: (state, index, array) => { return `End of Turn: Summoner gains ${array[index].lifeGain} Life` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
-      
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = await changeState(stateObj)
       return stateObj;
     },
     endOfTurn: async (stateObj, index, array, playerObj) => {
@@ -99,25 +74,12 @@ let tiderider = {
     currentHP: 2,
     maxHP: 2,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `End of Turn: Gain +1 HP` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
+    text: (state, index, array) => { return `End of Turn: Gain +1 HP`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
-      
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = await changeState(stateObj)
       return stateObj;
     },
     endOfTurn: async (stateObj, index, array, playerObj) => {
@@ -134,27 +96,17 @@ let tiderider = {
     currentHP: 2,
     maxHP: 2,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-    text: (state, index, array) => { 
-      return `End of Turn: Give another friendly demon +1 HP` 
-    },
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
+    text: (state, index, array) => { return `End of Turn: Give another friendly demon +1 HP`   },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
       return stateObj;
     },
     endOfTurn: async (stateObj, index, array, playerObj) => {
         let randIndex = await pickRandomOtherIndex(array, index)
-        if (randIndex !== false) {
-            stateObj = await giveDemonStats(stateObj, playerObj, randIndex, "currentHP", 1) 
-        }
+        stateObj = (randIndex !== false) ? await giveDemonStats(stateObj, playerObj, randIndex, "currentHP", 1) : stateObj
         return stateObj
         },
   };
@@ -165,20 +117,13 @@ let tiderider = {
     baseCost: 4,
     attack: 3,
     currentHP: 4,
-    maxHP: 1,
+    maxHP: 4,
     avatar: "img/waterpuddle.png",
     rarity: "rare",
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-    text: (state, index, array) => { 
-      return `End of Turn: All friendly demons gain +1 HP` 
-    },
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
+    text: (state, index, array) => { return `End of Turn: All friendly demons gain +1 HP`    },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
       return stateObj;
@@ -198,20 +143,12 @@ let tiderider = {
     attack: 1,
     currentHP: 6,
     maxHP: 6,
-    lifeGain: 5,
     avatar: "img/waterpuddle.png",
-  
-    canAttack: true,
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-    text: (state, index, array) => { 
-      return `Can attack immediately. End of Turn: owner gains ${array[index].lifeGain} Life` 
-    },
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
+    canAttack: false,
+    lifeGain: 5,
+    text: (state, index, array) => { return `End of Turn: Summoner gains ${array[index].lifeGain} Life` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },    
     action: async (stateObj, index, array, playerObj) => {
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
       return stateObj;
@@ -230,44 +167,26 @@ let tiderider = {
     currentHP: 3,
     maxHP: 3,
     avatar: "img/plant1.png",
-  
-    canAttack: true,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `When Played: Heal all minions to full HP`  
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
+    canAttack: false,
+    text: (state, index, array) => { return `When Played: Heal ALL minions to full HP` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },     
     action: async (stateObj, index, array, playerObj) => {
-      
-      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = await changeState(stateObj)
-
+      stateObj = await playDemonFromHand(stateObj, index, playerObj, 400)
+      await executeAbility(playerObj.name, playerObj.monstersInPlay.length)
       for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
-        stateObj = immer.produce(stateObj, (newState) => {
-            newState.player.monstersInPlay[i].currentHP = newState.player.monstersInPlay[i].maxHP
-        })
+        let missingHP = stateObj.player.monstersInPlay[i].maxHP - stateObj.player.monstersInPlay[i].currentHP
+        missingHP = (missingHP >= 0) ? missingHP : 0
+        stateObj = await healMinion(stateObj, stateObj.player, i, missingHP)
       }
-
       for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
-        stateObj = immer.produce(stateObj, (newState) => {
-            newState.opponent.monstersInPlay[i].currentHP = newState.opponent.monstersInPlay[i].maxHP
-        })
+        let missingHP = stateObj.opponent.monstersInPlay[i].maxHP - stateObj.opponent.monstersInPlay[i].currentHP
+        missingHP = (missingHP >= 0) ? missingHP : 0
+        stateObj = await healMinion(stateObj, stateObj.opponent, i, missingHP)
       }
-      
-      //await pause(250)
-      stateObj = await changeState(stateObj)
       return stateObj;
     },
   };
-
 
   let sacrificialsprite = {
     name: "Sacrificial Sprite",
@@ -278,36 +197,17 @@ let tiderider = {
     currentHP: 2,
     maxHP: 2,
     avatar: "img/plant1.png",
-  
-    canAttack: true,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `On Death: Owner gains 2 Life`  
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-      
+    canAttack: false,
+    lifeGain: 2,
+    text: (state, index, array) => { return `On Death: Summoner gains ${array[index].lifeGain} Life`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },     
+    action: async (stateObj, index, array, playerObj) => {    
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = await changeState(stateObj)
-
       return stateObj;
     },
-
     onDeath: async (stateObj, index, array, playerObj) => {
-        stateObj = immer.produce(stateObj, (newState) => {
-            let player = (playerObj.name === "player") ? newState.player : newState.opponent
-            player.currentHP += 2;
-        })
-          
-          //await pause(250)
+        stateObj = await gainLife(stateObj, playerObj, array[index].lifeGain)
         return stateObj;
       }
   };
@@ -321,30 +221,14 @@ let tiderider = {
     currentHP: 2,
     maxHP: 2,
     avatar: "img/plant1.png",
-  
-    canAttack: true,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `When played: Hero gains 3 Life`  
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-      
+    canAttack: false,
+    lifeGain: 3,
+    text: (state, index, array) => { return `When Played: Summoner gains ${array[index].lifeGain} Life`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; }, 
+    action: async (stateObj, index, array, playerObj) => { 
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.currentHP += 3;
-    })
-      stateObj = await changeState(stateObj)
-
+      stateObj = await gainLife(stateObj, playerObj, array[index].lifeGain)
       return stateObj;
     },
   };
@@ -358,30 +242,14 @@ let tiderider = {
     currentHP: 3,
     maxHP: 3,
     avatar: "img/plant1.png",
-  
-    canAttack: true,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `When played: Hero gains 1 Life`  
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-      
+    canAttack: false,
+    lifeGain: 1,
+    text: (state, index, array) => { return `When Played: Summoner gains ${array[index].lifeGain} Life`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; }, 
+    action: async (stateObj, index, array, playerObj) => { 
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.currentHP += 1;
-    })
-      stateObj = await changeState(stateObj)
-
+      stateObj = await gainLife(stateObj, playerObj, array[index].lifeGain)
       return stateObj;
     },
   };
@@ -395,35 +263,17 @@ let tiderider = {
     currentHP: 1,
     maxHP: 1,
     avatar: "img/plant1.png",
-  
-    canAttack: true,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `On Death: Hero gains 1 Life`  
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
+    canAttack: false,
+    lifeGain: 1,
+    text: (state, index, array) => { return `On Death: Summoner gains ${array[index].lifeGain} Life`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; }, 
     action: async (stateObj, index, array, playerObj) => {
-      
       stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = await changeState(stateObj)
       return stateObj;
     },
-
     onDeath: async (stateObj, index, array, playerObj) => {
-        stateObj = immer.produce(stateObj, (newState) => {
-            let player = (playerObj.name === "player") ? newState.player : newState.opponent
-            player.currentHP += 1;
-        })
-          
-          //await pause(250)
+        stateObj = await gainLife(stateObj, playerObj, array[index].lifeGain)
         return stateObj;
       }
   };
@@ -436,33 +286,18 @@ let tiderider = {
     currentHP: 5,
     maxHP: 5,
     avatar: "img/plant1.png",
-  
-    canAttack: true,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `On Play: Heal all friendly minions to full HP`  
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
+    canAttack: false,
+    text: (state, index, array) => { return `On Play: Heal all friendly minions to full HP` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; }, 
     action: async (stateObj, index, array, playerObj) => {
-      
-      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      stateObj = await changeState(stateObj)
-
-      let playerOutside = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
-      for (let i = 0; i < playerOutside.monstersInPlay.length; i++) {
-        stateObj = immer.produce(stateObj, (newState) => {
-            let playerInside = (playerObj.name === "player") ? newState.player : newState.opponent
-            playerInside.monstersInPlay[i].currentHP = playerInside.monstersInPlay[i].maxHP
-        })
-      }
+        let monsterArray = (playerObj.name === "player") ? stateObj.player.monstersInPlay : stateObj.opponent.monstersInPlay 
+        stateObj = await playDemonFromHand(stateObj, index, playerObj, 400)
+        await executeAbility(playerObj.name, playerObj.monstersInPlay.length)
+        for (let i = 0; i < monsterArray.length; i++) {
+          let missingHP = monsterArray[i].maxHP - monsterArray[i].currentHP
+          stateObj = await healMinion(stateObj, stateObj.player, i, missingHP)
+        }
 
       //await pause(250)
       stateObj = await changeState(stateObj)

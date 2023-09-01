@@ -111,8 +111,8 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [oystergod, kelpspirit, schoolleader, beaverspirit];
-        newState.player.monstersInPlay = [beaverspirit ];
+        newState.player.encounterDraw = [forestnymph, healingspring, schoolleader, beaverspirit, deityoflight];
+        newState.player.monstersInPlay = [beaverspirit, beaverspirit, deityoflight, ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 26
         newState.opponent.monstersInPlay = [kelpspirit, poseidon]
@@ -247,11 +247,17 @@ async function gainLife(stateObj, playerSummoning, lifeToGain) {
   return stateObj;
 }
 
-async function giveDemonStats(stateObj, playerObj, index, stat1Name, stat1Value, stat2Name=false, stat2Value=false, inHand=false) {
+async function giveDemonStats(stateObj, playerObj, index, stat1Name, stat1Value, inHand=false, stat2Name=false, stat2Value=false, stat3Name=false, stat3Value=false) {
   stateObj = immer.produce(stateObj, (newState) => {
     let player = (playerObj.name === "player") ? newState.player : newState.opponent
     let array = (inHand) ? player.encounterHand : player.monstersInPlay
     array[index][stat1Name] += stat1Value
+    if (stat2Name) {
+      array[index][stat2Name] += stat2Value
+    }
+    if (stat3Name) {
+      array[index][stat3Name] += stat3Value
+    }
   })
   await changeState(stateObj)
   return stateObj;
@@ -295,15 +301,13 @@ async function checkForArrayMatches(arrayObj, propertyName, propertyValue) {
   return matchesInArray;
 }
 
-async function gainHP(stateObj, playerSummoning, indexToGive, HPToGive, inHand=false) {
+async function healMinion(stateObj, playerSummoning, index, HPToHeal) {
   stateObj = immer.produce(stateObj, (newState) => {
-    let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
-    if (inHand == true) {
-      player.encounterHand[indexToGive].currentHP += HPToGive;
-      player.encounterHand[indexToGive].maxHP += HPToGive;
-    } else {
-      player.monstersInPlay[indexToGive].currentHP += HPToGive;
-      player.monstersInPlay[indexToGive].maxHP += HPToGive;
+    let monstersArray = (playerSummoning.name === "player") ? newState.player.monstersInPlay : newState.opponent.monstersInPlay
+    let missingHP = monstersArray[index].maxHP - monstersArray[index].currentHP
+    let healAmount = (HPToHeal >= missingHP) ? HPToHeal : missingHP
+    if (healAmount > 0) {
+      monstersArray[index].currentHP += healAmount
     }
   })
   await changeState(stateObj)
