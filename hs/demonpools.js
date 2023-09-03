@@ -31,8 +31,8 @@ let waterMinions = [
 let highLifeEarthMinions = [
     //4 - 1 mana
     oysterspirit, woodsprite, lightspark, sicklyifrit,
-    //5 - 2 mana
-    greatoysterspirit, sacrificialsprite, lightbornimp, forestnymph, minorfragile,
+    //4 - 2 mana
+    greatoysterspirit, sacrificialsprite, lightbornimp, forestnymph,
     //4 - 3 mana
     lifegiver, oystergod, fragilespirit, kindspirit, //kindspirit gives opponent life
     //2 - 4 mana

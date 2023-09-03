@@ -111,7 +111,7 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [lightbornimp, tidepoollurker, hypedjinn, healingspring,];
+        newState.player.encounterDraw = [europesspectre, tidepoollurker, hypedjinn, healingspring,];
         newState.player.monstersInPlay = [tiderider, beaverspirit, deityoflight, ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
@@ -247,14 +247,21 @@ async function gainLife(stateObj, playerSummoning, lifeToGain) {
   return stateObj;
 }
 
+//can fix maxHP
+
 async function giveDemonStats(stateObj, playerObj, index, stat1Name, stat1Value, inHand=false, stat2Name=false, stat2Value=false, stat3Name=false, stat3Value=false) {
   stateObj = immer.produce(stateObj, (newState) => {
     let player = (playerObj.name === "player") ? newState.player : newState.opponent
     let array = (inHand) ? player.encounterHand : player.monstersInPlay
-    array[index][stat1Name] += stat1Value
     if (stat2Name) {
+      if (stat2Name === "maxHP") {
+        let missingHP = array[index].maxHP - array[index].currentHP
+        stat2Value = ((missingHP > array[index].currentHP) ? 0 : array[index].currentHP-missingHP)
+      }
       array[index][stat2Name] += stat2Value
     }
+    array[index][stat1Name] += stat1Value
+    
     if (stat3Name) {
       array[index][stat3Name] += stat3Value
     }
