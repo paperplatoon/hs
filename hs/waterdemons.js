@@ -22,7 +22,9 @@
 
 let tiderider = {
     name: "Tide Rider",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
+    tribe: "none",
     baseCost: 1,
     attack: 1,
     currentHP: 2,
@@ -33,10 +35,6 @@ let tiderider = {
     text: (state, index, array) => { return `End of Turn: Gain +${array[index].hpToGain} HP` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
-    action: async (stateObj, index, array, playerObj) => {
-      stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-      return stateObj;
-    },
     endOfTurn: async (stateObj, index, array, playerObj) => {
       stateObj = await giveDemonStats(stateObj, playerObj, index, "currentHP", 1, false, "maxHP", 1)
       return stateObj;
@@ -45,7 +43,8 @@ let tiderider = {
 
   let greatoysterspirit = {
     name: "Great Oyster Spirit",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 2,
     attack: 1,
     currentHP: 2,
@@ -68,7 +67,9 @@ let tiderider = {
 
   let tidepoollurker = {
     name: "Tidepool Lurker",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
+    cardType: "minion",
     baseCost: 2,
     attack: 2,
     currentHP: 2,
@@ -90,7 +91,9 @@ let tiderider = {
 
   let kelpspirit = {
     name: "Kelp Spirit",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
+    cardType: "minion",
     baseCost: 1,
     attack: 1,
     currentHP: 2,
@@ -113,7 +116,8 @@ let tiderider = {
 
   let poseidon = {
     name: "Poseidon",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 4,
     attack: 3,
     currentHP: 4,
@@ -138,7 +142,8 @@ let tiderider = {
 
   let oystergod = {
     name: "Oyster God",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 3,
     attack: 1,
     currentHP: 6,
@@ -161,7 +166,8 @@ let tiderider = {
 
   let healingspring = {
     name: "Healing Spring",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 3,
     attack: 3,
     currentHP: 3,
@@ -172,8 +178,7 @@ let tiderider = {
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },     
     action: async (stateObj, index, array, playerObj) => {
-      stateObj = await playDemonFromHand(stateObj, index, playerObj, 400)
-      await executeAbility(playerObj.name, playerObj.monstersInPlay.length)
+      await executeAbility(playerObj.name, playerObj.monstersInPlay.length-1)
       for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
         let missingHP = stateObj.player.monstersInPlay[i].maxHP - stateObj.player.monstersInPlay[i].currentHP
         missingHP = (missingHP >= 0) ? missingHP : 0
@@ -190,7 +195,8 @@ let tiderider = {
 
   let sacrificialsprite = {
     name: "Sacrificial Sprite",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     rarity: "rare",
     baseCost: 2,
     attack: 3,
@@ -214,7 +220,8 @@ let tiderider = {
 
   let forestnymph = {
     name: "Forest Nymph",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     rarity: "rare",
     baseCost: 2,
     attack: 2,
@@ -235,7 +242,8 @@ let tiderider = {
 
   let woodsprite = {
     name: "Wood Sprite",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     rarity: "common",
     baseCost: 1,
     attack: 1,
@@ -256,7 +264,8 @@ let tiderider = {
 
   let lightspark = {
     name: "Lightspark",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     rarity: "common",
     baseCost: 1,
     attack: 2,
@@ -280,7 +289,8 @@ let tiderider = {
 
   let deityoflight = {
     name: "Deity of Light",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 4,
     attack: 4,
     currentHP: 5,
@@ -304,7 +314,8 @@ let tiderider = {
 
   let purifiedoverlord = {
     name: "Purified Overlord",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 6,
     attack: 4,
     currentHP: 8,
@@ -330,7 +341,8 @@ let tiderider = {
 
   let corruptingspirit = {
     name: "Corrupting Spirit",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 6,
     attack: 5,
     currentHP: 8,
@@ -352,7 +364,8 @@ let tiderider = {
 
   let poisonousswamp = {
     name: "Poisonous Swamp",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 2,
     attack: 1,
     currentHP: 3,
@@ -379,7 +392,8 @@ let tiderider = {
 
   let spreadingblessing = {
     name: "Spreading Blessing",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 3,
     attack: 2,
     currentHP: 2,
@@ -402,7 +416,8 @@ let tiderider = {
 
   let deepseasquid = {
     name: "Deep Sea Squid",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 2,
     attack: 2,
     currentHP: 1,
@@ -425,7 +440,8 @@ let tiderider = {
 
   let bellcasterdeity = {
     name: "Bellcaster Deity",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 4,
     attack: 4,
     currentHP: 5,
@@ -449,7 +465,8 @@ let tiderider = {
 
   let healerimp = {
     name: "Healer Imp",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 1,
     attack: 1,
     currentHP: 2,
@@ -469,7 +486,8 @@ let tiderider = {
 
   let kindspirit = {
     name: "Kind Spirit",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 3,
     attack: 4,
     currentHP: 6,
@@ -481,7 +499,6 @@ let tiderider = {
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; }, 
     action: async (stateObj, index, array, playerObj) => {
-        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
         let opponent = (playerObj.name === "player") ? stateObj.opponent : stateObj.player
         stateObj = await gainLife(stateObj, opponent, array[index].lifeGain)
         return stateObj;
@@ -489,8 +506,9 @@ let tiderider = {
   };
 
   let empoweredspirit = {
-    name: "Kind Spirit",
-    type: "earth",
+    name: "Empowered Spirit",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 4,
     attack: 4,
     currentHP: 5,
@@ -513,23 +531,15 @@ let tiderider = {
     
     action: async (stateObj, index, array, playerObj) => {
         stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-        stateObj = immer.produce(stateObj, (newState) => {
-            let player = (playerObj.name === "player") ? newState.player : newState.opponent
-            if (player.currentHP >= 30) {
-                player.monstersInPlay[player.monstersInPlay.length-1].attack  += 3;
-                player.monstersInPlay[player.monstersInPlay.length-1].currentHP  += 3;
-                player.monstersInPlay[player.monstersInPlay.length-1].maxHP  += 3;
-            }
-          })
-        stateObj = await changeState(stateObj)
+        stateObj = await giveDemonStats(stateObj, playerObj, "currentHP", 3, false, "maxHP", 3, "attack", 3)
         return stateObj;
     },
   };
 
   let lifegiver = {
     name: "Life Giver",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 3,
     attack: 2,
     currentHP: 4,
@@ -564,7 +574,8 @@ let tiderider = {
 
   let hypedjinn = {
     name: "Hype Djinn",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 2,
     attack: 1,
     currentHP: 3,
@@ -613,7 +624,8 @@ let tiderider = {
 
   let lightbornimp = {
     name: "Lightborn Imp",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 2,
     attack: 2,
     currentHP: 3,
@@ -657,7 +669,8 @@ let tiderider = {
 
   let sicklyifrit = {
     name: "Sickly Ifrit",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 1,
     attack: 1,
     currentHP: 3,
@@ -701,7 +714,8 @@ let tiderider = {
 
   let fragilespirit= {
     name: "Fragile Spirit",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 3,
     attack: 4,
     currentHP: 3,
@@ -744,7 +758,8 @@ let tiderider = {
 
   let minorfragile = {
     name: "Minor Fragile",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 2,
     attack: 3,
     currentHP: 3,
@@ -787,7 +802,8 @@ let tiderider = {
 
   let cowardlyspirit = {
     name: "Cowardly Spirit",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 4,
     attack: 4,
     currentHP: 5,
@@ -831,7 +847,8 @@ let tiderider = {
 
   let  = {
     name: "Cowardly Spirit",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 4,
     attack: 4,
     currentHP: 5,
@@ -875,7 +892,8 @@ let tiderider = {
 
   let risingtsunami = {
     name: "Rising Tsunami",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     rarity: "legendary",
     baseCost: 5,
     attack: 5,
@@ -914,7 +932,8 @@ let tiderider = {
 
   let europesspectre = {
     name: "Europe's Specture",
-    type: "earth",
+    elementType: "earth",
+    cardType: "minion",
     baseCost: 5,
     attack: 4,
     currentHP: 7,

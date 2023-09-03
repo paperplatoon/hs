@@ -111,10 +111,10 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [healerimp, kindspirit, corruptingspirit, kelpspirit,];
+        newState.player.encounterDraw = [tiderider, kindspirit, empoweredspirit, healingspring,];
         newState.player.monstersInPlay = [tiderider, beaverspirit, deityoflight, ];
         newState.player.currentEnergy = 15;
-        newState.player.currentHP = 26
+        newState.player.currentHP = 31
         newState.opponent.monstersInPlay = [kelpspirit, poseidon]
       })
       for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
@@ -547,13 +547,13 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
           }
           
 
-          if (cardObj.type === "fire") {
+          if (cardObj.elementType === "fire") {
             cardDiv.classList.add("fire");
-          } else if (cardObj.type === "water") {
+          } else if (cardObj.elementType === "water") {
             cardDiv.classList.add("water");
-          } else if (cardObj.type === "earth") {
+          } else if (cardObj.elementType === "earth") {
             cardDiv.classList.add("earth");
-          } else if (cardObj.type === "air") {
+          } else if (cardObj.elementType === "air") {
             cardDiv.classList.add("air");
           }
    
@@ -652,9 +652,9 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
           } else if (cardArray === stateObj.player.monstersInPlay && cardArray[index].canAttack === true) {
             const enemyMonsters = document.querySelector("#enemyMonstersInPlay");
             cardDiv.setAttribute("draggable", "true")
-            if (cardArray[index].type === "water") {
+            if (cardArray[index].elementType === "water") {
               cardDiv.classList.add("can-attack-water");
-            } else if (cardArray[index].type === "earth") {
+            } else if (cardArray[index].elementType === "earth") {
               cardDiv.classList.add("can-attack-earth");
             } else {
               cardDiv.classList.add("can-attack");
@@ -778,29 +778,48 @@ function topRowDiv(stateObj) {
 }
 
 
-  function PlayACardImmer(stateObj, cardIndexInHand) {
+ async function PlayACardImmer(stateObj, cardIndexInHand, playerObj) {
+    let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+    let playedCard = {...player.encounterHand[cardIndexInHand]}
+
+    if (playedCard.cardType === "minion") {
+      //console.log("playing demon ")
+      stateObj = await playDemonFromHand(stateObj, cardIndexInHand, playerObj, pauseTime = (playedCard.pauseTime) ? playedCard.pauseTime : 500, stateChange=true)
+      //console.log("MIP length in Immer func" + stateObj[playerObj.name].monstersInPlay.length)
+    } else {
+      //console.log("paying non minon")
+    }
+
+    
+      if (playedCard) {
+        stateObj = immer.produce(stateObj, (newState) => {
+          newState.player.encounterHand.splice(cardIndexInHand, 1);
+        })
+      }
+
+
+      
     stateObj = immer.produce(stateObj, (newState) => {
-      let playedCard = newState.player.encounterHand[cardIndexInHand]
       for (let h = 0; h < newState.player.encounterHand.length; h++) {
         if (newState.player.encounterHand[h].growProperty) {
           newState.player.encounterHand[h].attack +=1;
           newState.player.encounterHand[h].currentHP +=1;
         }
       }
-      if (playedCard) {
-          newState.player.encounterHand.splice(cardIndexInHand, 1);
-        }
     })
+//      let playedCard = newState.player.encounterHand[cardIndexInHand]
+      
+
+    stateObj = await changeState(stateObj);
     return stateObj;
   }
   
   async function playACard(stateObj, cardIndexInHand, arrayObj, playerObj) {
-    let oldEncounterHand = [...playerObj.encounterHand]
-    stateObj = await PlayACardImmer(stateObj, cardIndexInHand);
-    stateObj = await changeState(stateObj);
-    console.log("you played " + oldEncounterHand[cardIndexInHand].name);  
-    stateObj = await oldEncounterHand[cardIndexInHand].action(stateObj, cardIndexInHand, arrayObj, playerObj);
-    
+    let monsters = stateObj[playerObj.name].monstersInPlay
+    stateObj = await PlayACardImmer(stateObj, cardIndexInHand, playerObj);
+    //console.log("you played " + newMonsters[newMonsters.length].name);
+    let newMonsters = stateObj[playerObj.name].monstersInPlay
+    stateObj = (newMonsters[newMonsters.length-1].action) ? await newMonsters[newMonsters.length-1].action(stateObj, newMonsters.length-1, newMonsters, playerObj) : stateObj
     return stateObj;
   }
 
