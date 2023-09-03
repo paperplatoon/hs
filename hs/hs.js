@@ -111,8 +111,8 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [europesspectre, tidepoollurker, hypedjinn, healingspring,];
-        newState.player.monstersInPlay = [tiderider, beaverspirit, deityoflight, ];
+        newState.player.encounterDraw = [impcub, beaverspirit, birthingpot, proudmama,];
+        newState.player.monstersInPlay = [tinyhydra ,beaverspirit ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
         newState.opponent.monstersInPlay = [kelpspirit, poseidon]
@@ -139,7 +139,6 @@ async function startEncounter(stateObj) {
 
 async function changeState(newStateObj) {
     let stateObj = {...newStateObj}
-    
     if (stateObj.status === Status.inFight) {
       if (stateObj.playerToAttackIndex !== false) {
         stateObj = await completeAttack(stateObj)
@@ -149,6 +148,13 @@ async function changeState(newStateObj) {
     state = {...stateObj}
     renderScreen(stateObj);
     return stateObj
+}
+
+async function updateState(newStateObj) {
+  let stateObj = {...newStateObj}
+  state = {...stateObj}
+  renderScreen(stateObj);
+  return stateObj
 }
 
 async function completeAttack(stateObj, attackerIndex = stateObj.playerToAttackIndex, defenderIndex = stateObj.enemyToBeAttackedIndex) {
@@ -377,12 +383,13 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
           if (typeof(playerObj.monstersInPlay[indexesToDelete[i]].onDeath) === "function") {
             stateObj = await playerObj.monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], playerObj.monstersInPlay, playerObj);
           }
-          //stateObj = await changeState(stateObj)
+          
           stateObj = immer.produce(stateObj, (newState) => {
             let player = (playerObj.name === "player") ? newState.player : newState.opponent
             player.monstersInPlay.splice(indexesToDelete[i], 1)
           })
       }
+      stateObj = await updateState(stateObj)
     }
   }
   return stateObj
@@ -1027,7 +1034,10 @@ async function enemyTurn(stateObj) {
     if (indexesToDelete.length > 0) {
       indexesToDelete.reverse()
       for (let i = 0; i < indexesToDelete.length; i++) {
-        stateObj = await stateObj.opponent.encounterHand[indexesToDelete[i]].action(stateObj, indexesToDelete[i], stateObj.opponent.encounterHand, stateObj.opponent);
+        let cardObj = stateObj.opponent.encounterHand[indexesToDelete[i]]
+        if (cardObj.action) {
+          stateObj = await cardObj.action(stateObj, indexesToDelete[i], stateObj.opponent.encounterHand, stateObj.opponent);
+        }
         stateObj = await immer.produce(stateObj, async (newState) => {
           newState.opponent.encounterHand.splice(indexesToDelete[i], 1)
         })
