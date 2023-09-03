@@ -48,6 +48,14 @@ let gameStartState = {
 
   player: {
     currentHP: 24,
+    name: "player",
+
+    lifeRequirementReduction: 0,
+    endofTurnMultiplier: 1,
+    onDeathMultiplier: 1,
+    whenPlayedMultiplier: 1,
+
+    cardsPerTurn: 0,
 
     currentEnergy: 1,
     maxEnergy: 1,
@@ -55,14 +63,10 @@ let gameStartState = {
     encounterDraw: [],
     monstersInPlay: [],
     encounterHand: [],
-
-    name: "player",
-
-    lifeRequirementReduction: 0,
-    
   },
 
   opponent: {
+    name: "opponent",
     currentHP: 10,
 
     currentEnergy: 1,
@@ -72,9 +76,12 @@ let gameStartState = {
     monstersInPlay: [],
     encounterHand: [],
 
-    name: "opponent",
-
     lifeRequirementReduction: 0,
+    endofTurnMultiplier: 1,
+    onDeathMultiplier: 1,
+    whenPlayedMultiplier: 1,
+
+    cardsPerTurn: 0,
 
     
   },
@@ -111,8 +118,8 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [impcub, beaverspirit, birthingpot, proudmama,];
-        newState.player.monstersInPlay = [tinyhydra ,beaverspirit ];
+        newState.player.encounterDraw = [impcub, ODdeity, sacrificialsprite, randomfish];
+        newState.player.monstersInPlay = [sacrificialsprite ,beaverspirit ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
         newState.opponent.monstersInPlay = [kelpspirit, poseidon]
@@ -145,16 +152,15 @@ async function changeState(newStateObj) {
       }
       stateObj = await handleDeaths(stateObj);
     }
+    stateObj = await updateState(stateObj)
     state = {...stateObj}
     renderScreen(stateObj);
     return stateObj
 }
 
 async function updateState(newStateObj) {
-  let stateObj = {...newStateObj}
-  state = {...stateObj}
-  renderScreen(stateObj);
-  return stateObj
+  state = {...newStateObj}
+  return newStateObj
 }
 
 async function completeAttack(stateObj, attackerIndex = stateObj.playerToAttackIndex, defenderIndex = stateObj.enemyToBeAttackedIndex) {
@@ -249,7 +255,7 @@ async function gainLife(stateObj, playerSummoning, lifeToGain) {
     let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
     player.currentHP += lifeToGain;
   })
-  await changeState(stateObj)
+  await updateState(stateObj)
   return stateObj;
 }
 
@@ -297,6 +303,7 @@ async function pickRandomOtherIndex(arrayObj, indexToAvoid) {
 
 async function addCardToHand(stateObj, playerSummoning, cardObj) {
   stateObj = immer.produce(stateObj, (newState) => {
+    console.log("assing card " + cardObj.name)
     let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
     player.encounterHand.push(cardObj);
   })
@@ -366,6 +373,7 @@ async function healMinion(stateObj, playerSummoning, index, HPToHeal) {
     newState.status(stateObj)
   }
 
+//changeState issues iwth onDeath calling itself probably causing this; look into the minion 
 async function handleDeathsForPlayer(stateObj, playerObj) {
   if (playerObj.monstersInPlay.length > 0) {
     let indexesToDelete = [];
@@ -377,11 +385,17 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
     });
     //if a monster has died
     if (indexesToDelete.length > 0) {
+      console.log("indexex to delete length " + indexesToDelete.length)
       indexesToDelete.reverse()
       //await opponentDeathAnimation(indexesToDelete)
       for (let i = 0; i < indexesToDelete.length; i++) {
-          if (typeof(playerObj.monstersInPlay[indexesToDelete[i]].onDeath) === "function") {
-            stateObj = await playerObj.monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], playerObj.monstersInPlay, playerObj);
+          let monsterObj = stateObj[playerObj.name].monstersInPlay[indexesToDelete[i]]
+          if (typeof(monsterObj.onDeath) === "function") {
+            console.log("on death triggering")
+            let mult = stateObj[playerObj.name].whenPlayedMultiplier
+            for (let m = 0; m < mult; m++) {
+              stateObj = await stateObj[playerObj.name].monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], playerObj.monstersInPlay, playerObj)
+            }
           }
           
           stateObj = immer.produce(stateObj, (newState) => {
@@ -389,7 +403,6 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
             player.monstersInPlay.splice(indexesToDelete[i], 1)
           })
       }
-      stateObj = await updateState(stateObj)
     }
   }
   return stateObj
@@ -833,7 +846,10 @@ function topRowDiv(stateObj) {
     stateObj = await PlayACardImmer(stateObj, cardIndexInHand, playerObj);
     //console.log("you played " + newMonsters[newMonsters.length].name);
     let newMonsters = stateObj[playerObj.name].monstersInPlay
-    stateObj = (newMonsters[newMonsters.length-1].action) ? await newMonsters[newMonsters.length-1].action(stateObj, newMonsters.length-1, newMonsters, playerObj) : stateObj
+    let mult = stateObj[playerObj.name].whenPlayedMultiplier
+    for (let i = 0; i < mult; i++) {
+      stateObj = (newMonsters[newMonsters.length-1].action) ? await newMonsters[newMonsters.length-1].action(stateObj, newMonsters.length-1, newMonsters, playerObj) : stateObj
+    }
     return stateObj;
   }
 
@@ -925,11 +941,15 @@ async function endTurn(stateObj) {
       monsterObj.canAttack = false;
     })
   });
-  let arraylength = stateObj.player.monstersInPlay.length
-  for (let i = arraylength-1; i > -1; i--) {
-    if (typeof(stateObj.player.monstersInPlay[i].endOfTurn) === "function") {
-      stateObj = await stateObj.player.monstersInPlay[i].endOfTurn(stateObj, i, stateObj.player.monstersInPlay, stateObj.player);
+  for (let i = stateObj.player.monstersInPlay.length-1; i > -1; i--) {
+    let card = stateObj.player.monstersInPlay[i]
+    if (typeof(card.endOfTurn) === "function") {
       await executeAbility("player", i)
+      console.log("mult " + stateObj.player.endofTurnMultiplier)
+      for (let j = 0; j < stateObj.player.endofTurnMultiplier; j++) {
+        console.log("doing end of turn loop")
+        stateObj = await card.endOfTurn(stateObj, i, stateObj.player.monstersInPlay, stateObj.player);
+      }
       stateObj = immer.produce(stateObj, (newState) => {
         newState.canPlay = false
       })

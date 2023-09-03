@@ -10,7 +10,7 @@ let playerWaterStarterMinions = [tiderider,  tiderider, kelpspirit, eartheelemen
 
 let waterMinions = [
     //5 - 1 mana - 
-    gnometwins, birthingpot, beaverspirit, redfish, schoolleader,
+    gnometwins, birthingpot, beaverspirit, redfish, schoolleader, randomfish,
     //5 - 2 mana - 
     tinyhydra, spreadingfungi, impcub, herbalistimp, golemmaker,
     //3 mana - 
@@ -28,6 +28,8 @@ let waterMinions = [
 //parameters are minion gaining, minion granting, player, 
 
 //high life payoff - 13
+
+
 let highLifeEarthMinions = [
     //4 - 1 mana
     oysterspirit, woodsprite, lightspark, sicklyifrit,
@@ -52,6 +54,8 @@ let highHPEarthMinions = [
      //4 - 5+ - legendary
      purifiedoverlord, risingtsunami, europesspectre, corruptingspirit,
 ]
+
+let allEarthMinions = [...highLifeEarthMinions, highHPEarthMinions]
 
 //healinhg payoff
 
