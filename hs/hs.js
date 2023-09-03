@@ -111,7 +111,7 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [tiderider, kindspirit, empoweredspirit, healingspring,];
+        newState.player.encounterDraw = [lightbornimp, tidepoollurker, hypedjinn, healingspring,];
         newState.player.monstersInPlay = [tiderider, beaverspirit, deityoflight, ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
