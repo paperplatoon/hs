@@ -2,6 +2,17 @@
 
 // next up - animated deaths
 //animated entrance
+//should instead check on death/play/end of turn if any minions have that ability, and then save that as a CONST mult
+
+//should program in minionValue and have opponents:
+//1. sum their total inPlay attack values
+//2. calcuate the highest value minion they can kill, using the same formula as maxHPIndex (if none, go face)
+//3. calculate the most efficient way to kill this minion (????)
+//take HP of most valuable minion, search for minion that can kill it exactly, have it attack
+//if none exist, search for lowest attack minion and have it attack
+//repeat this step until minion is dead
+//4. changeState and repeat until all minions have attacked.
+//
 
 // -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
 // -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
@@ -118,8 +129,8 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [impcub, ODdeity, sacrificialsprite, randomfish];
-        newState.player.monstersInPlay = [sacrificialsprite ,beaverspirit ];
+        newState.player.encounterDraw = [naturedeity, wpdeity, ODdeity, randomfish];
+        newState.player.monstersInPlay = [sacrificialsprite, tiderider, ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
         newState.opponent.monstersInPlay = [kelpspirit, poseidon]
@@ -153,13 +164,13 @@ async function changeState(newStateObj) {
       stateObj = await handleDeaths(stateObj);
     }
     stateObj = await updateState(stateObj)
-    state = {...stateObj}
     renderScreen(stateObj);
     return stateObj
 }
 
 async function updateState(newStateObj) {
   state = {...newStateObj}
+  renderScreen(newStateObj)
   return newStateObj
 }
 
@@ -392,7 +403,7 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
           let monsterObj = stateObj[playerObj.name].monstersInPlay[indexesToDelete[i]]
           if (typeof(monsterObj.onDeath) === "function") {
             console.log("on death triggering")
-            let mult = stateObj[playerObj.name].whenPlayedMultiplier
+            let mult = stateObj[playerObj.name].onDeathMultiplier
             for (let m = 0; m < mult; m++) {
               stateObj = await stateObj[playerObj.name].monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], playerObj.monstersInPlay, playerObj)
             }

@@ -150,10 +150,10 @@ let tiderider = {
     cardType: "minion",
     baseCost: 3,
     attack: 1,
-    currentHP: 5,
-    maxHP: 5,
+    currentHP: 3,
+    maxHP: 3,
     avatar: "img/waterpuddle.png",
-    canAttack: false,
+    canAttack: true,
     lifeGain: 5,
     text: (state, index, array) => { return `Your "End of Turn" effects trigger twice"` },
     minReq: (state, index, array) => { return array[index].baseCost; },
@@ -170,7 +170,7 @@ let tiderider = {
         stateObj = immer.produce(stateObj, (newState) => {
             newState[playerObj.name].endofTurnMultiplier -= (newState[playerObj.name].endofTurnMultiplier/2)
         })
-        stateObj = await changeState(stateObj)
+        stateObj = await updateState(stateObj)
         return stateObj;
     },
   };
@@ -181,10 +181,10 @@ let tiderider = {
     cardType: "minion",
     baseCost: 3,
     attack: 1,
-    currentHP: 4,
-    maxHP: 4,
+    currentHP: 3,
+    maxHP: 3,
     avatar: "img/waterpuddle.png",
-    canAttack: false,
+    canAttack: true,
     lifeGain: 5,
     text: (state, index, array) => { return `Your "When Played" effects trigger twice"` },
     minReq: (state, index, array) => { return array[index].baseCost; },
@@ -201,7 +201,7 @@ let tiderider = {
         stateObj = immer.produce(stateObj, (newState) => {
             newState[playerObj.name].whenPlayedMultiplier -= (newState[playerObj.name].whenPlayedMultiplier/2)
         })
-        stateObj = await changeState(stateObj)
+        stateObj = await updateState(stateObj)
       return stateObj;
     },
   };
@@ -212,17 +212,17 @@ let tiderider = {
     cardType: "minion",
     baseCost: 3,
     attack: 1,
-    currentHP: 4,
-    maxHP: 4,
+    currentHP: 3,
+    maxHP: 3,
     avatar: "img/waterpuddle.png",
-    canAttack: false,
+    canAttack: true,
     lifeGain: 5,
     text: (state, index, array) => { return `Your "On Death" effects trigger twice"` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },    
     action: async (stateObj, index, array, playerObj) => {
         stateObj = immer.produce(stateObj, (newState) => {
-            newState[playerObj.name].whenPlayedMultiplier *= 2
+            newState[playerObj.name].onDeathMultiplier *= 2
         })
         console.log("mult OD " + stateObj[playerObj.name].onDeathMultiplier)
         stateObj = await changeState(stateObj)
@@ -232,7 +232,7 @@ let tiderider = {
         stateObj = immer.produce(stateObj, (newState) => {
             newState[playerObj.name].onDeathMultiplier -= (newState[playerObj.name].onDeathMultiplier/2)
         })
-        stateObj = await changeState(stateObj)
+        stateObj = await updateState(stateObj)
       return stateObj;
     },
   };
