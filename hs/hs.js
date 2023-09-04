@@ -107,7 +107,7 @@ let gameStartState = {
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
-  testingMode: true,
+  testingMode: false,
 
   cardToBePlayed: false,
 }
@@ -122,14 +122,14 @@ startEncounter(state)
 async function startEncounter(stateObj) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
-      newState.player.encounterDraw = [...playerWaterStarterMinions];
+      newState.player.encounterDraw = [...playerEarthHighHPPoisonous];
       newState.status = Status.inFight
-      newState.opponent.encounterDraw = [...enemyWater1Minions]
+      newState.opponent.encounterDraw = [...enemyEarth1highLife]
     })
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [naturedeity, wpdeity, ODdeity, randomfish];
+        newState.player.encounterDraw = [tidepoollurker, wpdeity, ODdeity, randomfish];
         newState.player.monstersInPlay = [sacrificialsprite, tiderider, ];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
@@ -448,7 +448,7 @@ function renderHand(stateObj) {
   document.getElementById("handContainer2").innerHTML = "";
   if (stateObj.player.encounterHand.length > 0) {
     stateObj.player.encounterHand.forEach(function (cardObj, index) {
-      renderCard(stateObj, stateObj.player.encounterHand, index, "handContainer2", functionToAdd=false)
+      renderCard(stateObj, stateObj.player.encounterHand, index, stateObj.player, "handContainer2", functionToAdd=false)
     });
   }
   let ConjurerSkillButton = document.createElement("Button");
@@ -469,7 +469,7 @@ function renderPlayerMonstersInPlay(stateObj) {
   document.getElementById("playerMonstersInPlay").innerHTML = "";
   if (stateObj.player.monstersInPlay.length > 0) {
     stateObj.player.monstersInPlay.forEach(function (cardObj, index) {
-      renderCard(stateObj, stateObj.player.monstersInPlay, index, "playerMonstersInPlay", functionToAdd=false)
+      renderCard(stateObj, stateObj.player.monstersInPlay, index, stateObj.player, "playerMonstersInPlay", functionToAdd=false)
     });
   }
   let endTurnButton = document.createElement("Button");
@@ -491,7 +491,7 @@ function renderEnemyMonstersInPlay(stateObj) {
   document.getElementById("enemyMonstersInPlay").innerHTML = "";
   if (stateObj.opponent.monstersInPlay.length > 0) {
     stateObj.opponent.monstersInPlay.forEach(function (cardObj, index) {
-      renderCard(stateObj, stateObj.opponent.monstersInPlay, index, "enemyMonstersInPlay", functionToAdd=false)
+      renderCard(stateObj, stateObj.opponent.monstersInPlay, index, stateObj.opponent, "enemyMonstersInPlay", functionToAdd=false)
     });
   }
 }
@@ -500,7 +500,7 @@ function renderEnemyMonstersToChoose(stateObj) {
   document.getElementById("enemyMonstersInPlay").innerHTML = "";
   if (stateObj.opponent.monstersInPlay.length > 0) {
     stateObj.opponent.monstersInPlay.forEach(function (cardObj, index) {
-      renderCard(stateObj, stateObj.opponent.monstersInPlay, index, "enemyMonstersInPlay", functionToAdd=false)
+      renderCard(stateObj, stateObj.opponent.monstersInPlay, index, stateObj.opponent, "enemyMonstersInPlay", functionToAdd=false)
     });
   }
 }
@@ -569,7 +569,7 @@ async function renderWonFight(stateObj) {
 }
 
 
-function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=false) {
+function renderCard(stateObj, cardArray, index, playerObj, divName=false, functionToAdd=false) {
     let cardObj = cardArray[index];
     let cardDiv = document.createElement("Div");
     
@@ -615,7 +615,7 @@ function renderCard(stateObj, cardArray, index, divName=false, functionToAdd=fal
           let cardText = document.createElement("P");
           cardText.classList.add("card-text")
           if (typeof cardObj.cost === 'function') {
-            cardText.textContent = cardObj.text(stateObj, index, cardArray);
+            cardText.textContent = cardObj.text(stateObj, index, cardArray, playerObj);
           } else {
             cardCost.textContent = cardObj.text;
           }
@@ -1066,9 +1066,8 @@ async function enemyTurn(stateObj) {
       indexesToDelete.reverse()
       for (let i = 0; i < indexesToDelete.length; i++) {
         let cardObj = stateObj.opponent.encounterHand[indexesToDelete[i]]
-        if (cardObj.action) {
-          stateObj = await cardObj.action(stateObj, indexesToDelete[i], stateObj.opponent.encounterHand, stateObj.opponent);
-        }
+        stateObj = (cardObj.action) ? await cardObj.action(stateObj, indexesToDelete[i], stateObj.opponent.encounterHand, stateObj.opponent) : stateObj
+        stateObj = await playDemonFromHand(stateObj, indexesToDelete[i], stateObj.opponent)
         stateObj = await immer.produce(stateObj, async (newState) => {
           newState.opponent.encounterHand.splice(indexesToDelete[i], 1)
         })

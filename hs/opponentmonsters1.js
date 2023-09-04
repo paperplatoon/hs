@@ -1,308 +1,351 @@
+let tiderider = {
+  name: "Tide Rider",
+  elementType: "earth",
+  cardType: "minion",
+  tribe: "none",
+  baseCost: 1,
+  attack: 1,
+  currentHP: 1,
+  maxHP: 1,
+  avatar: "img/waterpuddle.png",
+  hpToGain: 1,
+  canAttack: false,
+  text: (state, index, array) => { return `End of Turn: Gain +${array[index].hpToGain} HP` },
+  minReq: (state, index, array) => { return array[index].baseCost; },
+  cost:  (state, index, array) => { return array[index].baseCost; },
+  endOfTurn: async (stateObj, index, array, playerObj) => {
+    stateObj = await giveDemonStats(stateObj, playerObj, index, "currentHP", 1, false, "maxHP", 1)
+    return stateObj;
+  }
+};
 
+let oysterspirit = {
+  name: "Oyster Spirit",
+  elementType: "earth",
+  cardType: "minion",
+  tribe: "none",
+  baseCost: 1,
+  attack: 1,
+  currentHP: 1,
+  maxHP: 1,
+  avatar: "img/waterpuddle.png",
+  hpToGain: 1,
+  canAttack: false,
+  text: (state, index, array, playerObj) => { return `End of Turn: ${playerObj.name} gain +${array[index].hpToGain} HP` },
+  minReq: (state, index, array) => { return array[index].baseCost; },
+  cost:  (state, index, array) => { return array[index].baseCost; },
+  endOfTurn: async (stateObj, index, array, playerObj) => {
+    stateObj = await giveDemonStats(stateObj, playerObj, index, "currentHP", 1, false, "maxHP", 1)
+    return stateObj;
+  }
+};
 
-
-
-
-let waverider = {
-    name: "Wave Rider",
-    type: "water",
-    baseCost: 1,
-    attack: 1,
-    currentHP: 1,
-    maxHP: 1,
+  let elementalII = {
+    name: "Elemental II",
+    elementType: "neutral",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 2,
+    attack: 2,
+    currentHP: 3,
+    maxHP: 3,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `End of Turn: Gains +1 HP` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-      return stateObj;
-    },
-    endOfTurn: async (stateObj, index, array, playerObj) => {
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.monstersInPlay[index].currentHP += 1;
-        player.monstersInPlay[index].maxHP += 1;
-      })
-      return stateObj;
-    }
-  };
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
 
 
-
-  let oysterspirit = {
-    name: "Oyster Spirit",
-    type: "water",
-    baseCost: 1,
-    attack: 1,
-    currentHP: 1,
-    maxHP: 1,
+  let elementalIII = {
+    name: "Elemental III",
+    elementType: "neutral",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 3,
+    attack: 3,
+    currentHP: 4,
+    maxHP: 4,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `End of Turn: owner gains 1 Life` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-      return stateObj;
-    },
-    endOfTurn: async (stateObj, index, array, playerObj) => {
-      stateObj = immer.produce(stateObj, (newState) => {
-        let player = (playerObj.name === "player") ? newState.player : newState.opponent
-        player.currentHP += 1;
-      })
-      return stateObj;
-    }
-  };
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let elementalIV = {
+    name: "Elemental IV",
+    elementType: "neutral",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 4,
+    attack: 3,
+    currentHP: 5,
+    maxHP: 5,
+    avatar: "img/waterpuddle.png",
+    canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let elementalV = {
+    name: "Elemental V",
+    elementType: "neutral",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 5,
+    attack: 5,
+    currentHP: 6,
+    maxHP: 6,
+    avatar: "img/waterpuddle.png",
+    canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
 
   let earthelementalI = {
     name: "Earth Elemental I",
-    type: "earth",
-    rarity: "common",
+    elementType: "earth",
+    cardType: "minion",
+    tribe: "elemental",
     baseCost: 1,
     attack: 1,
-    currentHP: 3,
-    maxHP: 3,
-    elemental: true,
+    currentHP: 4,
+    maxHP: 4,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-      return stateObj;
-    },
-  };
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
 
   let earthelementalII = {
     name: "Earth Elemental II",
-    type: "earth",
-    rarity: "common",
+    elementType: "earth",
+    cardType: "minion",
+    tribe: "elemental",
     baseCost: 2,
     attack: 2,
     currentHP: 4,
     maxHP: 4,
-    elemental: true,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-      return stateObj;
-    },
-  };
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
 
-  let earthelementalIplus = {
-    name: "Earth Elemental I+",
-    type: "earth",
-    rarity: "common",
-    baseCost: 1,
-    attack: 1,
-    currentHP: 4,
-    maxHP: 4,
-    elemental: true,
+  let earthelementalIII = {
+    name: "Earth Elemental III",
+    elementType: "earth",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 3,
+    attack: 2,
+    currentHP: 6,
+    maxHP: 6,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-      return stateObj;
-    },
-  };
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let earthelementalIV = {
+    name: "Earth Elemental IV",
+    elementType: "earth",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 4,
+    attack: 3,
+    currentHP: 6,
+    maxHP: 6,
+    avatar: "img/waterpuddle.png",
+    canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let earthelementalV = {
+    name: "Earth Elemental V",
+    elementType: "earth",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 5,
+    attack: 3,
+    currentHP: 8,
+    maxHP: 8,
+    avatar: "img/waterpuddle.png",
+    canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
 
   let waterelementalI = {
     name: "Water Elemental I",
-    type: "water",
-    rarity: "common",
+    elementType: "water",
+    cardType: "minion",
+    tribe: "elemental",
     baseCost: 1,
     attack: 2,
     currentHP: 2,
     maxHP: 2,
-    elemental: true,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-      return stateObj;
-    },
-  };
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
 
-  let waterelementalIplus = {
-    name: "Water Elemental I+",
-    type: "water",
-    rarity: "common",
-    baseCost: 1,
+  let waterelementalII = {
+    name: "Water Elemental II",
+    elementType: "water",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 2,
     attack: 3,
-    currentHP: 2,
-    maxHP: 2,
-    elemental: true,
+    currentHP: 3,
+    maxHP: 3,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-      return stateObj;
-    },
-  };
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let waterelementalIII = {
+    name: "Water Elemental III",
+    elementType: "water",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 3,
+    attack: 4,
+    currentHP: 4,
+    maxHP: 4,
+    avatar: "img/waterpuddle.png",
+    canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let waterelementalIV = {
+    name: "Water Elemental IV",
+    elementType: "water",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 4,
+    attack: 5,
+    currentHP: 5,
+    maxHP: 5,
+    avatar: "img/waterpuddle.png",
+    canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let waterelementalV = {
+    name: "Water Elemental V",
+    elementType: "water",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 5,
+    attack: 6,
+    currentHP: 6,
+    maxHP: 6,
+    avatar: "img/waterpuddle.png",
+    canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
 
   let fireelementalI = {
     name: "Fire Elemental I",
-    type: "fire",
-    rarity: "common",
+    elementType: "fire",
+    cardType: "minion",
+    tribe: "elemental",
     baseCost: 1,
     attack: 3,
     currentHP: 1,
     maxHP: 1,
-    elemental: true,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-      return stateObj;
-    },
-  };
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
 
-  let fireelementalIplus = {
-    name: "Fire Elemental I+",
-    type: "fire",
-    rarity: "common",
-    baseCost: 1,
+  let fireelementalII = {
+    name: "Fire Elemental II",
+    elementType: "fire",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 2,
     attack: 4,
-    currentHP: 1,
-    maxHP: 1,
-    elemental: true,
+    currentHP: 2,
+    maxHP: 2,
     avatar: "img/waterpuddle.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `` 
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
-    action: async (stateObj, index, array, playerObj) => {
-        stateObj = await playDemonFromHand(stateObj, index, playerObj, 500)
-        stateObj = await changeState(stateObj)
-      return stateObj;
-    },
-  };
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let fireelementalIII = {
+    name: "Fire Elemental III",
+    elementType: "fire",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 3,
+    attack: 5,
+    currentHP: 3,
+    maxHP: 3,
+    avatar: "img/waterpuddle.png",
+    canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let fireelementalIV = {
+    name: "Fire Elemental IV",
+    elementType: "fire",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 4,
+    attack: 6,
+    currentHP: 4,
+    maxHP: 4,
+    avatar: "img/waterpuddle.png",
+    canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let fireelementalV = {
+    name: "Fire Elemental V",
+    elementType: "fire",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 5,
+    attack: 7,
+    currentHP: 5,
+    maxHP: 5,
+    avatar: "img/waterpuddle.png",
+    canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+
 
   let airelementalI = {
     name: "Air Elemental I",

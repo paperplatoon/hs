@@ -20,7 +20,7 @@
 //oyster god - 3 1/6, end of turn Summoner  gains 5 HP
 //purifiedoverlord  - 6 5/8, end of turn heal all friendly minions to full 
 
-let tiderider = {
+let waverider = {
     name: "Tide Rider",
     elementType: "earth",
     cardType: "minion",
@@ -71,12 +71,13 @@ let tiderider = {
     currentHP: 2,
     maxHP: 2,
     avatar: "img/waterpuddle.png",
+    hpGain: 1,
     canAttack: false,
-    text: (state, index, array) => { return `End of Turn: Gain +1 HP`  },
+    text: (state, index, array) => { return `End of Turn: Gain +${array[index].hpGain} HP`  },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     endOfTurn: async (stateObj, index, array, playerObj) => {
-        stateObj = await gainLife(stateObj, playerObj, array[index].lifeGain)
+        stateObj = await giveDemonStats(stateObj, playerObj, index, "currentHP", 1, false, "maxHP", 1)
         return stateObj;
     }
   };
@@ -419,14 +420,38 @@ let tiderider = {
     },
   };
 
-  let poisonousswamp = {
-    name: "Poisonous Swamp",
+  let toxicvapors = {
+    name: "Toxic Vapors",
     elementType: "earth",
     cardType: "minion",
     baseCost: 2,
     attack: 1,
     currentHP: 3,
     maxHP: 3,
+    avatar: "img/plant1.png",
+    canAttack: false,
+    text: (state, index, array) => {return `End of Turn: Deal damage to the opponent equal to this minion's HP` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },  
+    endOfTurn: async (stateObj, index, array, playerObj) => {
+        stateObj = immer.produce(stateObj, (newState) => {
+            let playerInside = (playerObj.name === "player") ? newState.player : newState.opponent
+            let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
+            opponent.currentHP -= playerInside.monstersInPlay[index].currentHP // + stateObj.playerInside.earthDamage
+        })
+        stateObj = await changeState(stateObj)
+        return stateObj;
+      },
+  };
+
+  let poisonousswamp = {
+    name: "Poisonous Swamp",
+    elementType: "earth",
+    cardType: "minion",
+    baseCost: 3,
+    attack: 1,
+    currentHP: 4,
+    maxHP: 4,
     avatar: "img/plant1.png",
     canAttack: false,
     text: (state, index, array) => {return `End of Turn: Deal damage to the opponent equal to this minion's HP` },

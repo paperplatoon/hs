@@ -1,11 +1,16 @@
-let enemyWater1Minions = [waverider, waverider, oysterspirit, oysterspirit, kelpspirit,
-    tidepoollurker,  sacrificialsprite, eartheelementalcommon, eartheelementalcommon, eartheelemental2common, 
-    eartheelemental2common, eartheelemental3common, eartheelemental3common, eartheelemental3common, eartheelemental4common,
+//15
+let enemyEarth1highLife = [tiderider, sicklyifrit, earthelementalI, earthelementalI, earthelementalI,
+    // sacrificialsprite, lightbornimp, lightbornimp, elementalII, elementalII,
+    // elementalIII, elementalIII, attunednaturalist, 
+    // ashamedmama, ashamedmama, elementalIV, elementalIV
 ]
 
-let playerWaterStarterMinions = [tiderider,  tiderider, kelpspirit, eartheelementalrare, eartheelementalrare,
-                                 eartheelemental2rare, eartheelemental2rare, poisonousswamp, poisonousswamp, spreadingblessing,   
-                                spreadingblessing, eartheelemental3rare, corruptingspirit, healingspring, europesspectre, ]
+//14    
+let playerEarthHighHPPoisonous = [earthelementalI, healerimp, healerimp,
+                            toxicvapors, toxicvapors, tidepoollurker, tidepoollurker, 
+                            poisonousswamp, poisonousswamp, earthelementalIII, earthelementalIII, healingspring,
+                            poseidon
+                        ]
 
 
 let waterMinions = [
@@ -56,19 +61,3 @@ let highHPEarthMinions = [
 ]
 
 let allEarthMinions = [...highLifeEarthMinions, highHPEarthMinions]
-
-//healinhg payoff
-
-//simple elementals - 20
-let bigMinionEarthMinions = [
-    //3 - 1 mana
-    eartheelementalcommon, eartheelementalrare, eartheelementalepic,
-    //4 - 2 mana
-    eartheelemental2common, eartheelemental2rare, eartheelemental2epic, eartheelemental2epicB,
-    //5 - 3 mana
-    eartheelemental3common, eartheelemental3rare, eartheelemental3rareB, eartheelemental3epic, eartheelemental3epicB,
-    //8 - 4 mana
-    eartheelemental4common, eartheelemental4rare, eartheelemental4rareB, eartheelemental4rareC, eartheelemental4epic, eartheelemental4epicB, eartheelemental4epicC, eartheelemental4legendary,
-]
-
-let playerWaterHighValueMinions = [eartheelemental4legendary, poseidon, oystergod, deityoflight, purifiedoverlord,]
