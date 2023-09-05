@@ -44,7 +44,7 @@ let seedling = {
   let woodfairy = {
     name: "Wood Fairy",
     elementType: "earth",
-    cardType: "fairy",
+    cardType: "minion",
     baseCost: 2,
     attack: 1,
     currentHP: 2,
@@ -64,7 +64,8 @@ let seedling = {
   let sapplingsprout = {
     name: "Sappling Sprout",
     elementType: "earth",
-    cardType: "tree",
+    cardType: "minion",
+    tribe: "tree",
     baseCost: 2,
     attack: 2,
     currentHP: 2,

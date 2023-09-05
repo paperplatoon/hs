@@ -75,7 +75,7 @@ let gameStartState = {
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
-  testingMode: false,
+  testingMode: true,
 
   cardToBePlayed: false,
 }
@@ -88,11 +88,13 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.encounterDraw = [tidepoollurker, wpdeity, ODdeity, randomfish];
-        newState.player.monstersInPlay = [sacrificialsprite, tiderider, ];
+        // newState.player.encounterDraw = [];
+        // newState.player.monstersInPlay = [];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
-        newState.opponent.monstersInPlay = [kelpspirit, poseidon]
+        newState.opponent.monstersInPlay = []
+        newState.opponent.heroPower = heroPowers[testEnemy.heroPower]
+        newState.opponent.encounterDraw = testEnemy.deck
       })
       for (let i = 0; i < stateObj.player.monstersInPlay.length; i++) {
         stateObj = immer.produce(stateObj, (newState) => {
@@ -104,9 +106,7 @@ async function startEncounter(stateObj) {
     stateObj = shuffleDraw(stateObj, stateObj.player);
     stateObj = shuffleDraw(stateObj, stateObj.opponent);
     for (let h=0; h < 4; h++) {
-      console.log("drawing card "+ h)
       stateObj = await drawACard(stateObj, stateObj.player)
-      console.log(stateObj.player.encounterHand.length)
       stateObj = await drawACard(stateObj, stateObj.opponent)
     }
 
@@ -258,7 +258,6 @@ async function giveDemonStats(stateObj, playerObj, index, stat1Name, stat1Value,
 
 async function pickRandomOtherIndex(arrayObj, indexToAvoid) {
   if (arrayObj.length > 1) {
-    console.log("array has " + arrayObj.length + " elements and we're avoiding " + indexToAvoid)
     let targetIndex = Math.floor(Math.random() * (arrayObj.length));
 
     if (targetIndex === indexToAvoid) {
@@ -268,7 +267,6 @@ async function pickRandomOtherIndex(arrayObj, indexToAvoid) {
             targetIndex -=1
         }
     }
-    console.log("target index is " + targetIndex)
     return targetIndex
   } else {
     return false
@@ -277,7 +275,6 @@ async function pickRandomOtherIndex(arrayObj, indexToAvoid) {
 
 async function addCardToHand(stateObj, playerSummoning, cardObj) {
   stateObj = immer.produce(stateObj, (newState) => {
-    console.log("assing card " + cardObj.name)
     let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
     player.encounterHand.push(cardObj);
   })
@@ -384,13 +381,11 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
     });
     //if a monster has died
     if (indexesToDelete.length > 0) {
-      console.log("indexex to delete length " + indexesToDelete.length)
       indexesToDelete.reverse()
       //await opponentDeathAnimation(indexesToDelete)
       for (let i = 0; i < indexesToDelete.length; i++) {
           let monsterObj = stateObj[playerObj.name].monstersInPlay[indexesToDelete[i]]
           if (typeof(monsterObj.onDeath) === "function") {
-            console.log("on death triggering")
             let mult = stateObj[playerObj.name].onDeathMultiplier
             for (let m = 0; m < mult; m++) {
               stateObj = await stateObj[playerObj.name].monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], playerObj.monstersInPlay, playerObj)
@@ -504,7 +499,6 @@ function renderEnemyMonstersToChoose(stateObj) {
 
 async function renderDivs(stateObj) {
   if (stateObj.fightStarted === false) {
-    console.log("triggering startEncounter bc fightStarted is false")
     stateObj = await startEncounter(stateObj);
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
@@ -650,7 +644,6 @@ function renderCard(stateObj, cardArray, index, playerObj, divName=false, functi
                   });
 
                   cardDiv.addEventListener("dragstart", (event) => {
-                    console.log("card div id " + cardDiv.id)
                     event.dataTransfer.setData("text/plain", cardDiv.id);
                     
                   });
@@ -666,7 +659,6 @@ function renderCard(stateObj, cardArray, index, playerObj, divName=false, functi
                     
                     if (cardId && cardId[0] === "h") {
                       str = cardId.charAt(cardId.length-1) 
-                      console.log("card id is" + cardId)
 
                       playACard(stateObj, Number(str), stateObj.player.encounterHand, stateObj.player);
                       event.stopImmediatePropagation();
@@ -700,12 +692,10 @@ function renderCard(stateObj, cardArray, index, playerObj, divName=false, functi
 
                 cardDiv.addEventListener("dragstart", (event) => {
                     event.dataTransfer.setData("text/plain", cardDiv.id);
-                    console.log("dragging cardiv listener " + cardDiv.id)
                   });
 
                   enemyMonsters.addEventListener("dragover", (event) => {
                     let droppableElements = document.querySelectorAll("#enemyMonstersInPlay .card");
-                    console.log("droppable elements length " + droppableElements.length)
 
                   droppableElements.forEach((element, targetIndex) => {
                     element.addEventListener("dragover", (event) => {
@@ -818,11 +808,7 @@ function topRowDiv(stateObj) {
     let playedCard = {...player.encounterHand[cardIndexInHand]}
 
     if (playedCard.cardType === "minion") {
-      //console.log("playing demon ")
       stateObj = await playDemonFromHand(stateObj, cardIndexInHand, playerObj, pauseTime = (playedCard.pauseTime) ? playedCard.pauseTime : 500, stateChange=true)
-      //console.log("MIP length in Immer func" + stateObj[playerObj.name].monstersInPlay.length)
-    } else {
-      //console.log("paying non minon")
     }
 
     
@@ -852,7 +838,6 @@ function topRowDiv(stateObj) {
   async function playACard(stateObj, cardIndexInHand, arrayObj, playerObj) {
     let monsters = stateObj[playerObj.name].monstersInPlay
     stateObj = await PlayACardImmer(stateObj, cardIndexInHand, playerObj);
-    //console.log("you played " + newMonsters[newMonsters.length].name);
     let newMonsters = stateObj[playerObj.name].monstersInPlay
     let mult = stateObj[playerObj.name].whenPlayedMultiplier
     for (let i = 0; i < mult; i++) {
@@ -1004,9 +989,7 @@ async function endTurn(stateObj) {
     let card = stateObj.player.monstersInPlay[i]
     if (typeof(card.endOfTurn) === "function") {
       await executeAbility("player", i)
-      console.log("mult " + stateObj.player.endofTurnMultiplier)
       for (let j = 0; j < stateObj.player.endofTurnMultiplier; j++) {
-        console.log("doing end of turn loop")
         stateObj = await card.endOfTurn(stateObj, i, stateObj.player.monstersInPlay, stateObj.player);
       }
       stateObj = immer.produce(stateObj, (newState) => {
@@ -1123,8 +1106,10 @@ async function enemyTurn(stateObj) {
         await pause(750)
       }
     }
-
-    // if (stateObj.opponent.currentEnergy > )
+    if (stateObj.opponent.currentEnergy >= stateObj.opponent.heroPower.cost) {
+      console.log("opponent used their hero power")
+      stateObj = await stateObj.opponent.heroPower.action(stateObj, stateObj.opponent)
+    }
 
   //check for opponent end of turn abilities, and set all enemies' canAttacks to true
   for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {

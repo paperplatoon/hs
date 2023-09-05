@@ -86,6 +86,15 @@ let enemyEarth1HighHP = {
     heroPower: 0 //gainLife
 }
 
+let testEnemy = {
+    deck: [
+        proudmama, proudmama, elementalIV, elementalIV,
+        proudmama, proudmama, elementalIV, elementalIV
+    ],
+
+    heroPower: 0 //gainLife
+}
+
 //15    
 let playerEarthHighHPPoisonous = {
     deck: [
