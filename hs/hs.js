@@ -93,6 +93,7 @@ async function startEncounter(stateObj) {
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
         newState.opponent.monstersInPlay = []
+        newState.player.heroPower = heroPowers[2]
         newState.opponent.heroPower = heroPowers[testEnemy.heroPower]
         newState.opponent.encounterDraw = testEnemy.deck
       })
@@ -431,7 +432,7 @@ async function changeStatus(stateObj, newStatus, countsAsEventSkipForChangeStatu
 function createConjurerSkillButton(stateObj, playerObj) {
   let ConjurerSkillButton = document.createElement("Button");
   ConjurerSkillButton.classList.add("conjurer-skill-button")
-  ConjurerSkillButton.textContent = stateObj[playerObj.name].heroPower.text
+  ConjurerSkillButton.textContent = stateObj[playerObj.name].heroPower.text(stateObj, playerObj)
   if (playerObj.name === "player") {
     if (stateObj.canPlay === true && stateObj.player.currentEnergy >= stateObj.player.heroPower.cost) {
       ConjurerSkillButton.classList.add("conjurer-skill-button-playable")

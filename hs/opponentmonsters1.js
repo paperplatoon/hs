@@ -3,7 +3,7 @@ let heroPowers = [
     cost: 2,
     title: "Gain Life",
     lifeGain: 2,
-    text: "Gain 2 Life",
+    text: (stateObj, playerObj) => { return `Gain ${playerObj.heroPower.lifeGain} Life`   },
     action: async (stateObj, playerObj) => {
       stateObj = await gainLife(stateObj, stateObj[playerObj.name], stateObj[playerObj.name].heroPower.lifeGain)
       stateObj = immer.produce(stateObj, (newState) => {
@@ -18,7 +18,7 @@ let heroPowers = [
     cost: 1,
     title: "Gain HP",
     HPBuff: 1,
-    text: "A random friendly minion gains +1 HP",
+    text: (stateObj, playerObj) => { return `A random friendly minion gains +${stateObj[playerObj.name].heroPower.HPBuff} HP` },
     action: async (stateObj, playerObj) => {
       if (stateObj[playerObj.name].monstersInPlay.length > 0) {
         let t = Math.floor(Math.random() * stateObj[playerObj.name].monstersInPlay.length)
@@ -26,6 +26,23 @@ let heroPowers = [
       }
       stateObj = immer.produce(stateObj, (newState) => {
         newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost
+      })
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  },
+
+  {
+    cost: 3,
+    title: "Summon Growth",
+    counter: 1,
+    text: (stateObj, playerObj) => { return  `Summon a ${stateObj[playerObj.name].heroPower.counter}/${stateObj[playerObj.name].heroPower.counter} minion` },
+    action: async (stateObj, playerObj) => {
+      let c = playerObj.heroPower.counter
+      stateObj = await createNewMinion(stateObj, playerObj, c, c, c, c, name="Personal Growth", minion=potgrowth)
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState[playerObj.name].currentEnergy -= newState[playerObj.name].heroPower.cost
+        newState[playerObj.name].heroPower.counter += 1;
       })
       stateObj = await changeState(stateObj)
       return stateObj;
