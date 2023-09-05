@@ -1079,9 +1079,15 @@ async function endTurnIncrement(stateObj) {
 
 //in forEach, when a card is spliced, that makes the foreach loop 3 times, but now only 2 cards....
 async function enemyTurn(stateObj) {
+  let usedHeroPower = false;
+
+  if (stateObj.opponent.heroPower.priority > 0  &&  stateObj.opponent.currentEnergy >= stateObj.opponent.heroPower.cost) {
+    console.log("opponent used their hero power")
+    stateObj = await stateObj.opponent.heroPower.action(stateObj, stateObj.opponent)
+    usedHeroPower = true
+  }
   
   let currentEnergy = stateObj.opponent.currentEnergy;
-
     //if can play card, push to index
     let indexesToDelete = []
     for (let i = 0; i < stateObj.opponent.encounterHand.length; i++) {
@@ -1107,7 +1113,7 @@ async function enemyTurn(stateObj) {
         await pause(750)
       }
     }
-    if (stateObj.opponent.currentEnergy >= stateObj.opponent.heroPower.cost) {
+    if (stateObj.opponent.currentEnergy >= stateObj.opponent.heroPower.cost && usedHeroPower === false) {
       console.log("opponent used their hero power")
       stateObj = await stateObj.opponent.heroPower.action(stateObj, stateObj.opponent)
     }

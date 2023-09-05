@@ -3,6 +3,7 @@ let heroPowers = [
     cost: 2,
     title: "Gain Life",
     lifeGain: 2,
+    priority: 0,
     text: (stateObj, playerObj) => { return `Gain ${playerObj.heroPower.lifeGain} Life`   },
     action: async (stateObj, playerObj) => {
       stateObj = await gainLife(stateObj, stateObj[playerObj.name], stateObj[playerObj.name].heroPower.lifeGain)
@@ -18,6 +19,7 @@ let heroPowers = [
     cost: 1,
     title: "Gain HP",
     HPBuff: 1,
+    priority: 0,
     text: (stateObj, playerObj) => { return `A random friendly minion gains +${stateObj[playerObj.name].heroPower.HPBuff} HP` },
     action: async (stateObj, playerObj) => {
       if (stateObj[playerObj.name].monstersInPlay.length > 0) {
@@ -36,6 +38,7 @@ let heroPowers = [
     cost: 3,
     title: "Summon Growth",
     counter: 1,
+    priority: 1,
     text: (stateObj, playerObj) => { return  `Summon a ${stateObj[playerObj.name].heroPower.counter}/${stateObj[playerObj.name].heroPower.counter} minion` },
     action: async (stateObj, playerObj) => {
       let c = playerObj.heroPower.counter
