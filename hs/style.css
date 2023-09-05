@@ -19,6 +19,25 @@
   align-items: center;
 }
 
+.monster-choice-window {
+  justify-content: space-evenly;
+  display: flex;
+  flex-direction: row;
+  border: 1px solid black;
+  height: 96vh;
+  width: 98vw;
+  align-items: center;
+  background-color: #ccc;
+}
+
+.monster-to-choose {
+  color: black;
+  background-color: #b9fdff;
+  width: 25vw;
+  height: 30vw;
+  border: 0px solid black;
+}
+
 
 .card h3 {
   font-size: 1.1vw;
@@ -144,6 +163,7 @@
 
 
 
+
 .avatar {
   width: 10vmin;
   height: 10vmin;
@@ -158,8 +178,9 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  /* justify-content: center; */
+  justify-content: center;
   align-content: center;
+  align-items: center;
   /*background: linear-gradient(45deg, rgba(32, 78, 70, 0.6) 0%, rgba(255,175,70,0.23) 35%, rgba(0,212,255,0.08) 100%); */
 }
 
@@ -670,10 +691,30 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
     /*background: linear-gradient(215deg, rgba(255, 236, 219, 0.716), rgba(229, 181, 151, 0.7));*/
   }
 
-  .end-turn-button:hover {
-    background-color: rgb(24, 24, 24);
-    color: white;
+  .conjurer-skill-button {
+    width: 7vw;
+    height: 7vh;
+    background-color: #b9fdff;
+  }
+
+  .end-turn-button {
+    background-color: #00b5bc;
+    color: #fff1f1;
+    height: 3vh;
+    width: 5vw;
+
+  }
+
+  .conjurer-skill-button-playable:hover {
+    background-color: rgb(1, 87, 79);
+    color: rgb(195, 255, 252);
     cursor: pointer;
+  }
+
+  .conjurer-skill-button-greyed-out {
+    background-color: rgb(153, 153, 153);
+    color: rgb(109, 109, 109);
+    cursor: not-allowed;
   }
 
   .clickable-square:hover .monster-hp {
@@ -724,8 +765,9 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   .monster-to-choose:hover {
     cursor: pointer;
     box-shadow: 0 0 20px rgb(254, 254, 254); 
-    color: white;
-    animation: fadeIn 0.5s forwards;
+    color: rgb(192, 255, 255);
+    background-color: #006c6f;
+    animation: fadeIn 2s forwards;
   }
   #drawPile:hover #drawDiv,
 #discardPile:hover #discardDiv,
@@ -744,6 +786,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   box-shadow: 0 0 10px rgb(178, 95, 0); 
   background: linear-gradient(90deg, rgb(64, 59, 52),rgb(108, 80, 43), rgb(88, 68, 43), rgb(87, 47, 8));
   color: white;
+  transform: scale(1.1);
 }
 
 #handContainer2 .playable:hover {
@@ -955,6 +998,21 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 
 @keyframes fadeIn {
   0% {
+    opacity: 0.75;
+    transform: scale(1.0);
+    border-width: 0px;
+    
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.1);
+    border-width: 10px;
+  }
+}
+
+/* @keyframes fadeIn {
+  0% {
     opacity: 0;
     height: 2vh;
     width: 10vw;
@@ -970,10 +1028,5 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
     width: 13vw;
     transform: translateY(0px);
   }
-}
+} */
 
-.greyed-out {
-  background-color: grey;
-  color: grey;
-  cursor: wait;
-}

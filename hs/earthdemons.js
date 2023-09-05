@@ -20,11 +20,11 @@
 //oyster god - 3 1/6, end of turn Summoner  gains 5 HP
 //purifiedoverlord  - 6 5/8, end of turn heal all friendly minions to full 
 
-let waverider = {
-    name: "Tide Rider",
+let seedling = {
+    name: "Seedling",
     elementType: "earth",
     cardType: "minion",
-    tribe: "none",
+    tribe: "tree",
     baseCost: 1,
     attack: 1,
     currentHP: 2,
@@ -41,10 +41,10 @@ let waverider = {
     }
   };
 
-  let greatoysterspirit = {
-    name: "Great Oyster Spirit",
+  let woodfairy = {
+    name: "Wood Fairy",
     elementType: "earth",
-    cardType: "minion",
+    cardType: "fairy",
     baseCost: 2,
     attack: 1,
     currentHP: 2,
@@ -61,11 +61,10 @@ let waverider = {
     }
   };
 
-  let tidepoollurker = {
-    name: "Tidepool Lurker",
+  let sapplingsprout = {
+    name: "Sappling Sprout",
     elementType: "earth",
-    cardType: "minion",
-    cardType: "minion",
+    cardType: "tree",
     baseCost: 2,
     attack: 2,
     currentHP: 2,
@@ -82,8 +81,8 @@ let waverider = {
     }
   };
 
-  let kelpspirit = {
-    name: "Kelp Spirit",
+  let nymphcultivator = {
+    name: "Nymph Cultivator",
     elementType: "earth",
     cardType: "minion",
     cardType: "minion",
@@ -103,10 +102,10 @@ let waverider = {
     },
   };
 
-  let poseidon = {
-    name: "Poseidon",
+  let forestdeity = {
+    name: "Forest Deity",
     elementType: "earth",
-    cardType: "minion",
+    cardType: "deity",
     baseCost: 4,
     attack: 3,
     currentHP: 4,

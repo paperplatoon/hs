@@ -13,39 +13,9 @@
 //repeat this step until minion is dead
 //4. changeState and repeat until all minions have attacked.
 //
-
-// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
+  
 // -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
 //                                                          State Stuff
-// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
-// -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
 // -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
 
 const Status = {
@@ -53,7 +23,9 @@ const Status = {
   lostFight: renderLostFight,
   wonFight: renderWonFight,
   chooseEnemyMonster: renderChooseEnemy,
+  ChoosingMonster: renderChooseMonster,
 }
+
 
 let gameStartState = {
 
@@ -65,6 +37,7 @@ let gameStartState = {
     endofTurnMultiplier: 1,
     onDeathMultiplier: 1,
     whenPlayedMultiplier: 1,
+    heroPower: false,
 
     cardsPerTurn: 0,
 
@@ -96,14 +69,9 @@ let gameStartState = {
 
     
   },
-  
-
-  currentEnemyHP: 50,
-  enemyEnergy: 1,
-  enemyMaxEnergy: 1,
 
   fightStarted: false,
-  status: Status.inFight,
+  status: Status.ChoosingMonster,
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
@@ -114,18 +82,9 @@ let gameStartState = {
 
 
 let state = {...gameStartState};
-startEncounter(state)
-//renderScreen(state)
-
-
+renderScreen(state)
 
 async function startEncounter(stateObj) {
-    stateObj = immer.produce(stateObj, (newState) => {
-      newState.fightStarted = true;
-      newState.player.encounterDraw = [...playerEarthHighHPPoisonous];
-      newState.status = Status.inFight
-      newState.opponent.encounterDraw = [...enemyEarth1highLife]
-    })
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
@@ -141,15 +100,19 @@ async function startEncounter(stateObj) {
         })
       }
     }
-
+    console.log("starting encounter")
     stateObj = shuffleDraw(stateObj, stateObj.player);
     stateObj = shuffleDraw(stateObj, stateObj.opponent);
     for (let h=0; h < 4; h++) {
+      console.log("drawing card "+ h)
       stateObj = await drawACard(stateObj, stateObj.player)
+      console.log(stateObj.player.encounterHand.length)
       stateObj = await drawACard(stateObj, stateObj.opponent)
     }
 
-    
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.fightStarted = true;
+    })
 
     await changeState(stateObj);
     return stateObj
@@ -384,6 +347,40 @@ async function healMinion(stateObj, playerSummoning, index, HPToHeal) {
     newState.status(stateObj)
   }
 
+  function renderChooseMonster(stateObj) {
+    document.getElementById("app").innerHTML = ""
+    let monsterChoiceDiv = document.createElement("Div");
+    monsterChoiceDiv.classList.add("monster-choice-window");
+    document.getElementById("app").appendChild(monsterChoiceDiv);
+  
+    potentialPlayers.forEach(function (playerObj, index) {
+      let monsterDiv = document.createElement("Div");
+      monsterDiv.id = index;
+      monsterDiv.classList.add("monster-to-choose");
+      // if (monsterObj.type === "fire") {
+      //   monsterDiv.classList.add("fire-choose");
+      // } else {
+      //   monsterDiv.classList.add("water-choose");
+      // }
+      
+      // let avatar = document.createElement('img');
+      // avatar.classList.add("avatar");
+      // avatar.src = playerObj.avatar;
+  
+      monsterDiv.addEventListener("click", function () {
+        chooseThisMonster(stateObj, index);
+      });
+
+      let monsterName = document.createElement("H3");
+      monsterName.textContent = playerObj.name;
+      let monsterText = document.createElement("p");
+      monsterText.textContent = playerObj.text;
+      monsterDiv.append(monsterName, monsterText);
+      monsterChoiceDiv.append(monsterDiv)
+      })
+      document.getElementById("app").appendChild(monsterChoiceDiv);
+  };
+
 //changeState issues iwth onDeath calling itself probably causing this; look into the minion 
 async function handleDeathsForPlayer(stateObj, playerObj) {
   if (playerObj.monstersInPlay.length > 0) {
@@ -444,6 +441,24 @@ async function changeStatus(stateObj, newStatus, countsAsEventSkipForChangeStatu
   return stateObj;
 }
 
+function createConjurerSkillButton(stateObj, playerObj) {
+  let ConjurerSkillButton = document.createElement("Button");
+  ConjurerSkillButton.classList.add("conjurer-skill-button")
+  ConjurerSkillButton.textContent = stateObj[playerObj.name].heroPower.text
+  if (playerObj.name === "player") {
+    if (stateObj.canPlay === true && stateObj.player.currentEnergy >= stateObj.player.heroPower.cost) {
+      ConjurerSkillButton.classList.add("conjurer-skill-button-playable")
+      ConjurerSkillButton.addEventListener("click", function() {
+        stateObj.player.heroPower.action(stateObj, stateObj.player)
+      })
+    } else {
+      ConjurerSkillButton.classList.add("conjurer-skill-button-greyed-out")
+    }
+  }
+  
+  return ConjurerSkillButton
+}
+
 function renderHand(stateObj) {
   document.getElementById("handContainer2").innerHTML = "";
   if (stateObj.player.encounterHand.length > 0) {
@@ -451,18 +466,8 @@ function renderHand(stateObj) {
       renderCard(stateObj, stateObj.player.encounterHand, index, stateObj.player, "handContainer2", functionToAdd=false)
     });
   }
-  let ConjurerSkillButton = document.createElement("Button");
-  //ConjurerSkillButton.classList.add("font5vmin")
-  if (stateObj.canPlay === true && stateObj.player.currentEnergy > 0) {
-    ConjurerSkillButton.classList.add("end-turn-button")
-    ConjurerSkillButton.textContent = "Gain 1 Life"
-    ConjurerSkillButton.addEventListener("click", function() {
-      heroPower(stateObj, stateObj.player)
-    })
-  } else {
-    ConjurerSkillButton.classList.add("greyed-out")
-  }
-  document.getElementById("handContainer2").append(ConjurerSkillButton)
+  skillButton = createConjurerSkillButton(stateObj, stateObj.player)
+  document.getElementById("handContainer2").append(skillButton)
 }
 
 function renderPlayerMonstersInPlay(stateObj) {
@@ -882,6 +887,57 @@ async function playerMonsterIsAttacking(stateObj, index, arrayObj) {
   return stateObj;
 }
 
+function renderChooseDeck(stateObj) {
+  document.getElementById("app").innerHTML = ""
+  let monsterChoiceDiv = document.createElement("Div");
+  monsterChoiceDiv.classList.add("monster-choice-window");
+  document.getElementById("app").appendChild(monsterChoiceDiv);
+  // let devModeDiv = document.createElement("Div");
+  // devModeDiv.classList.add("dev-mode-div")
+  // devModeDiv.addEventListener("click", function () {
+  //   chooseThisMonster(stateObj, 4);
+  // });
+  // monsterChoiceDiv.append(devModeDiv);
+
+  potentialMonsterChoicesNoDev.forEach(function (characterObj, index) {
+    let monsterDiv = document.createElement("Div");
+    monsterDiv.id = index;
+    monsterDiv.classList.add("monster-to-choose");
+    if (monsterObj.type === "fire") {
+      monsterDiv.classList.add("fire-choose");
+    } else {
+      monsterDiv.classList.add("water-choose");
+    }
+    let monsterName = document.createElement("H3");
+
+    monsterName.textContent = monsterObj.name;
+    let avatar = document.createElement('img');
+    avatar.classList.add("avatar");
+    avatar.src = monsterObj.avatar;
+
+    monsterDiv.addEventListener("click", function () {
+      chooseThisMonster(stateObj, index);
+    });
+
+    monsterDiv.append(monsterName, avatar);
+    monsterChoiceDiv.append(monsterDiv)
+    document.getElementById("app").appendChild(monsterChoiceDiv);
+    })
+};
+
+async function chooseThisMonster(stateObj, index) {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.player.encounterDraw = [...potentialPlayers[index].deck];
+      newState.player.heroPower = {...heroPowers[potentialPlayers[index].heroPower]}
+      newState.status = Status.inFight
+      let i = Math.floor(Math.random() * potentialEnemies.length)
+      newState.opponent.encounterDraw = [...potentialEnemies[i].deck],
+      newState.opponent.heroPower = {...heroPowers[potentialEnemies[i].heroPower]}
+    })
+  stateObj = await changeState(stateObj);
+  return stateObj;
+}
+
   
 // -------------------------- -------------------------- -------------------------- -------------------------- --------------------------   
 // -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
@@ -934,10 +990,10 @@ function shuffleArray(array) {
 
 //should hero power cost increase by 1 every time it's played a turn??
 async function heroPower(stateObj, playerObj) {
-  stateObj = await gainLife(stateObj, playerObj, 1) // 1 + playerObj.heroPowerIncrease
+  stateObj = await gainLife(stateObj, playerObj, 2) // 1 + playerObj.heroPowerIncrease
   stateObj = immer.produce(stateObj, (newState) => {
     let player = (playerObj.name === "player") ? newState.player : newState.opponent
-    player.currentEnergy -= 1; //1 + playerObj.heroPowerCost
+    player.currentEnergy -= 2; //1 + playerObj.heroPowerCost
   });
   await changeState(stateObj)
 }
@@ -1076,6 +1132,8 @@ async function enemyTurn(stateObj) {
       }
     }
 
+    // if (stateObj.opponent.currentEnergy > )
+
   //check for opponent end of turn abilities, and set all enemies' canAttacks to true
   for (let i = 0; i < stateObj.opponent.monstersInPlay.length; i++) {
     if (stateObj.opponent.monstersInPlay[i].endOfTurn) {
@@ -1118,3 +1176,4 @@ async function drawACard(stateObj, playerDrawing) {
   })
   return stateObj;
 }
+

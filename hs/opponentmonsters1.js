@@ -1,3 +1,39 @@
+let heroPowers = [
+  {
+    cost: 2,
+    title: "Gain Life",
+    lifeGain: 2,
+    text: "Gain 2 Life",
+    action: async (stateObj, playerObj) => {
+      stateObj = await gainLife(stateObj, stateObj[playerObj.name], stateObj[playerObj.name].heroPower.lifeGain)
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost
+      })
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  },
+
+  {
+    cost: 1,
+    title: "Gain HP",
+    HPBuff: 1,
+    text: "A random friendly minion gains +1 HP",
+    action: async (stateObj, playerObj) => {
+      if (stateObj[playerObj.name].monstersInPlay.length > 0) {
+        let t = Math.floor(Math.random() * stateObj[playerObj.name].monstersInPlay.length)
+        stateObj = await giveDemonStats(stateObj, playerObj, t, "currentHP", stateObj[playerObj.name].heroPower.HPBuff, false, "maxHP", stateObj[playerObj.name].heroPower.HPBuff)
+      }
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost
+      })
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  },
+
+]
+
 let tiderider = {
   name: "Tide Rider",
   elementType: "earth",
