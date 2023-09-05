@@ -23,7 +23,7 @@ const Status = {
   lostFight: renderLostFight,
   wonFight: renderWonFight,
   chooseEnemyMonster: renderChooseEnemy,
-  ChoosingMonster: renderChooseMonster,
+  ChoosingMonster: renderChooseDeck,
 }
 
 
@@ -347,37 +347,28 @@ async function healMinion(stateObj, playerSummoning, index, HPToHeal) {
     newState.status(stateObj)
   }
 
-  function renderChooseMonster(stateObj) {
+ function renderChooseDeck(stateObj) {
     document.getElementById("app").innerHTML = ""
     let monsterChoiceDiv = document.createElement("Div");
     monsterChoiceDiv.classList.add("monster-choice-window");
     document.getElementById("app").appendChild(monsterChoiceDiv);
   
-    potentialPlayers.forEach(function (playerObj, index) {
+    for (let p =0; p < potentialPlayers.length; p++) {
       let monsterDiv = document.createElement("Div");
-      monsterDiv.id = index;
+      monsterDiv.id = p;
       monsterDiv.classList.add("monster-to-choose");
-      // if (monsterObj.type === "fire") {
-      //   monsterDiv.classList.add("fire-choose");
-      // } else {
-      //   monsterDiv.classList.add("water-choose");
-      // }
-      
-      // let avatar = document.createElement('img');
-      // avatar.classList.add("avatar");
-      // avatar.src = playerObj.avatar;
   
-      monsterDiv.addEventListener("click", function () {
-        chooseThisMonster(stateObj, index);
+      monsterDiv.addEventListener("click", async function () {
+        chooseThisMonster(stateObj, p);
       });
 
       let monsterName = document.createElement("H3");
-      monsterName.textContent = playerObj.name;
+      monsterName.textContent = potentialPlayers[p].name;
       let monsterText = document.createElement("p");
-      monsterText.textContent = playerObj.text;
+      monsterText.textContent = potentialPlayers[p].text;
       monsterDiv.append(monsterName, monsterText);
       monsterChoiceDiv.append(monsterDiv)
-      })
+    }
       document.getElementById("app").appendChild(monsterChoiceDiv);
   };
 
@@ -419,9 +410,10 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
 
 
 async function handleDeaths(stateObj) {
-  stateObj = await(handleDeathsForPlayer(stateObj, stateObj.opponent))
+  if (stateObj.fightStarted === true) {
+    stateObj = await(handleDeathsForPlayer(stateObj, stateObj.opponent))
 
-    if (stateObj.currentEnemyHP <= 0) {
+    if (stateObj.opponent.currentHP <= 0) {
       stateObj = renderWonFight(stateObj)
     }
     stateObj = await(handleDeathsForPlayer(stateObj, stateObj.player))
@@ -429,7 +421,7 @@ async function handleDeaths(stateObj) {
     if (stateObj.player.currentHP <= 0) {
       stateObj = renderLostFight(stateObj)
     }
-
+  }
   return stateObj;
 }
 
@@ -887,45 +879,45 @@ async function playerMonsterIsAttacking(stateObj, index, arrayObj) {
   return stateObj;
 }
 
-function renderChooseDeck(stateObj) {
-  document.getElementById("app").innerHTML = ""
-  let monsterChoiceDiv = document.createElement("Div");
-  monsterChoiceDiv.classList.add("monster-choice-window");
-  document.getElementById("app").appendChild(monsterChoiceDiv);
-  // let devModeDiv = document.createElement("Div");
-  // devModeDiv.classList.add("dev-mode-div")
-  // devModeDiv.addEventListener("click", function () {
-  //   chooseThisMonster(stateObj, 4);
-  // });
-  // monsterChoiceDiv.append(devModeDiv);
+// function renderChooseDeck(stateObj) {
+//   document.getElementById("app").innerHTML = ""
+//   let monsterChoiceDiv = document.createElement("Div");
+//   monsterChoiceDiv.classList.add("monster-choice-window");
+//   document.getElementById("app").appendChild(monsterChoiceDiv);
+//   // let devModeDiv = document.createElement("Div");
+//   // devModeDiv.classList.add("dev-mode-div")
+//   // devModeDiv.addEventListener("click", function () {
+//   //   chooseThisMonster(stateObj, 4);
+//   // });
+//   // monsterChoiceDiv.append(devModeDiv);
 
-  potentialMonsterChoicesNoDev.forEach(function (characterObj, index) {
-    let monsterDiv = document.createElement("Div");
-    monsterDiv.id = index;
-    monsterDiv.classList.add("monster-to-choose");
-    if (monsterObj.type === "fire") {
-      monsterDiv.classList.add("fire-choose");
-    } else {
-      monsterDiv.classList.add("water-choose");
-    }
-    let monsterName = document.createElement("H3");
+//   potentialPlayers.forEach(function (playerObj, index) {
+//     let monsterDiv = document.createElement("Div");
+//     monsterDiv.id = index;
+//     monsterDiv.classList.add("monster-to-choose");
+//     if (monsterObj.type === "fire") {
+//       monsterDiv.classList.add("fire-choose");
+//     } else {
+//       monsterDiv.classList.add("water-choose");
+//     }
+//     let monsterName = document.createElement("H3");
 
-    monsterName.textContent = monsterObj.name;
-    let avatar = document.createElement('img');
-    avatar.classList.add("avatar");
-    avatar.src = monsterObj.avatar;
+//     monsterName.textContent = playerObj.name;
+//     // let avatar = document.createElement('img');
+//     // avatar.classList.add("avatar");
+//     // avatar.src = monsterObj.avatar;
 
-    monsterDiv.addEventListener("click", function () {
-      chooseThisMonster(stateObj, index);
-    });
+//     monsterDiv.addEventListener("click", function () {
+//       chooseThisMonster(stateObj, index);
+//     });
 
-    monsterDiv.append(monsterName, avatar);
-    monsterChoiceDiv.append(monsterDiv)
-    document.getElementById("app").appendChild(monsterChoiceDiv);
-    })
-};
+//     monsterDiv.append(monsterName, avatar);
+//     monsterChoiceDiv.append(monsterDiv)
+//     document.getElementById("app").appendChild(monsterChoiceDiv);
+//     })
+// };
 
-async function chooseThisMonster(stateObj, index) {
+function chooseThisMonster(stateObj, index) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.player.encounterDraw = [...potentialPlayers[index].deck];
       newState.player.heroPower = {...heroPowers[potentialPlayers[index].heroPower]}
@@ -934,7 +926,7 @@ async function chooseThisMonster(stateObj, index) {
       newState.opponent.encounterDraw = [...potentialEnemies[i].deck],
       newState.opponent.heroPower = {...heroPowers[potentialEnemies[i].heroPower]}
     })
-  stateObj = await changeState(stateObj);
+   stateObj = updateState(stateObj);
   return stateObj;
 }
 
