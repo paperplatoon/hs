@@ -171,8 +171,7 @@ async function completeAttack(stateObj, attackerIndex = stateObj.playerToAttackI
   return stateObj
 }
 
-async function playDemonFromHand(stateObj, cardIndexInHand, playerSummoning, pauseTime=500, stateChange=true) {
-  let cardObj = playerSummoning.encounterHand[cardIndexInHand]
+async function playDemonFromHand(stateObj, cardObj, playerSummoning, pauseTime=500, stateChange=true) {
   stateObj = await immer.produce(stateObj, async (newState) => {
     let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
     player.currentEnergy -= cardObj.baseCost;
@@ -816,28 +815,24 @@ function topRowDiv(stateObj) {
 }
 
 
- async function PlayACardImmer(stateObj, cardIndexInHand, playerObj) {
-    let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
-    let playedCard = {...player.encounterHand[cardIndexInHand]}
-
-    if (playedCard.cardType === "minion") {
-      stateObj = await playDemonFromHand(stateObj, cardIndexInHand, playerObj, pauseTime = (playedCard.pauseTime) ? playedCard.pauseTime : 500, stateChange=true)
+ async function PlayACardImmer(stateObj, cardObj, cardIndexInHand, playerObj) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.player.encounterHand.splice(cardIndexInHand, 1);
+  })
+  
+    if (cardObj.cardType === "minion") {
+      stateObj = await playDemonFromHand(stateObj, cardObj, playerObj, pauseTime = (cardObj.pauseTime) ? cardObj.pauseTime : 2000, stateChange=true)
     }
 
     
-      if (playedCard) {
-        stateObj = immer.produce(stateObj, (newState) => {
-          newState.player.encounterHand.splice(cardIndexInHand, 1);
-        })
-      }
 
 
       
     stateObj = immer.produce(stateObj, (newState) => {
-      for (let h = 0; h < newState.player.encounterHand.length; h++) {
-        if (newState.player.encounterHand[h].growProperty) {
-          newState.player.encounterHand[h].attack +=1;
-          newState.player.encounterHand[h].currentHP +=1;
+      for (let h = 0; h < newState[playerObj.name].encounterHand.length; h++) {
+        if (newState[playerObj.name].encounterHand[h].growProperty) {
+          newState[playerObj.name].encounterHand[h].attack +=1;
+          newState[playerObj.name].encounterHand[h].currentHP +=1;
         }
       }
     })
@@ -846,11 +841,11 @@ function topRowDiv(stateObj) {
 
     stateObj = await changeState(stateObj);
     return stateObj;
-  }
+}
   
   async function playACard(stateObj, cardIndexInHand, arrayObj, playerObj) {
     let monsters = stateObj[playerObj.name].monstersInPlay
-    stateObj = await PlayACardImmer(stateObj, cardIndexInHand, playerObj);
+    stateObj = await PlayACardImmer(stateObj, stateObj[playerObj.name].encounterHand[cardIndexInHand], cardIndexInHand, playerObj);
     let newMonsters = stateObj[playerObj.name].monstersInPlay
     let mult = stateObj[playerObj.name].whenPlayedMultiplier
     for (let i = 0; i < mult; i++) {
@@ -1130,7 +1125,7 @@ async function enemyTurn(stateObj) {
       for (let i = 0; i < indexesToDelete.length; i++) {
         let cardObj = stateObj.opponent.encounterHand[indexesToDelete[i]]
         stateObj = (cardObj.action) ? await cardObj.action(stateObj, indexesToDelete[i], stateObj.opponent.encounterHand, stateObj.opponent) : stateObj
-        stateObj = await playDemonFromHand(stateObj, indexesToDelete[i], stateObj.opponent)
+        stateObj = await playDemonFromHand(stateObj, cardObj, stateObj.opponent)
         stateObj = await immer.produce(stateObj, async (newState) => {
           newState.opponent.encounterHand.splice(indexesToDelete[i], 1)
         })
