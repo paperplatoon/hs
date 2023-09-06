@@ -80,6 +80,7 @@
   flex-direction: column;
   align-items: center;
   position: relative;
+  transition: transform 2s ease-in-out;
 }
 
 .defense {
@@ -168,6 +169,7 @@
   width: 10vmin;
   height: 10vmin;
   margin: 0.2vmin;
+  opacity: 1;
 }
 
 
@@ -968,8 +970,37 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   top: 35vh;
 }
 
+.summon-demon {
+  animation: spinIn 1s ease-in-out 1
+}
+
+@keyframes spinIn {
+  0% { transform: translateY(20px) rotate(0deg) scale(0.5); }
+  100% { transform: translateY(-10px) rotate(720deg) scale(1.1);  }
+}
+
+.opaque {
+  visibility: hidden;
+}
+
+.opaque .avatar {
+  visibility: visible;
+}
+
+.fade-in {
+  animation: fadeIn 0.8s forwards ;
+}
+
 .opponent-windup {
   animation: opponentWindup 0.4s forwards ;
+}
+
+.attack-windup {
+  animation: attackWindup 0.6s forwards ;
+}
+
+.attack-impact {
+  animation: attackImpact 0.4s forwards ;
 }
 
 @keyframes opponentWindup {
@@ -978,6 +1009,19 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   50% { transform: translateX(-200px); }
   75% { transform: translateX(-100px); }
   100% { transform: translateX(0); }
+}
+
+@keyframes attackWindup {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(40px); }
+  50% { transform: translateY(-50px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes attackImpact {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-40px); }
+  100% { transform: translateY(0); }
 }
 
 .execute-ability {
@@ -992,9 +1036,9 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   100% { transform: translateY(0); }
 }
 
-.fade-in {
-  animation: fadeIn 0.8s forwards ;
-}
+
+
+
 
 @keyframes fadeIn {
   0% {
