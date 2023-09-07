@@ -92,9 +92,9 @@ async function startEncounter(stateObj) {
         newState.player.monstersInPlay = [tiderider];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
-        newState.opponent.monstersInPlay = [tiderider]
-        newState.player.encounterHand.push(heropowerboost)
-        newState.player.heroPower = heroPowers[2]
+        newState.opponent.monstersInPlay = [tiderider, tiderider]
+        newState.player.encounterHand.push(darkritualImp)
+        newState.player.heroPower = heroPowers[5]
         newState.opponent.heroPower = heroPowers[testEnemy.heroPower]
         newState.opponent.encounterDraw = testEnemy.deck
       })
@@ -441,22 +441,22 @@ async function changeStatus(stateObj, newStatus, countsAsEventSkipForChangeStatu
   return stateObj;
 }
 
-function createConjurerSkillButton(stateObj, playerObj) {
-  let ConjurerSkillButton = document.createElement("Button");
-  ConjurerSkillButton.classList.add("conjurer-skill-button")
-  ConjurerSkillButton.textContent = `{${stateObj[playerObj.name].heroPower.cost(stateObj, stateObj[playerObj.name])} mana}: ` + stateObj[playerObj.name].heroPower.text(stateObj, playerObj)
+function createConjurerTrickButton(stateObj, playerObj) {
+  let ConjurerTrickButton = document.createElement("Button");
+  ConjurerTrickButton.classList.add("conjurer-trick-button")
+  ConjurerTrickButton.textContent = `{${stateObj[playerObj.name].heroPower.cost(stateObj, stateObj[playerObj.name])} mana}: ` + stateObj[playerObj.name].heroPower.text(stateObj, playerObj)
   if (playerObj.name === "player") {
     if (stateObj.canPlay === true && stateObj.player.currentEnergy >= stateObj.player.heroPower.cost(stateObj, playerObj)) {
-      ConjurerSkillButton.classList.add("conjurer-skill-button-playable")
-      ConjurerSkillButton.addEventListener("click", function() {
+      ConjurerTrickButton.classList.add("conjurer-trick-button-playable")
+      ConjurerTrickButton.addEventListener("click", function() {
         stateObj.player.heroPower.action(stateObj, stateObj.player)
       })
     } else {
-      ConjurerSkillButton.classList.add("conjurer-skill-button-greyed-out")
+      ConjurerTrickButton.classList.add("conjurer-trick-button-greyed-out")
     }
   }
   
-  return ConjurerSkillButton
+  return ConjurerTrickButton
 }
 
 function renderHand(stateObj) {
@@ -466,8 +466,8 @@ function renderHand(stateObj) {
       renderCard(stateObj, stateObj.player.encounterHand, index, stateObj.player, "handContainer2", functionToAdd=false)
     });
   }
-  skillButton = createConjurerSkillButton(stateObj, stateObj.player)
-  document.getElementById("handContainer2").append(skillButton)
+  trickButton = createConjurerTrickButton(stateObj, stateObj.player)
+  document.getElementById("handContainer2").append(trickButton)
 }
 
 function renderPlayerMonstersInPlay(stateObj) {

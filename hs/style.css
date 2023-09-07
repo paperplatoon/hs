@@ -693,7 +693,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
     /*background: linear-gradient(215deg, rgba(255, 236, 219, 0.716), rgba(229, 181, 151, 0.7));*/
   }
 
-  .conjurer-skill-button {
+  .conjurer-trick-button {
     width: 7vw;
     height: 15vh;
     background-color: #b9fdff;
@@ -707,13 +707,13 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 
   }
 
-  .conjurer-skill-button-playable:hover {
+  .conjurer-trick-button-playable:hover {
     background-color: rgb(1, 87, 79);
     color: rgb(195, 255, 252);
     cursor: pointer;
   }
 
-  .conjurer-skill-button-greyed-out {
+  .conjurer-trick-button-greyed-out {
     background-color: rgb(153, 153, 153);
     color: rgb(109, 109, 109);
     cursor: not-allowed;

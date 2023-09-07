@@ -86,7 +86,6 @@ let seedling = {
     name: "Nymph Cultivator",
     elementType: "earth",
     cardType: "minion",
-    cardType: "minion",
     baseCost: 1,
     attack: 1,
     currentHP: 2,

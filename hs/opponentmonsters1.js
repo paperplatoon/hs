@@ -6,6 +6,7 @@ let heroPowers = [
     title: "Gain Life",
     lifeGain: 2,
     priority: 0,
+    buffText: (numberParameter) => { `Your Conjurer Trick gains ${numberParameter} extra life` },
     text: (stateObj, playerObj) => { return `Gain ${playerObj.heroPower.lifeGain} Life`   },
     action: async (stateObj, playerObj) => {
       stateObj = await gainLife(stateObj, stateObj[playerObj.name], stateObj[playerObj.name].heroPower.lifeGain)
@@ -77,31 +78,53 @@ let heroPowers = [
 //5
   {
     cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost + (stateObj[playerObj.name].heroPower.stateObj[playerObj.name].heroPower).HPBuff*2) },
-    baseCost: 4,
-    title: "Erase",
+    baseCost: 1,
+    title: "Sting",
     HPBuff: 1,
     priority: 0,
     text: (stateObj, playerObj) => { 
-      if (stateObj[playerObj.name].heroPower.HPBuff === 1) {
-        return `Destroy a random enemy minion` 
-      } else {
-        return `Destroy ${stateObj[playerObj.name].heroPower.HPBuff} random enemy minions` 
-      }
-      
+        return `Deal ${stateObj[playerObj.name].heroPower.HPBuff} damage directly to your opponent` 
     },
     action: async (stateObj, playerObj) => {
-      if (stateObj[playerObj.name].monstersInPlay.length > 0) {
-        let t = Math.floor(Math.random() * stateObj[playerObj.name].monstersInPlay.length)
-        stateObj = await giveDemonStats(stateObj, playerObj, t, "attack", stateObj[playerObj.name].heroPower.HPBuff)
-      }
       stateObj = immer.produce(stateObj, (newState) => {
-        newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
+        let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
+        opponent.currentHP -= stateObj[playerObj.name].heroPower.HPBuff
       })
       stateObj = await changeState(stateObj)
       return stateObj;
     },
   },
-
+//6
+  {
+    cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost + (stateObj[playerObj.name].heroPower.HPBuff*2)) },
+    baseCost: 4,
+    title: "Erase",
+    HPBuff: 0,
+    priority: 0,
+    text: (stateObj, playerObj) => { 
+      let textString = ``
+      textString = (stateObj[playerObj.name].heroPower.HPBuff === 0) ? `Destroy a random enemy minion` : `Destroy ${stateObj[playerObj.name].heroPower.HPBuff+1} random enemy minions` 
+      return textString
+    },
+    increaseText: (stateObj, playerObj, buffNumber) => { 
+        return `Your hero power costs ${2*buffNumber} more and destroys ${buffNumber*1} more minion` 
+      },
+    action: async (stateObj, playerObj) => {
+      for (i =0; i < stateObj[playerObj.name].heroPower.HPBuff+1; i++) {
+        stateObj = immer.produce(stateObj, (newState) => {
+          console.log(playerObj.name)
+          let mArray = (playerObj.name === "player") ? newState.opponent.monstersInPlay : newState.player.monstersInPlay
+          if (mArray.length > 0) {
+            let t = Math.floor(Math.random() * mArray.length)
+            mArray[t].currentHP = 0;
+          }
+          newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
+        })
+        stateObj = await changeState(stateObj)
+      }
+        return stateObj;
+    },
+  },
 ]
 
 let tiderider = {

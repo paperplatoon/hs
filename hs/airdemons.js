@@ -4,7 +4,7 @@ let minorefrit = {
     baseCost: 2,
     attack: 1,
     currentHP: 4,
-    maxHP: 3,
+    maxHP: 4,
     avatar: "img/fireMonster.png",
   
     canAttack: false,
@@ -84,7 +84,7 @@ let minorefrit = {
     baseCost: 0,
     attack: 3,
     currentHP: 3,
-    maxHP: 1,
+    maxHP: 3,
     avatar: "img/waterpuddle.png",
     rarity: "rare",
     canAttack: false,
@@ -125,33 +125,90 @@ let minorefrit = {
     }
   };
 
-  let heropowerboost = {
-    name: "Hero Power",
+  let ritualimp = {
+    name: "Ritual Imp",
     elementType: "air",
     cardType: "minion",
     baseCost: 2,
-    attack: 1,
-    currentHP: 4,
-    maxHP: 3,
+    attack: 0,
+    currentHP: 2,
+    maxHP: 2,
     avatar: "img/fireMonster.png",
-  
     canAttack: false,
-  
-    minReq: (state, index, array) => {
-      return array[index].baseCost;
-    },
-  
-    text: (state, index, array) => { 
-      return `When Played: Your hero power costs 1 less`
-    },
-  
-    cost:  (state, index, array) => {
-      return array[index].baseCost;
-    },
-    
+    text: (state, index, array) => { return `When Played: Your hero power costs 1 less`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
       stateObj = immer.produce(stateObj, (newState) => {
         newState[playerObj.name].heroPower.baseCost -= 1;
+      })
+      stateObj = await changeState(stateObj);
+      return stateObj;
+    }
+  }
+
+
+  let ritualdjinn = {
+    name: "Ritual Djinn",
+    elementType: "air",
+    cardType: "minion",
+    baseCost: 3,
+    attack: 1,
+    currentHP: 3,
+    maxHP: 3,
+    avatar: "img/fireMonster.png",
+    canAttack: false,
+    text: (state, index, array) => { return `When Played: Your hero power costs 1 less`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+    action: async (stateObj, index, array, playerObj) => {
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState[playerObj.name].heroPower.baseCost -= 1;
+      })
+      stateObj = await changeState(stateObj);
+      return stateObj;
+    }
+  }
+
+  let ritualMarid = {
+    name: "Ritual Marid",
+    elementType: "air",
+    cardType: "minion",
+    rarity: "legendary",
+    baseCost: 4,
+    attack: 4,
+    currentHP: 3,
+    maxHP: 3,
+    avatar: "img/fireMonster.png",
+    canAttack: false,
+    text: (state, index, array) => { return `When Played: Your hero power costs 0`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+    action: async (stateObj, index, array, playerObj) => {
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState[playerObj.name].heroPower.baseCost = 0;
+      })
+      stateObj = await changeState(stateObj);
+      return stateObj;
+    }
+  }
+
+  let darkritualImp = {
+    name: "Dark Ritual Imp",
+    elementType: "air",
+    cardType: "minion",
+    baseCost: 2,
+    attack: 0,
+    currentHP: 2,
+    maxHP: 2,
+    avatar: "img/fireMonster.png",
+    canAttack: false,
+    text: (state, index, array, playerObj) => { return `When Played: ${playerObj.heroPower.increaseText(state, playerObj, 1)}`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+    action: async (stateObj, index, array, playerObj) => {
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState[playerObj.name].heroPower.HPBuff += 1;
       })
       stateObj = await changeState(stateObj);
       return stateObj;
