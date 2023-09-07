@@ -124,3 +124,36 @@ let minorefrit = {
       return stateObj;
     }
   };
+
+  let heropowerboost = {
+    name: "Hero Power",
+    elementType: "air",
+    cardType: "minion",
+    baseCost: 2,
+    attack: 1,
+    currentHP: 4,
+    maxHP: 3,
+    avatar: "img/fireMonster.png",
+  
+    canAttack: false,
+  
+    minReq: (state, index, array) => {
+      return array[index].baseCost;
+    },
+  
+    text: (state, index, array) => { 
+      return `When Played: Your hero power costs 1 less`
+    },
+  
+    cost:  (state, index, array) => {
+      return array[index].baseCost;
+    },
+    
+    action: async (stateObj, index, array, playerObj) => {
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState[playerObj.name].heroPower.baseCost -= 1;
+      })
+      stateObj = await changeState(stateObj);
+      return stateObj;
+    }
+  }
