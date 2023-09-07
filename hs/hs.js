@@ -445,7 +445,7 @@ function createConjurerSkillButton(stateObj, playerObj) {
   ConjurerSkillButton.classList.add("conjurer-skill-button")
   ConjurerSkillButton.textContent = stateObj[playerObj.name].heroPower.text(stateObj, playerObj)
   if (playerObj.name === "player") {
-    if (stateObj.canPlay === true && stateObj.player.currentEnergy >= stateObj.player.heroPower.cost) {
+    if (stateObj.canPlay === true && stateObj.player.currentEnergy >= stateObj.player.heroPower.cost(stateObj, playerObj)) {
       ConjurerSkillButton.classList.add("conjurer-skill-button-playable")
       ConjurerSkillButton.addEventListener("click", function() {
         stateObj.player.heroPower.action(stateObj, stateObj.player)
@@ -1101,7 +1101,7 @@ async function endTurnIncrement(stateObj) {
 async function enemyTurn(stateObj) {
   let usedHeroPower = false;
 
-  if (stateObj.opponent.heroPower.priority > 0  &&  stateObj.opponent.currentEnergy >= stateObj.opponent.heroPower.cost) {
+  if (stateObj.opponent.heroPower.priority > 0  &&  stateObj.opponent.currentEnergy >= stateObj.opponent.heroPower.cost(stateObj, stateObj.opponent)) {
     console.log("opponent used their hero power")
     stateObj = await stateObj.opponent.heroPower.action(stateObj, stateObj.opponent)
     usedHeroPower = true
@@ -1133,7 +1133,7 @@ async function enemyTurn(stateObj) {
         await pause(750)
       }
     }
-    if (stateObj.opponent.currentEnergy >= stateObj.opponent.heroPower.cost && usedHeroPower === false) {
+    if (stateObj.opponent.currentEnergy >= stateObj.opponent.heroPower.cost(stateObj, stateObj.opponent) && usedHeroPower === false) {
       console.log("opponent used their hero power")
       stateObj = await stateObj.opponent.heroPower.action(stateObj, stateObj.opponent)
     }

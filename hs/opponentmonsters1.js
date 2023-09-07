@@ -1,6 +1,8 @@
 let heroPowers = [
+  //1
   {
-    cost: 2,
+    cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
+    baseCost: 2,
     title: "Gain Life",
     lifeGain: 2,
     priority: 0,
@@ -8,13 +10,13 @@ let heroPowers = [
     action: async (stateObj, playerObj) => {
       stateObj = await gainLife(stateObj, stateObj[playerObj.name], stateObj[playerObj.name].heroPower.lifeGain)
       stateObj = immer.produce(stateObj, (newState) => {
-        newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost
+        newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
       })
       stateObj = await changeState(stateObj)
       return stateObj;
     },
   },
-
+//2
   {
     cost: 1,
     title: "Gain HP",
@@ -27,15 +29,16 @@ let heroPowers = [
         stateObj = await giveDemonStats(stateObj, playerObj, t, "currentHP", stateObj[playerObj.name].heroPower.HPBuff, false, "maxHP", stateObj[playerObj.name].heroPower.HPBuff)
       }
       stateObj = immer.produce(stateObj, (newState) => {
-        newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost
+        newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
       })
       stateObj = await changeState(stateObj)
       return stateObj;
     },
   },
-
+//3
   {
-    cost: 3,
+    cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
+    baseCost: 3,
     title: "Summon Growth",
     counter: 1,
     priority: 1,
@@ -44,8 +47,55 @@ let heroPowers = [
       let c = playerObj.heroPower.counter
       stateObj = await createNewMinion(stateObj, playerObj, c, c, c, c, name="Personal Growth", minion=potgrowth)
       stateObj = immer.produce(stateObj, (newState) => {
-        newState[playerObj.name].currentEnergy -= newState[playerObj.name].heroPower.cost
+        newState[playerObj.name].currentEnergy -= newState[playerObj.name].heroPower.cost(stateObj, playerObj)
         newState[playerObj.name].heroPower.counter += 1;
+      })
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  },
+//4
+  {
+    cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
+    baseCost: 1,
+    title: "Gain Attack",
+    HPBuff: 1,
+    priority: 0,
+    text: (stateObj, playerObj) => { return `A random friendly minion gains +${stateObj[playerObj.name].heroPower.HPBuff} attack` },
+    action: async (stateObj, playerObj) => {
+      if (stateObj[playerObj.name].monstersInPlay.length > 0) {
+        let t = Math.floor(Math.random() * stateObj[playerObj.name].monstersInPlay.length)
+        stateObj = await giveDemonStats(stateObj, playerObj, t, "attack", stateObj[playerObj.name].heroPower.HPBuff)
+      }
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
+      })
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  },
+//5
+  {
+    cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost + (stateObj[playerObj.name].heroPower.stateObj[playerObj.name].heroPower).HPBuff*2) },
+    baseCost: 4,
+    title: "Erase",
+    HPBuff: 1,
+    priority: 0,
+    text: (stateObj, playerObj) => { 
+      if (stateObj[playerObj.name].heroPower.HPBuff === 1) {
+        return `Destroy a random enemy minion` 
+      } else {
+        return `Destroy ${stateObj[playerObj.name].heroPower.HPBuff} random enemy minions` 
+      }
+      
+    },
+    action: async (stateObj, playerObj) => {
+      if (stateObj[playerObj.name].monstersInPlay.length > 0) {
+        let t = Math.floor(Math.random() * stateObj[playerObj.name].monstersInPlay.length)
+        stateObj = await giveDemonStats(stateObj, playerObj, t, "attack", stateObj[playerObj.name].heroPower.HPBuff)
+      }
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
       })
       stateObj = await changeState(stateObj)
       return stateObj;
