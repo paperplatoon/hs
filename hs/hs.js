@@ -93,7 +93,7 @@ async function startEncounter(stateObj) {
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
         newState.opponent.monstersInPlay = [sacrificialsprite, tiderider]
-        newState.player.encounterHand.push(darkritualImp)
+        newState.player.encounterHand.push(darkritualImp, darkritualImp, darkritualImp, darkritualImp)
         newState.player.heroPower = heroPowers[4]
         newState.opponent.heroPower = heroPowers[testEnemy.heroPower]
         newState.opponent.encounterDraw = testEnemy.deck
@@ -154,20 +154,29 @@ async function completeAttack(stateObj, attackerIndex = stateObj.playerToAttackI
       newState.enemyToBeAttackedIndex = false
     })
   } else {
-    await attackAnimation("player", attackerIndex, "opponent", defenderIndex)
-    // await addImpact("player", attackerIndex);
-    // await addImpact("opponent", defenderIndex);
-    stateObj = immer.produce(stateObj, (newState) => {
-      let AttackingMonster = newState.player.monstersInPlay[attackerIndex]
-      let DefendingMonster = newState.opponent.monstersInPlay[defenderIndex]
-      console.log("Player's " + AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to enemy's " + DefendingMonster.name + " and took " + DefendingMonster.attack + " damage")
-      DefendingMonster.currentHP -= AttackingMonster.attack
-      AttackingMonster.currentHP -= DefendingMonster.attack
-      AttackingMonster.canAttack = false
-      newState.playerToAttackIndex = false;
-      newState.enemyToBeAttackedIndex = false
-    })
-  }
+      document.querySelectorAll("#playerMonstersInPlay .avatar")[attackerIndex].classList.add("attack-windup")
+      await pause(300)
+      document.querySelectorAll("#enemyMonstersInPlay .avatar")[defenderIndex].classList.add("attack-impact")
+      document.querySelectorAll("#playerMonstersInPlay .attack" )[attackerIndex].classList.add("attack-bulge")
+      await pause(200)
+      stateObj = immer.produce(stateObj, (newState) => {
+        let AttackingMonster = newState.player.monstersInPlay[attackerIndex]
+        let DefendingMonster = newState.opponent.monstersInPlay[defenderIndex]
+        console.log("Player's " + AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to enemy's " + DefendingMonster.name + " and took " + DefendingMonster.attack + " damage")
+        DefendingMonster.currentHP -= AttackingMonster.attack
+        AttackingMonster.currentHP -= DefendingMonster.attack
+        AttackingMonster.canAttack = false
+        newState.playerToAttackIndex = false;
+        newState.enemyToBeAttackedIndex = false
+      })
+      stateObj = await updateState(stateObj)
+      await pause(200)
+      document.querySelectorAll("#enemyMonstersInPlay .avatar")[defenderIndex].classList.remove("attack-impact")
+      document.querySelectorAll("#playerMonstersInPlay .avatar")[attackerIndex].classList.remove("attack-windup")
+      document.querySelectorAll("#playerMonstersInPlay .attack" )[attackerIndex].classList.remove("attack-bulge")
+      stateObj = await changeState(stateObj)
+      
+    } 
   await changeState(stateObj);
   return stateObj
 }
@@ -398,7 +407,7 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
       //await opponentDeathAnimation(indexesToDelete)
       for (let i = 0; i < indexesToDelete.length; i++) {
         let cards = (playerObj.name === "player") ? document.querySelectorAll("#playerMonstersInPlay .card") : document.querySelectorAll("#enemyMonstersInPlay .card")
-        cards[i].classList.add("red-filter")
+        cards[indexesToDelete[i]].classList.add("red-filter")
         await pause(500)
           let monsterObj = stateObj[playerObj.name].monstersInPlay[indexesToDelete[i]]
           if (typeof(monsterObj.onDeath) === "function") {
@@ -407,12 +416,13 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
               stateObj = await stateObj[playerObj.name].monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], playerObj.monstersInPlay, playerObj)
             }
           }
-          
           stateObj = immer.produce(stateObj, (newState) => {
             let player = (playerObj.name === "player") ? newState.player : newState.opponent
             player.monstersInPlay.splice(indexesToDelete[i], 1)
           })
-      }
+          stateObj = await updateState(stateObj)
+          await pause(500)
+        }
     }
   }
   return stateObj
@@ -633,21 +643,29 @@ function renderCard(stateObj, cardArray, index, playerObj, divName=false, functi
           avatar.setAttribute("draggable", "false")
           
           
-          cardDiv.append(avatar, cardText);
+          
 
           let cardStatsDiv = document.createElement("Div");
           cardStatsDiv.classList.add("card-stats-row")
 
+          let attackContainer = document.createElement("Div");
+          attackContainer.classList.add("attack-container")
           let cardAttackDiv = document.createElement("Div");
           cardAttackDiv.classList.add("attack")
           cardAttackDiv.textContent = cardObj.attack;
+          attackContainer.append(cardAttackDiv)
+
+
 
           let cardDefendDiv = document.createElement("Div");
           cardDefendDiv.classList.add("defense")
-          cardDefendDiv.textContent = cardObj.currentHP;
+          let defendContainer = document.createElement("Div");
+          defendContainer.classList.add("defense-container")
+          cardDefendDiv.textContent = (cardObj.currentHP > 0) ? cardObj.currentHP : 0
+          defendContainer.append(cardDefendDiv)
 
-          cardStatsDiv.append(cardAttackDiv, cardDefendDiv)
-          cardDiv.append(cardStatsDiv);
+          cardStatsDiv.append(attackContainer, avatar, defendContainer)
+          cardDiv.append(cardStatsDiv, cardText);
   
           //if cardArray is the hand, add playable class to the cards if energy > card.minReq
           if (cardArray === stateObj.player.encounterHand) {
@@ -1039,11 +1057,13 @@ async function endTurn(stateObj) {
 
 async function attackAnimation(attackerName, attackerIndex, targetName, targetIndex) {
   let attackerString = (attackerName === "player") ? "#playerMonstersInPlay .avatar" : "#enemyMonstersInPlay .avatar"
+  let hexString = (attackerName === "player") ? "#playerMonstersInPlay .attack" : "#enemyMonstersInPlay .attack"
   document.querySelectorAll(attackerString)[attackerIndex].classList.add("attack-windup")
   await pause(300)
   //document.querySelectorAll(attackerString)[attackerIndex].classList.remove("attack-windup")
   let targetString = (targetName === "player") ? "#playerMonstersInPlay .avatar" : "#enemyMonstersInPlay .avatar"
   document.querySelectorAll(targetString)[targetIndex].classList.add("attack-impact")
+  document.querySelectorAll(hexString)[attackerIndex].classList.add("attack-bulge")
   await pause(400)
   document.querySelectorAll(targetString)[targetIndex].classList.remove("attack-impact")
   document.querySelectorAll(attackerString)[attackerIndex].classList.remove("attack-windup")
@@ -1165,7 +1185,7 @@ async function pause(timeValue) {
 }
 
 async function drawACard(stateObj, playerDrawing) {
-  if (playerDrawing.encounterHand.length > 5 ) {
+  if (playerDrawing.encounterHand.length > 6 ) {
     console.log(playerDrawing.name + "'s hand is full");
     return stateObj;
   }

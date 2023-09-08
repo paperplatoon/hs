@@ -40,7 +40,7 @@
 
 
 .card h3 {
-  font-size: 2.3vmin;
+  font-size: 2vmin;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -57,45 +57,65 @@
   flex-direction: row;
   justify-content: start;
   margin-top: 0.5vmin;
-  background-color: rgb(169, 244, 169);
 }
 
 .card-stats-row {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  margin-top: 0.5vmin;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 0.5vmin;
   width: 100%;
   padding: 0.3vmin;
 }
 
 .card {
-  background: linear-gradient(90deg, rgb(255, 238, 208),rgb(230, 171, 94), rgb(255, 200, 127), rgb(243, 133, 23));
   margin: 0.4vmax;
-  width: 13vw;
+  width: 11vw;
   height: 25vh;
   /* float: left; */
-  justify-content: space-around;
+  justify-content: start;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   transition: all 0.35s linear;
+  border: 3px solid black;
 }
 
-.defense {
+.attack, .defense {
   display:inline-block;
   aspect-ratio: 1;
-  border-image: radial-gradient(rgb(135, 34, 0) 69%,#0000 70%) 84.5% fill/100%;
-  clip-path: polygon(-41% 0,50% 91%, 141% 0);
   color: white;
   text-align: center;
   flex-grow: 0.1;
   font-size: 1.5vw;
   flex-shrink: 2;
+  width: 2.2vw;
+}
+
+.attack-container, .defense-container {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.defense {
+  border-image: radial-gradient(rgb(135, 0, 0) 69%,#0000 70%) 84.5% fill/100%;
+  clip-path: polygon(-41% 0,50% 91%, 141% 0);
   line-height: 2vw;
   height: 2.5vw;
-  width: 2vw;
+  color: white;
+}
+
+.attack {
+  background-color: rgb(55, 208, 219);
+  clip-path: polygon(50% 0, 100% 43%, 82% 100%, 18% 100%, 0 43%);
+  line-height: 2.5vw;
+  color: black;
+  height: 2.2vw;
 }
 
 .hand-card-cost {
@@ -161,13 +181,27 @@
   background-color: rgb(225, 231, 239);
 }
 
+.earth {
+  background: linear-gradient(90deg, rgb(210, 255, 208),rgb(94, 230, 108), rgb(127, 255, 140), rgb(23, 243, 67));
+}
+
+.earth .defense {
+  border-image: radial-gradient(rgb(190, 51, 0) 69%,#0000 70%) 84.5% fill/100%;
+}
+
+.earth .card-top-row {
+  background-color: rgb(200, 254, 200);
+}
+
 
 
 
 .avatar {
-  width: 10vmin;
-  height: 10vmin;
+  width: 12vmin;
+  height: 12vmin;
+  max-width: 9vw;
   margin: 0.2vmin;
+  flex-shrink: -1;
   opacity: 1;
 }
 
@@ -848,7 +882,6 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 
 #handContainer2 .playable {
   box-shadow: 0 0 10px rgb(178, 95, 0); 
-  background: linear-gradient(90deg, rgb(208, 194, 170),rgb(192, 142, 78), rgb(210, 164, 103), rgb(213, 116, 20));
 }
 
 
@@ -889,6 +922,10 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 
 .attack-windup {
   animation: attackWindup 0.6s forwards ;
+}
+
+.attack-bulge {
+  animation: attackBulge 0.4s both ;
 }
 
 .attack-impact {
@@ -939,6 +976,12 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   0% { transform: translateY(0); }
   25% { transform: translateY(-40px); }
   100% { transform: translateY(0); }
+}
+
+@keyframes attackBulge {
+  0% { transform: scale(1); filter: hue-rotate(0deg); }
+  50% { transform: scale(1.5); filter: hue-rotate(200deg);}
+  100% { transform: scale(1); filter: hue-rotate(0deg); }
 }
 
 .execute-ability {
