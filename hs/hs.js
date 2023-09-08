@@ -89,12 +89,12 @@ async function startEncounter(stateObj) {
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
         // newState.player.encounterDraw = [];
-        newState.player.monstersInPlay = [tiderider];
+        newState.player.monstersInPlay = [tiderider, lightspark];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
-        newState.opponent.monstersInPlay = [tiderider, tiderider]
+        newState.opponent.monstersInPlay = [sacrificialsprite, tiderider]
         newState.player.encounterHand.push(darkritualImp)
-        newState.player.heroPower = heroPowers[5]
+        newState.player.heroPower = heroPowers[4]
         newState.opponent.heroPower = heroPowers[testEnemy.heroPower]
         newState.opponent.encounterDraw = testEnemy.deck
       })
@@ -397,6 +397,9 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
       indexesToDelete.reverse()
       //await opponentDeathAnimation(indexesToDelete)
       for (let i = 0; i < indexesToDelete.length; i++) {
+        let cards = (playerObj.name === "player") ? document.querySelectorAll("#playerMonstersInPlay .card") : document.querySelectorAll("#enemyMonstersInPlay .card")
+        cards[i].classList.add("red-filter")
+        await pause(500)
           let monsterObj = stateObj[playerObj.name].monstersInPlay[indexesToDelete[i]]
           if (typeof(monsterObj.onDeath) === "function") {
             let mult = stateObj[playerObj.name].onDeathMultiplier
@@ -1182,3 +1185,15 @@ async function drawACard(stateObj, playerDrawing) {
   return stateObj;
 }
 
+
+
+async function applyClassToFilter(elementArray, className, duration) {
+  elementArray.forEach((element) => {
+    element.classList.add(className);
+  })
+  await pause(duration)
+  elementArray.forEach((element) => {
+    element.classList.remove(className);
+  })
+  await pause(duration)
+}

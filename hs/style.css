@@ -40,7 +40,7 @@
 
 
 .card h3 {
-  font-size: 1.1vw;
+  font-size: 2.3vmin;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -100,23 +100,22 @@
 
 .hand-card-cost {
   width: 3vmin;
-  border-radius: 70%;
   height: 3vmin;
-  font-size: 1.2em;
+  border-radius: 70%;
   padding: 2vmin;
-  margin-left: 1.5vmin;
   border: 1px solid black;
   margin-right: 1vmin;
   text-align: center;
   line-height: 3vmin;
-  background: linear-gradient(90deg, rgb(242, 208, 255),rgb(167, 94, 230), rgb(240, 127, 255), rgb(192, 23, 243));
+  background: linear-gradient(90deg, rgb(247, 26, 255), rgb(249, 67, 255), rgb(250, 120, 255), rgb(226, 130, 255), rgb(217, 90, 255), rgb(206, 44, 255));
   color: white;
  }
 
  #player-energy-div {
   background: linear-gradient(90deg, rgb(242, 208, 255),rgb(167, 94, 230), rgb(240, 127, 255), rgb(192, 23, 243));
-  padding: 1.5vmin;
-  border-radius: 60%;
+  padding: 1.5vmin 1vmin;
+  border-radius: 50%;
+  border: 2px solid rgb(207, 35, 204);
   color: white;
  }
 
@@ -586,7 +585,10 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 
 .trigger-condition-met {
     background-image: linear-gradient(to bottom, #3acfd5 0%, #3a4ed5 100%); 
+}
 
+.red-filter {
+  filter: contrast(0) sepia(100%) hue-rotate(320deg);
 }
 
 
@@ -844,70 +846,11 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 
 
 
-
-
-@media (hover: none) {
-  .clickable-square:active {
-    cursor: pointer;
-    color: rgb(255, 225, 0);
-    background-color: rgba(255, 255, 255, 0.837);
-    /*background: linear-gradient(215deg, rgba(255, 236, 219, 0.716), rgba(229, 181, 151, 0.7));*/
-  }
-
-  .clickable-square:active .monster-hp {
-    border-image: radial-gradient(rgb(255, 225, 0) 69%,#0000 70%) 84.5% fill/100%;
-  }
-  
-
-   .fire-choose:active {
-    background-color: rgb(102, 20, 20);
-  }
-  
-  .water-choose:active {
-    background-color: rgb(23, 23, 109);
-  }
-  .clickable-monster:active {
-    cursor: pointer;
-    box-shadow: 0 0 30px rgb(154, 15, 15);
-  }
-  
-  .monster-to-choose:active {
-    cursor: pointer;
-    box-shadow: 0 0 20px rgb(254, 254, 254); 
-    color: white;
-  }
-  #drawPile:active #drawDiv,
-#discardPile:active #discardDiv,
-#playerDeckPile:active #deckDiv {
-  animation: fadeIn 1s;
-  display: block;
-}
-
-.card-reward .invisible-cost, .card-reward .paid-invisible-cost {
-  animation: fadeIn 0.3s;
-  display: block;
-}
-
 #handContainer2 .playable {
   box-shadow: 0 0 10px rgb(178, 95, 0); 
   background: linear-gradient(90deg, rgb(208, 194, 170),rgb(192, 142, 78), rgb(210, 164, 103), rgb(213, 116, 20));
 }
 
-.card-upgrade .upgrade-text, 
-.card-upgrade .card-text, 
-.card-upgrade .hand-card-cost,
-.card-change-text .hand-card-cost, 
-.card-change-text .upgrade-text, 
-.card-change-text .card-text,
-.card-change-text .alt-card-text {
-  display: none;
-}
-
-.card-upgrade .alt-upgrade-text, .card-upgrade .alt-card-text, .card-upgrade .alt-cost,  .card-change-text .alt-hits-text, .card-change-text .alt-card-text,
-.card-change-text .alt-cost {
-  display: block;
-}
-}
 
 .map-icon {
   height: 12vmin;
@@ -917,58 +860,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   background-repeat: no-repeat;
 }
 
-.overworld-shop {
-  background-image: url(img/icons/shop.png);
-}
 
-
-.TownUpgrade:before, .TownUpgrade:after {
- content: "";
- position: absolute;
- background: rgb(7, 220, 0);
-}
-
-.TownUpgrade:before {
- left: 50%;
- width: 30%;
- margin-left: -15%;
- height: 100%;
-}
-
-.TownUpgrade::after {
-  top: 50%;
-  left: 0%;
-  height: 30%;
-  margin-top: -15%;
-  width: 100%;
-}
-
- .TownRemove::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0%;
-  height: 30%;
-  margin-top: -15%;
-  width: 100%;
-  background: rgb(220, 40, 0);
- }
-
-.non-buyable-card {
-  color: rgb(153, 5, 5);
-}
-
-#discardPile {
-  position: absolute;
-  left: 2vw;
-  top: 94vh;
-}
-
-#drawPile {
-  position: absolute;
-  left: 2vw;
-  top: 35vh;
-}
 
 .summon-demon {
   animation: spinIn 1s ease-in-out 1
@@ -1079,23 +971,3 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
     border-width: 10px;
   }
 }
-
-/* @keyframes fadeIn {
-  0% {
-    opacity: 0;
-    height: 2vh;
-    width: 10vw;
-    transform: translateY(-200px);
-  }
-
-  75% {
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    height: 25vh;
-    width: 13vw;
-    transform: translateY(0px);
-  }
-} */
-

@@ -77,13 +77,16 @@ let heroPowers = [
   },
 //5
   {
-    cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost + (stateObj[playerObj.name].heroPower.stateObj[playerObj.name].heroPower).HPBuff*2) },
+    cost: (stateObj, playerObj) => { return stateObj[playerObj.name].heroPower.baseCost },
     baseCost: 1,
     title: "Sting",
     HPBuff: 1,
     priority: 0,
     text: (stateObj, playerObj) => { 
         return `Deal ${stateObj[playerObj.name].heroPower.HPBuff} damage directly to your opponent` 
+    },
+    increaseText: (stateObj, playerObj, buffNumber) => { 
+      return `Your hero power deals ${1*buffNumber} more damage` 
     },
     action: async (stateObj, playerObj) => {
       stateObj = immer.produce(stateObj, (newState) => {
@@ -125,6 +128,7 @@ let heroPowers = [
         return stateObj;
     },
   },
+  //7 2 mana - draw a card
 ]
 
 let tiderider = {
@@ -235,7 +239,7 @@ let oysterspirit = {
   }
 
   let earthelementalI = {
-    name: "Earth Elemental I",
+    name: "Elemental I",
     elementType: "earth",
     cardType: "minion",
     tribe: "elemental",
@@ -251,7 +255,7 @@ let oysterspirit = {
   }
 
   let earthelementalII = {
-    name: "Earth Elemental II",
+    name: "Elemental II",
     elementType: "earth",
     cardType: "minion",
     tribe: "elemental",
@@ -267,7 +271,7 @@ let oysterspirit = {
   }
 
   let earthelementalIII = {
-    name: "Earth Elemental III",
+    name: "Elemental III",
     elementType: "earth",
     cardType: "minion",
     tribe: "elemental",
@@ -283,7 +287,7 @@ let oysterspirit = {
   }
 
   let earthelementalIV = {
-    name: "Earth Elemental IV",
+    name: "Elemental IV",
     elementType: "earth",
     cardType: "minion",
     tribe: "elemental",
@@ -299,7 +303,7 @@ let oysterspirit = {
   }
 
   let earthelementalV = {
-    name: "Earth Elemental V",
+    name: "Elemental V",
     elementType: "earth",
     cardType: "minion",
     tribe: "elemental",
@@ -315,7 +319,7 @@ let oysterspirit = {
   }
 
   let waterelementalI = {
-    name: "Water Elemental I",
+    name: "Elemental I",
     elementType: "water",
     cardType: "minion",
     tribe: "elemental",
@@ -331,7 +335,7 @@ let oysterspirit = {
   }
 
   let waterelementalII = {
-    name: "Water Elemental II",
+    name: "Elemental II",
     elementType: "water",
     cardType: "minion",
     tribe: "elemental",
@@ -347,7 +351,7 @@ let oysterspirit = {
   }
 
   let waterelementalIII = {
-    name: "Water Elemental III",
+    name: "Elemental III",
     elementType: "water",
     cardType: "minion",
     tribe: "elemental",
@@ -363,7 +367,7 @@ let oysterspirit = {
   }
 
   let waterelementalIV = {
-    name: "Water Elemental IV",
+    name: "Elemental IV",
     elementType: "water",
     cardType: "minion",
     tribe: "elemental",
@@ -379,7 +383,7 @@ let oysterspirit = {
   }
 
   let waterelementalV = {
-    name: "Water Elemental V",
+    name: "Elemental V",
     elementType: "water",
     cardType: "minion",
     tribe: "elemental",
@@ -395,7 +399,7 @@ let oysterspirit = {
   }
 
   let fireelementalI = {
-    name: "Fire Elemental I",
+    name: "Elemental I",
     elementType: "fire",
     cardType: "minion",
     tribe: "elemental",
@@ -411,7 +415,7 @@ let oysterspirit = {
   }
 
   let fireelementalII = {
-    name: "Fire Elemental II",
+    name: "Elemental II",
     elementType: "fire",
     cardType: "minion",
     tribe: "elemental",
@@ -427,7 +431,7 @@ let oysterspirit = {
   }
 
   let fireelementalIII = {
-    name: "Fire Elemental III",
+    name: "Elemental III",
     elementType: "fire",
     cardType: "minion",
     tribe: "elemental",
@@ -443,7 +447,7 @@ let oysterspirit = {
   }
 
   let fireelementalIV = {
-    name: "Fire Elemental IV",
+    name: "Elemental IV",
     elementType: "fire",
     cardType: "minion",
     tribe: "elemental",
@@ -459,7 +463,7 @@ let oysterspirit = {
   }
 
   let fireelementalV = {
-    name: "Fire Elemental V",
+    name: "Elemental V",
     elementType: "fire",
     cardType: "minion",
     tribe: "elemental",
@@ -477,7 +481,7 @@ let oysterspirit = {
 
 
   let airelementalI = {
-    name: "Air Elemental I",
+    name: "Elemental I",
     type: "air",
     rarity: "common",
     baseCost: 1,
@@ -509,7 +513,7 @@ let oysterspirit = {
   };
 
   let airelementalIplus = {
-    name: "Air Elemental I+",
+    name: "Elemental I+",
     type: "air",
     rarity: "common",
     baseCost: 1,
@@ -541,7 +545,7 @@ let oysterspirit = {
   };
 
   let eartheelementalcommon = {
-    name: "Water Elemental",
+    name: "Elemental",
     type: "water",
     rarity: "common",
     baseCost: 1,
