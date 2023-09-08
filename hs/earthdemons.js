@@ -355,7 +355,7 @@ let seedling = {
     elementType: "earth",
     cardType: "minion",
     baseCost: 4,
-    attack: 4,
+    attack: 20,
     currentHP: 5,
     maxHP: 5,
     avatar: "img/plant1.png",

@@ -2,10 +2,13 @@
 //array of objects with properties deck and heroPower
 
 
-
-
-
-
+//gainLife function where heroes gain life and have an extraLifegain property that can be changed by cards' action and onDeath functions to only be active
+///when that card is in the battlefield
+//add +2 to all HP gained
+//your Life gain is doubled
+//LIFE REQUIREMENTS ARE LOWERED BY 3 
+//same with minionGainsHP
+//parameters are minion gaining, minion granting, player, 
 
 let waterMinions = [
     //5 - 1 mana - 
@@ -18,18 +21,11 @@ let waterMinions = [
     proudmama, ashamedmama,
 ]
 
-
-
-//gainLife function where heroes gain life and have an extraLifegain property that can be changed by cards' action and onDeath functions to only be active
-///when that card is in the battlefield
-//add +2 to all HP gained
-//your Life gain is doubled
-//LIFE REQUIREMENTS ARE LOWERED BY 3 
-//same with minionGainsHP
-//parameters are minion gaining, minion granting, player, 
-
-//high life payoff - 13
-
+let playerElementals = [
+    earthelementalI, earthelementalII, earthelementalIII, earthelementalIV, earthelementalV,
+    fireelementalI, fireelementalII, fireelementalIII, fireelementalIV, fireelementalV,
+    waterelementalI, waterelementalII, waterelementalIII, waterelementalIV, waterelementalV,
+]
 
 let highLifeEarthMinions = [
     //4 - 1 mana
@@ -55,6 +51,8 @@ let highHPEarthMinions = [
      //4 - 5+ - legendary
      purifiedoverlord, risingtsunami, europesspectre, corruptingspirit,
 ]
+
+let playerMinionsTest = [...playerElementals, ...highHPEarthMinions, ...highHPEarthMinions]
 
 let enemyEarth1highLife = {
     deck: [

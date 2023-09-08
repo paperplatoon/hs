@@ -24,13 +24,14 @@ const Status = {
   wonFight: renderWonFight,
   chooseEnemyMonster: renderChooseEnemy,
   ChoosingMonster: renderChooseDeck,
+  ChooseEncounterCardReward: renderChooseEncounterCardReward,
 }
 
 
 let gameStartState = {
 
   player: {
-    currentHP: 24,
+    currentHP: 20,
     name: "player",
 
     lifeRequirementReduction: 0,
@@ -47,6 +48,7 @@ let gameStartState = {
     encounterDraw: [],
     monstersInPlay: [],
     encounterHand: [],
+    encounterDeck: [],
   },
 
   opponent: {
@@ -86,14 +88,26 @@ renderScreen(state)
 
 async function startEncounter(stateObj) {
 
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.fightStarted = true;
+    newState.status = Status.inFight
+    newState.player.encounterDraw = newState.player.encounterDeck
+    newState.player.encounterHand = []
+    //fix
+    newState.player.heroPower = {...heroPowers[potentialPlayers[0].heroPower]}
+    newState.opponent.encounterDraw = [...potentialEnemies[0].deck],
+    newState.opponent.heroPower = {...heroPowers[potentialEnemies[0].heroPower]}
+    newState.opponent.encounterHand = []
+  })
+
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
         // newState.player.encounterDraw = [];
-        newState.player.monstersInPlay = [tiderider, lightspark];
+        newState.player.monstersInPlay = [tiderider, deityoflight];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
         newState.opponent.monstersInPlay = [sacrificialsprite, tiderider]
-        newState.player.encounterHand.push(darkritualImp, darkritualImp, darkritualImp, darkritualImp)
+        newState.player.encounterHand.push()
         newState.player.heroPower = heroPowers[4]
         newState.opponent.heroPower = heroPowers[testEnemy.heroPower]
         newState.opponent.encounterDraw = testEnemy.deck
@@ -103,18 +117,23 @@ async function startEncounter(stateObj) {
           newState.player.monstersInPlay[i].canAttack = true;
         })
       }
+    } else {
+      
     }
+
+    
+
+    stateObj = await updateState(stateObj)
+
     console.log("starting encounter")
     stateObj = shuffleDraw(stateObj, stateObj.player);
     stateObj = shuffleDraw(stateObj, stateObj.opponent);
-    for (let h=0; h < 4; h++) {
+    for (let h=0; h < 7; h++) {
       stateObj = await drawACard(stateObj, stateObj.player)
       stateObj = await drawACard(stateObj, stateObj.opponent)
     }
 
-    stateObj = immer.produce(stateObj, (newState) => {
-      newState.fightStarted = true;
-    })
+    
 
     await changeState(stateObj);
     return stateObj
@@ -435,7 +454,8 @@ async function handleDeaths(stateObj) {
     stateObj = await(handleDeathsForPlayer(stateObj, stateObj.opponent))
 
     if (stateObj.opponent.currentHP <= 0) {
-      stateObj = renderWonFight(stateObj)
+        stateObj = await resetAfterFight(stateObj)
+        stateObj = await changeStatus(stateObj, Status.ChooseEncounterCardReward)
     }
     stateObj = await(handleDeathsForPlayer(stateObj, stateObj.player))
 
@@ -450,7 +470,7 @@ async function changeStatus(stateObj, newStatus, countsAsEventSkipForChangeStatu
   stateObj = immer.produce(stateObj, (newState) => {
     newState.status = newStatus;
   })
-  await changeState(stateObj);
+  stateObj = await changeState(stateObj);
   return stateObj;
 }
 
@@ -475,8 +495,8 @@ function createConjurerTrickButton(stateObj, playerObj) {
 function renderHand(stateObj) {
   document.getElementById("handContainer2").innerHTML = "";
   if (stateObj.player.encounterHand.length > 0) {
-    stateObj.player.encounterHand.forEach(function (cardObj, index) {
-      renderCard(stateObj, stateObj.player.encounterHand, index, stateObj.player, "handContainer2", functionToAdd=false)
+    stateObj.player.encounterHand.forEach(async function (cardObj, index) {
+      await renderCard(stateObj, stateObj.player.encounterHand, index, stateObj.player, "#handContainer2", functionToAdd=false)
     });
   }
   trickButton = createConjurerTrickButton(stateObj, stateObj.player)
@@ -486,8 +506,8 @@ function renderHand(stateObj) {
 function renderPlayerMonstersInPlay(stateObj) {
   document.getElementById("playerMonstersInPlay").innerHTML = "";
   if (stateObj.player.monstersInPlay.length > 0) {
-    stateObj.player.monstersInPlay.forEach(function (cardObj, index) {
-      renderCard(stateObj, stateObj.player.monstersInPlay, index, stateObj.player, "playerMonstersInPlay", functionToAdd=false)
+    stateObj.player.monstersInPlay.forEach(async function (cardObj, index) {
+      await renderCard(stateObj, stateObj.player.monstersInPlay, index, stateObj.player, "#playerMonstersInPlay", functionToAdd=false)
     });
   }
   let endTurnButton = document.createElement("Button");
@@ -509,7 +529,7 @@ function renderEnemyMonstersInPlay(stateObj) {
   document.getElementById("enemyMonstersInPlay").innerHTML = "";
   if (stateObj.opponent.monstersInPlay.length > 0) {
     stateObj.opponent.monstersInPlay.forEach(function (cardObj, index) {
-      renderCard(stateObj, stateObj.opponent.monstersInPlay, index, stateObj.opponent, "enemyMonstersInPlay", functionToAdd=false)
+      renderCard(stateObj, stateObj.opponent.monstersInPlay, index, stateObj.opponent, "#enemyMonstersInPlay", functionToAdd=false)
     });
   }
 }
@@ -518,13 +538,14 @@ function renderEnemyMonstersToChoose(stateObj) {
   document.getElementById("enemyMonstersInPlay").innerHTML = "";
   if (stateObj.opponent.monstersInPlay.length > 0) {
     stateObj.opponent.monstersInPlay.forEach(function (cardObj, index) {
-      renderCard(stateObj, stateObj.opponent.monstersInPlay, index, stateObj.opponent, "enemyMonstersInPlay", functionToAdd=false)
+      renderCard(stateObj, stateObj.opponent.monstersInPlay, index, stateObj.opponent, "#enemyMonstersInPlay", functionToAdd=false)
     });
   }
 }
 
 async function renderDivs(stateObj) {
   if (stateObj.fightStarted === false) {
+    console.log("is there a state obj " + (stateObj.player.name))
     stateObj = await startEncounter(stateObj);
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
@@ -586,7 +607,7 @@ async function renderWonFight(stateObj) {
 }
 
 
-function renderCard(stateObj, cardArray, index, playerObj, divName=false, functionToAdd=false) {
+async function renderCard(stateObj, cardArray, index, playerObj, divName=false, functionToAdd=false) {
     let cardObj = cardArray[index];
     let cardDiv = document.createElement("Div");
     
@@ -706,8 +727,8 @@ function renderCard(stateObj, cardArray, index, playerObj, divName=false, functi
               };
           } else if (cardArray === stateObj.opponent.monstersInPlay && stateObj.playerToAttackIndex !== false) {
             cardDiv.classList.add("selectable");
-            cardDiv.addEventListener("click", function () {
-              selectThisEnemyIndex(stateObj, index);
+            cardDiv.addEventListener("click", async function () {
+              await selectThisEnemyIndex(stateObj, index);
             });
 
           } else if (cardArray === stateObj.player.monstersInPlay && cardArray[index].canAttack === true) {
@@ -777,7 +798,7 @@ function renderCard(stateObj, cardArray, index, playerObj, divName=false, functi
             cardDiv.classList.add("trigger-condition-met")
           }
           if (divName) {
-            document.getElementById(divName).appendChild(cardDiv);
+            document.querySelector(divName).appendChild(cardDiv);
           }
           return cardDiv        
 }
@@ -935,6 +956,7 @@ async function playerMonsterIsAttacking(stateObj, index, arrayObj) {
 function chooseThisMonster(stateObj, index) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.player.encounterDraw = [...potentialPlayers[index].deck];
+      newState.player.encounterDeck = [...potentialPlayers[index].deck];
       newState.player.heroPower = {...heroPowers[potentialPlayers[index].heroPower]}
       newState.status = Status.inFight
       let i = Math.floor(Math.random() * potentialEnemies.length)
@@ -943,6 +965,58 @@ function chooseThisMonster(stateObj, index) {
     })
    stateObj = updateState(stateObj);
   return stateObj;
+}
+
+function fisherYatesShuffle(arrayObj) {
+  let arrayCopy = [...arrayObj];
+  for (let x = arrayCopy.length-1; x > 0; x--) { 
+    let y = Math.floor(Math.random() * (x+1)); 
+    let temp = arrayCopy[x] 
+    arrayCopy[x] = arrayCopy[y] 
+    arrayCopy[y] = temp 
+ } 
+ return arrayCopy;
+}
+
+async function chooseThisCard(stateObj, index, sampledCardPool) {
+  console.log("old length " + stateObj.player.encounterDeck.length)
+  console.log("added " + sampledCardPool[index].name + " to deck")
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.player.encounterDeck.push(sampledCardPool[index]);
+    newState.fightStarted = false
+  })
+
+    stateObj = await changeState(stateObj)  
+    stateObj = await changeStatus(stateObj, Status.inFight)
+    console.log("new length " + stateObj.player.encounterDeck.length)
+  return stateObj;
+}
+
+async function renderClickableCardList(stateObj, cardArray, divName, functionToAdd) {
+  cardArray.forEach(async function (cardObj, index) {
+    await renderCard(stateObj, cardArray, index, stateObj.player, divName, functionToAdd=chooseThisCard)
+  })
+}
+
+async function renderChooseEncounterCardReward(stateObj) {
+  let shuffledCardPool = fisherYatesShuffle(playerElementals);
+  let sampledCardPool = shuffledCardPool.slice(0, 3);
+
+  document.getElementById("app").innerHTML = ""
+  let rewardChoiceDiv = document.createElement("Div")
+  rewardChoiceDiv.classList.add("reward-choice-div")
+  document.getElementById("app").append(rewardChoiceDiv)
+  await renderClickableCardList(stateObj, sampledCardPool, ".reward-choice-div", chooseThisCard);
+  //skipToTownButton(stateObj, "I choose not to add any of these cards to my deck (+5 gold)", ".remove-div", cardSkip=true);
+  //renderCardPile(stateObj, stateObj.playerDeck, "deckDiv");
+};
+
+async function resetAfterFight(stateObj) {
+
+  stateObj = {...gameStartState}
+  stateObj = await changeState(stateObj)
+  
+  return stateObj
 }
 
   

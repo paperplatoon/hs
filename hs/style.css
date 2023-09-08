@@ -205,6 +205,12 @@
   opacity: 1;
 }
 
+.reward-choice-div {
+  width: 70vw;
+  height: 70vh;
+  background-color: blue;
+}
+
 
 #handContainer2, #playerMonstersInPlay, #enemyMonstersInPlay {
   width: 98vw;

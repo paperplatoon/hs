@@ -173,6 +173,22 @@ let oysterspirit = {
   }
 };
 
+
+let elementalI = {
+  name: "Elemental II",
+  elementType: "neutral",
+  cardType: "minion",
+  tribe: "elemental",
+  baseCost: 1,
+  attack: 1,
+  currentHP: 2,
+  maxHP: 2,
+  avatar: "img/waterpuddle.png",
+  canAttack: false,
+  text: (state, index, array) => { return `` },
+  minReq: (state, index, array) => { return array[index].baseCost; },
+  cost:  (state, index, array) => { return array[index].baseCost; },
+}
   let elementalII = {
     name: "Elemental II",
     elementType: "neutral",
@@ -436,7 +452,7 @@ let oysterspirit = {
     cardType: "minion",
     tribe: "elemental",
     baseCost: 3,
-    attack: 5,
+    attack: 6,
     currentHP: 3,
     maxHP: 3,
     avatar: "img/waterpuddle.png",
