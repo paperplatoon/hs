@@ -81,7 +81,6 @@
   align-items: center;
   position: relative;
   transition: all 0.35s linear;
-  border: 3px solid black;
 }
 
 .attack, .defense {
@@ -744,7 +743,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   .end-turn-button {
     background-color: #00b5bc;
     color: #fff1f1;
-    height: 3vh;
+    height: 10vh;
     width: 5vw;
 
   }
@@ -825,13 +824,19 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   animation: fadeIn 0.3s;
   display: block;
 }
-.card.playable:hover {
+.card.playable:hover, .can-attack:hover, .can-attack-earth:hover, .can-attack-water:hover {
   cursor: pointer;
   box-shadow: 0 0 10px rgb(178, 95, 0); 
   background: linear-gradient(90deg, rgb(64, 59, 52),rgb(108, 80, 43), rgb(88, 68, 43), rgb(87, 47, 8));
   color: white;
   transform: scale(1.1);
 }
+
+.card.playable:hover .card-top-row, .can-attack:hover .card-top-row, .can-attack-earth:hover .card-top-row, .can-attack-water:hover .card-top-row {
+  background-color: grey;
+}
+
+
 
 #handContainer2 .playable:hover {
   border: 1.5px solid rgb(255, 211, 101);
@@ -843,8 +848,12 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 }
 
 .can-attack {
-  border: 6px solid rgb(0, 219, 0);
   box-shadow: 10px 5px 5px rgba(18, 30, 255, 0.57);
+}
+
+.can-attack:hover {
+  color: white;
+  
 }
 
 .can-attack-water {
@@ -853,8 +862,8 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 }
 
 .can-attack-earth {
-  border: 8px solid rgba(170, 85, 0, 0.632);
   box-shadow: 10px 5px 5px rgba(150, 80, 0, 0.765);
+
 }
 
 .is-attacking {
@@ -897,6 +906,10 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   position: relative;
   background-size: contain;
   background-repeat: no-repeat;
+}
+
+.select-grey { 
+  filter: grayscale(100%);
 }
 
 

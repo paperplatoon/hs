@@ -43,7 +43,7 @@ let gameStartState = {
     cardsPerTurn: 0,
 
     currentEnergy: 1,
-    maxEnergy: 1,
+    turnEnergy: 1,
 
     encounterDraw: [],
     monstersInPlay: [],
@@ -56,7 +56,7 @@ let gameStartState = {
     currentHP: 10,
 
     currentEnergy: 1,
-    maxEnergy: 1,
+    turnEnergy: 1,
 
     encounterDraw: [],
     monstersInPlay: [],
@@ -522,6 +522,14 @@ function renderPlayerMonstersInPlay(stateObj) {
   }
   
   endTurnButton.textContent = "End Turn";
+  let endTurnButtonText = document.createElement("P");
+  let endTurnButtonText2 = document.createElement("P");
+  let endTurnButtonText3 = document.createElement("P");
+  endTurnButtonText = "   (+"
+  endTurnButtonText2.classList.add("hand-card-cost")
+  endTurnButtonText2 = stateObj.player.turnEnergy
+  endTurnButtonText3 = ")"
+  endTurnButton.append(endTurnButtonText, endTurnButtonText2, endTurnButtonText3)
   document.querySelector("#playerMonstersInPlay").append(endTurnButton);
 }
 
@@ -556,7 +564,6 @@ async function renderDivs(stateObj) {
   let topRow = topRowDiv(stateObj)
   let restOfScreen = renderFightDiv();
   document.querySelector("#app").append(topRow, restOfScreen);
-  
   
   renderHand(stateObj);
   renderPlayerMonstersInPlay(stateObj);
@@ -675,8 +682,6 @@ async function renderCard(stateObj, cardArray, index, playerObj, divName=false, 
           cardAttackDiv.classList.add("attack")
           cardAttackDiv.textContent = cardObj.attack;
           attackContainer.append(cardAttackDiv)
-
-
 
           let cardDefendDiv = document.createElement("Div");
           cardDefendDiv.classList.add("defense")
@@ -797,6 +802,14 @@ async function renderCard(stateObj, cardArray, index, playerObj, divName=false, 
           if (cardObj.trigger && cardObj.trigger(stateObj, index, cardArray)) {
             cardDiv.classList.add("trigger-condition-met")
           }
+
+          if (stateObj.status === Status.chooseEnemyMonster) {
+            if (cardArray !== stateObj.opponent.monstersInPlay) {
+              if (cardArray !== stateObj.player.monstersInPlay || index !== stateObj.playerToAttackIndex) {
+                cardDiv.classList.add("select-grey")
+              }
+            }
+          }
           if (divName) {
             document.querySelector(divName).appendChild(cardDiv);
           }
@@ -824,13 +837,13 @@ function topRowDiv(stateObj) {
 
   let playerEnergyCircleDiv = document.createElement("Div");
   playerEnergyCircleDiv.setAttribute("id", "player-energy-div");
-  playerEnergyCircleDiv.textContent = stateObj.player.currentEnergy + `/` + stateObj.player.maxEnergy 
+  playerEnergyCircleDiv.textContent = stateObj.player.currentEnergy + `/` + stateObj.player.turnEnergy 
 
   playerEnergyDiv.append(playerEnergyTextDiv, playerEnergyCircleDiv)
 
   let opponentEnergyDiv = document.createElement("Div");
   opponentEnergyDiv.setAttribute("id", "status-text-div");
-  opponentEnergyDiv.textContent = `Enemy Energy: ` + stateObj.opponent.currentEnergy + `/` + stateObj.opponent.maxEnergy 
+  opponentEnergyDiv.textContent = `Enemy Energy: ` + stateObj.opponent.currentEnergy + `/` + stateObj.opponent.turnEnergy 
 
   let opponentHealthDiv = document.createElement("Div");
   opponentHealthDiv.setAttribute("id", "opponent-health-div");
@@ -1110,10 +1123,11 @@ async function endTurn(stateObj) {
   await pause(500)
 
   stateObj = immer.produce(stateObj, (newState) => {
-    newState.player.maxEnergy += 1;
-    newState.player.currentEnergy = newState.player.maxEnergy;
-    newState.opponent.maxEnergy += 1
-    newState.opponent.currentEnergy = newState.opponent.maxEnergy
+    newState.player.currentEnergy += newState.player.turnEnergy;
+    newState.opponent.currentEnergy += newState.opponent.turnEnergy
+    newState.player.turnEnergy += 1;
+    newState.opponent.turnEnergy += 1
+    
   })
   stateObj = await drawACard(stateObj, stateObj.player);
   stateObj = immer.produce(stateObj, (newState) => {
