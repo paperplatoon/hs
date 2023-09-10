@@ -56,6 +56,7 @@ let gameStartState = {
     onDeathMultiplier: 1,
     whenPlayedMultiplier: 1,
     heroPower: false,
+    quest: {...quests[0]},
 
     cardsPerTurn: 0,
 
@@ -552,7 +553,13 @@ function createHandEndDiv(stateObj, playerObj) {
   ManaDiv.textContent = stateObj[playerObj.name].currentEnergy
   HPManaDiv.append(ManaDiv, HPDiv)
   if (playerObj.name === "player") {
-    handEndDiv.append(HPManaDiv, trickButton)
+    if (playerObj.quest !== false) {
+      let questText = document.createElement("p");
+      questText.textContent = stateObj.player.quest.text(stateObj, stateObj.player)
+      handEndDiv.append(HPManaDiv, questText, trickButton)
+    } else {
+      handEndDiv.append(HPManaDiv, trickButton)
+    }
   } else {
     handEndDiv.append(trickButton, HPManaDiv)
   }
@@ -1387,6 +1394,19 @@ async function drawACard(stateObj, playerDrawing) {
     }
     chosenPlayer.encounterHand.push(topCard);
   })
+  //checking quest completion
+  if (playerDrawing.name === "player" && playerDrawing.quest.title === "Draw Cards") {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.player.quest.targetCards -= 1;
+    })
+    if (stateObj.player.quest.targetCards <= 0) {
+      stateObj = await stateObj.player.quest.action(stateObj, stateObj.player)
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState.player.quest = false
+      })
+    }
+  } 
+  stateObj = await changeState(stateObj)
   return stateObj;
 }
 

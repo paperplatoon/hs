@@ -1,3 +1,23 @@
+let quests = [
+  {
+    title: "Draw Cards",
+    targetCards: 7,
+    conditionMet: false,
+    text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
+      `Draw ${playerObj.quest.targetCards} cards` : `Draw 7 cards` },
+    action: async (stateObj, playerObj) => {
+      for (let c=0; c < stateObj[playerObj.name].encounterHand.length; c++) {
+        stateObj = immer.produce(stateObj, (newState) => {
+          let costReduction = (newState[playerObj.name].encounterHand[c].baseCost > 0) ? 1 : 0
+          newState[playerObj.name].encounterHand[c].baseCost -= costReduction
+        })
+      }
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    },
+  },
+]
+
 let heroPowers = [
   //1
   {
