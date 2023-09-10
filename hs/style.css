@@ -19,7 +19,7 @@
   align-items: center;
 }
 
-.monster-choice-window {
+.deck-choice-window, .hp-choice-window {
   justify-content: space-evenly;
   display: flex;
   flex-direction: row;
@@ -30,12 +30,59 @@
   background-color: #ccc;
 }
 
-.monster-to-choose {
+.deck-to-choose {
   color: black;
   background-color: #b9fdff;
   width: 25vw;
   height: 30vw;
   border: 0px solid black;
+  text-align: center;
+}
+
+.hero-power-to-choose {
+  color: black;
+  background-color: #b9fdff;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  width: 13vw;
+  height: 25vh;
+  border: 0px solid black;
+}
+
+.hero-power-cost {
+  width: 4vmin;
+  height: 4vmin;
+  border-radius: 50%;
+  padding: 0.5vmin;
+  border: 1px dashed black;
+  text-align: center;
+  line-height: 4vmin;
+  background: linear-gradient(90deg, rgb(247, 26, 255), rgb(249, 67, 255), rgb(250, 120, 255), rgb(226, 130, 255), rgb(217, 90, 255), rgb(206, 44, 255));
+  color: white;
+}
+
+.mana-hand-div {
+  width: 4vmin;
+  height: 4vmin;
+  border-radius: 50%;
+  padding: 0.5vmin;
+  border: 1px dashed black;
+  text-align: center;
+  line-height: 4vmin;
+  background: linear-gradient(90deg, rgb(247, 26, 255), rgb(249, 67, 255), rgb(250, 120, 255), rgb(226, 130, 255), rgb(217, 90, 255), rgb(206, 44, 255));
+  color: white;
+}
+
+.hero-power-to-choose p {
+  margin-block-end: 0.1vmin;
+  margin-block-start: 0.1vmin;
+}
+
+.hp-cost {
+font-size: 1.2vw;
 }
 
 
@@ -71,7 +118,7 @@
 }
 
 .card {
-  margin: 0.4vmax;
+  margin: 0.4vmin;
   width: 11vw;
   height: 25vh;
   /* float: left; */
@@ -109,6 +156,16 @@
   color: white;
 }
 
+.hp-hand-div {
+  width: 4vw;
+  height: 7vh;
+  line-height: 6vh;
+  border-image: radial-gradient(rgb(223, 0, 0) 69%,#0000 70%) 84.5% fill/100%;
+  clip-path: polygon(-41% 0,50% 91%, 141% 0);
+  text-align: center;
+  color: white;
+}
+
 .attack {
   background-color: rgb(55, 208, 219);
   clip-path: polygon(50% 0, 100% 43%, 82% 100%, 18% 100%, 0 43%);
@@ -122,7 +179,7 @@
   height: 3vmin;
   border-radius: 70%;
   padding: 2vmin;
-  border: 1px solid black;
+  border: 1px dashed black;
   margin-right: 1vmin;
   text-align: center;
   line-height: 3vmin;
@@ -212,7 +269,7 @@
 
 
 #handContainer2, #playerMonstersInPlay, #enemyMonstersInPlay {
-  width: 98vw;
+  width: 91vw;
   height: 30vh;
   background-color: #0500332a;
   display: flex;
@@ -222,6 +279,22 @@
   align-content: center;
   align-items: center;
   /*background: linear-gradient(45deg, rgba(32, 78, 70, 0.6) 0%, rgba(255,175,70,0.23) 35%, rgba(0,212,255,0.08) 100%); */
+}
+
+.hand-end-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 9.5vw;
+  height: 100%;
+}
+
+.hp-mana-end-div {
+  display: flex;
+  flex-direction: row;
+  height: 12vh;
+
 }
 
 #playerMonstersInPlay {
@@ -805,7 +878,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
     box-shadow: 0 0 30px rgb(154, 15, 15);
   }
   
-  .monster-to-choose:hover {
+  .deck-to-choose:hover, .hero-power-to-choose:hover, .end-turn-button:hover {
     cursor: pointer;
     box-shadow: 0 0 20px rgb(254, 254, 254); 
     color: rgb(192, 255, 255);
@@ -848,22 +921,20 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 }
 
 .can-attack {
-  box-shadow: 10px 5px 5px rgba(18, 30, 255, 0.57);
+  box-shadow: 10px 5px 5px rgba(69, 255, 56, 0.854);
+  animation: attackGlow 3.5s ease-in infinite
 }
 
 .can-attack:hover {
   color: white;
-  
 }
 
 .can-attack-water {
-  border: 8px solid rgba(1, 168, 137, 0.673);
   box-shadow: 10px 5px 5px rgba(18, 180, 255, 0.57);
 }
 
 .can-attack-earth {
   box-shadow: 10px 5px 5px rgba(150, 80, 0, 0.765);
-
 }
 
 .is-attacking {
@@ -918,9 +989,16 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   animation: spinIn 1s ease-in-out 1
 }
 
+
 @keyframes spinIn {
-  0% { transform: translateY(20px) rotate(0deg) scale(0.5); }
+  0% { transform: translateY(20px) rotate(180deg) scale(0.3); }
   100% { transform: translateY(-10px) rotate(720deg) scale(1.1);  }
+}
+
+@keyframes flyIn {
+  0% { transform: translateY(-80px) translateX(0px) scale(0.3); }
+  40% { transform: translateY(30px) translateX(0px) scale(0.55); }
+  100% { transform: translateY(-10px) scale(1.1);  }
 }
 
 .opaque {
@@ -997,6 +1075,12 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   100% { transform: translateY(0); }
 }
 
+@keyframes attackGlow {
+  0% {box-shadow: 0px 0px 0px rgb(21, 128, 0);}
+  50% {box-shadow: 0px 0px 30px rgb(66, 228, 34);}
+  100% {box-shadow: 0px 0px 0px green;}
+}
+
 @keyframes attackBulge {
   0% { transform: scale(1); filter: hue-rotate(0deg); }
   50% { transform: scale(1.5); filter: hue-rotate(200deg);}
@@ -1015,18 +1099,12 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   100% { transform: translateY(0); }
 }
 
-
-
-
-
 @keyframes fadeIn {
   0% {
     opacity: 0.75;
     transform: scale(1.0);
     border-width: 0px;
-    
   }
-
   100% {
     opacity: 1;
     transform: scale(1.1);

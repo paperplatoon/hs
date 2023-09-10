@@ -19,6 +19,8 @@
 // -------------------------- -------------------------- -------------------------- -------------------------- -------------------------- 
 
 const Status = {
+  ChoosingMonster: renderChooseDeck,
+  ChoosingHeroPower: renderChooseHeroPower,
   inFight: renderDivs,
   lostFight: renderLostFight,
   wonFight: renderWonFight,
@@ -27,11 +29,26 @@ const Status = {
   ChooseEncounterCardReward: renderChooseEncounterCardReward,
 }
 
+let preFightState = {
+  testingMode: false,
+  canPlay: true,
+  fightStarted: false,
+  status: Status.ChoosingMonster,
+  
+
+  turnCounter: 0,
+  
+  playerToAttackIndex: false,
+  enemyToBeAttackedIndex: false,
+  
+
+}
 
 let gameStartState = {
 
   player: {
-    currentHP: 20,
+    currentHP: 10,
+    maxHP: 10,
     name: "player",
 
     lifeRequirementReduction: 0,
@@ -42,21 +59,21 @@ let gameStartState = {
 
     cardsPerTurn: 0,
 
-    currentEnergy: 1,
-    turnEnergy: 1,
+    currentEnergy: 10,
+    turnEnergy: 2,
 
     encounterDraw: [],
     monstersInPlay: [],
     encounterHand: [],
-    encounterDeck: [],
   },
 
   opponent: {
     name: "opponent",
     currentHP: 10,
+    maxHP: 10,
 
     currentEnergy: 1,
-    turnEnergy: 1,
+    turnEnergy: 2,
 
     encounterDraw: [],
     monstersInPlay: [],
@@ -77,9 +94,8 @@ let gameStartState = {
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
-  testingMode: true,
+  testingMode: false,
 
-  cardToBePlayed: false,
 }
 
 
@@ -91,10 +107,9 @@ async function startEncounter(stateObj) {
   stateObj = immer.produce(stateObj, (newState) => {
     newState.fightStarted = true;
     newState.status = Status.inFight
-    newState.player.encounterDraw = newState.player.encounterDeck
+    newState.player.encounterDraw = [...newState.player.encounterDeck]
     newState.player.encounterHand = []
     //fix
-    newState.player.heroPower = {...heroPowers[potentialPlayers[0].heroPower]}
     newState.opponent.encounterDraw = [...potentialEnemies[0].deck],
     newState.opponent.heroPower = {...heroPowers[potentialEnemies[0].heroPower]}
     newState.opponent.encounterHand = []
@@ -102,13 +117,12 @@ async function startEncounter(stateObj) {
 
     if (stateObj.testingMode === true) {
       stateObj = immer.produce(stateObj, (newState) => {
-        // newState.player.encounterDraw = [];
-        newState.player.monstersInPlay = [tiderider, deityoflight];
+        // newState.player.encounterDraw = [...testPlayer.deck];
+        // newState.player.monstersInPlay = [sparkingimp, deityoflight];
         newState.player.currentEnergy = 15;
         newState.player.currentHP = 31
-        newState.opponent.monstersInPlay = [sacrificialsprite, tiderider]
-        newState.player.encounterHand.push()
-        newState.player.heroPower = heroPowers[4]
+        newState.opponent.monstersInPlay = [tiderider, tiderider]
+        // newState.player.heroPower = heroPowers[testPlayer.heroPower]
         newState.opponent.heroPower = heroPowers[testEnemy.heroPower]
         newState.opponent.encounterDraw = testEnemy.deck
       })
@@ -117,18 +131,14 @@ async function startEncounter(stateObj) {
           newState.player.monstersInPlay[i].canAttack = true;
         })
       }
-    } else {
-      
     }
-
-    
-
     stateObj = await updateState(stateObj)
 
     console.log("starting encounter")
     stateObj = shuffleDraw(stateObj, stateObj.player);
     stateObj = shuffleDraw(stateObj, stateObj.opponent);
-    for (let h=0; h < 7; h++) {
+    for (let h=0; h < 5; h++) {
+      console.log("drawing a card")
       stateObj = await drawACard(stateObj, stateObj.player)
       stateObj = await drawACard(stateObj, stateObj.opponent)
     }
@@ -212,9 +222,13 @@ async function playDemonFromHand(stateObj, cardObj, playerSummoning, pauseTime=5
 
 //changes state
 async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=2000, pushToEnd=true, stateChange=true) {
+  let changeCanPlay = (stateObj.canPlay) ? true : false
     stateObj = immer.produce(stateObj, (newState) => {
       let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
       player.monstersInPlay.push(cardObj)
+      if (changeCanPlay) {
+        newState.canPlay = false
+      }
     })
   if (stateChange) {
     stateObj = await changeState(stateObj)
@@ -237,8 +251,16 @@ async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=2000, p
     await pause(1000)
     document.querySelectorAll(queryString)[monstersLength-1].classList.remove("summon-demon")
   }
-  
-  
+
+  if (changeCanPlay) {
+    stateObj = immer.produce(stateObj, (newState) => {
+        newState.canPlay = true
+    })
+  }
+
+  if (stateChange) {
+    stateObj = await changeState(stateObj)
+  }
   return stateObj
 }
 
@@ -388,13 +410,13 @@ async function healMinion(stateObj, playerSummoning, index, HPToHeal) {
  function renderChooseDeck(stateObj) {
     document.getElementById("app").innerHTML = ""
     let monsterChoiceDiv = document.createElement("Div");
-    monsterChoiceDiv.classList.add("monster-choice-window");
+    monsterChoiceDiv.classList.add("deck-choice-window");
     document.getElementById("app").appendChild(monsterChoiceDiv);
   
     for (let p =0; p < potentialPlayers.length; p++) {
       let monsterDiv = document.createElement("Div");
       monsterDiv.id = p;
-      monsterDiv.classList.add("monster-to-choose");
+      monsterDiv.classList.add("deck-to-choose");
   
       monsterDiv.addEventListener("click", async function () {
         chooseThisMonster(stateObj, p);
@@ -408,6 +430,30 @@ async function healMinion(stateObj, playerSummoning, index, HPToHeal) {
       monsterChoiceDiv.append(monsterDiv)
     }
       document.getElementById("app").appendChild(monsterChoiceDiv);
+  };
+
+  function renderChooseHeroPower(stateObj) {
+    document.getElementById("app").innerHTML = ""
+    let HeroPowerChoiceDiv = document.createElement("Div");
+    HeroPowerChoiceDiv.classList.add("hp-choice-window");
+  
+    for (let p = 0; p < heroPowers.length; p++) {
+      let heroPowerDiv = document.createElement("Div");
+      heroPowerDiv.id = p;
+      heroPowerDiv.classList.add("hero-power-to-choose");
+  
+      heroPowerDiv.addEventListener("click", async function () {
+        chooseThisHeroPower(stateObj, p);
+      });
+      let ManaDiv = document.createElement("Div");
+      ManaDiv.classList.add('hero-power-cost')
+      ManaDiv.textContent = heroPowers[p].baseCost;
+      let HPText = document.createElement("p");
+      HPText.textContent = heroPowers[p].text(stateObj, stateObj.player);
+      heroPowerDiv.append(ManaDiv, HPText);
+      HeroPowerChoiceDiv.append(heroPowerDiv)
+    }
+      document.getElementById("app").appendChild(HeroPowerChoiceDiv);
   };
 
 //changeState issues iwth onDeath calling itself probably causing this; look into the minion 
@@ -500,7 +546,25 @@ function renderHand(stateObj) {
     });
   }
   trickButton = createConjurerTrickButton(stateObj, stateObj.player)
-  document.getElementById("handContainer2").append(trickButton)
+
+  let handEndDiv = document.createElement("Div");
+  handEndDiv.classList.add("hand-end-div")
+  let HPManaDiv = document.createElement("Div");
+  HPManaDiv.classList.add("hp-mana-end-div")
+  let HPDiv = document.createElement("Div");
+  HPDiv.classList.add("stats-container-div", "hp-hand-div")
+  HPDiv.textContent = stateObj.player.currentHP;
+  let ManaDiv = document.createElement("Div");
+  ManaDiv.classList.add("stats-container-div", "mana-hand-div")
+  ManaDiv.textContent = stateObj.player.currentEnergy
+  HPManaDiv.append(ManaDiv, HPDiv)
+  handEndDiv.append(HPManaDiv, trickButton)
+
+
+
+  
+  
+  document.getElementById("handContainer2").append(handEndDiv)
 }
 
 function renderPlayerMonstersInPlay(stateObj) {
@@ -553,7 +617,6 @@ function renderEnemyMonstersToChoose(stateObj) {
 
 async function renderDivs(stateObj) {
   if (stateObj.fightStarted === false) {
-    console.log("is there a state obj " + (stateObj.player.name))
     stateObj = await startEncounter(stateObj);
     stateObj = immer.produce(stateObj, (newState) => {
       newState.fightStarted = true;
@@ -739,12 +802,15 @@ async function renderCard(stateObj, cardArray, index, playerObj, divName=false, 
           } else if (cardArray === stateObj.player.monstersInPlay && cardArray[index].canAttack === true) {
             const enemyMonsters = document.querySelector("#enemyMonstersInPlay");
             cardDiv.setAttribute("draggable", "true")
+            cardDiv.classList.add("can-attack");
             if (cardArray[index].elementType === "water") {
               cardDiv.classList.add("can-attack-water");
             } else if (cardArray[index].elementType === "earth") {
               cardDiv.classList.add("can-attack-earth");
+            } else if (cardArray[index].elementType === "air") {
+              cardDiv.classList.add("can-attack-air");
             } else {
-              cardDiv.classList.add("can-attack");
+              cardDiv.classList.add("can-attack-fire");
             }
                 cardDiv.addEventListener("click", function () {
                   playerMonsterIsAttacking(stateObj, index, stateObj.player.monstersInPlay);
@@ -928,56 +994,26 @@ async function playerMonsterIsAttacking(stateObj, index, arrayObj) {
   return stateObj;
 }
 
-// function renderChooseDeck(stateObj) {
-//   document.getElementById("app").innerHTML = ""
-//   let monsterChoiceDiv = document.createElement("Div");
-//   monsterChoiceDiv.classList.add("monster-choice-window");
-//   document.getElementById("app").appendChild(monsterChoiceDiv);
-//   // let devModeDiv = document.createElement("Div");
-//   // devModeDiv.classList.add("dev-mode-div")
-//   // devModeDiv.addEventListener("click", function () {
-//   //   chooseThisMonster(stateObj, 4);
-//   // });
-//   // monsterChoiceDiv.append(devModeDiv);
-
-//   potentialPlayers.forEach(function (playerObj, index) {
-//     let monsterDiv = document.createElement("Div");
-//     monsterDiv.id = index;
-//     monsterDiv.classList.add("monster-to-choose");
-//     if (monsterObj.type === "fire") {
-//       monsterDiv.classList.add("fire-choose");
-//     } else {
-//       monsterDiv.classList.add("water-choose");
-//     }
-//     let monsterName = document.createElement("H3");
-
-//     monsterName.textContent = playerObj.name;
-//     // let avatar = document.createElement('img');
-//     // avatar.classList.add("avatar");
-//     // avatar.src = monsterObj.avatar;
-
-//     monsterDiv.addEventListener("click", function () {
-//       chooseThisMonster(stateObj, index);
-//     });
-
-//     monsterDiv.append(monsterName, avatar);
-//     monsterChoiceDiv.append(monsterDiv)
-//     document.getElementById("app").appendChild(monsterChoiceDiv);
-//     })
-// };
-
 function chooseThisMonster(stateObj, index) {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.player.encounterDraw = [...potentialPlayers[index].deck];
       newState.player.encounterDeck = [...potentialPlayers[index].deck];
-      newState.player.heroPower = {...heroPowers[potentialPlayers[index].heroPower]}
-      newState.status = Status.inFight
+      newState.status = Status.ChoosingHeroPower
       let i = Math.floor(Math.random() * potentialEnemies.length)
       newState.opponent.encounterDraw = [...potentialEnemies[i].deck],
       newState.opponent.heroPower = {...heroPowers[potentialEnemies[i].heroPower]}
     })
    stateObj = updateState(stateObj);
   return stateObj;
+}
+
+function chooseThisHeroPower(stateObj, index) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.player.heroPower = {...heroPowers[index]}
+    newState.status = Status.inFight
+  })
+ stateObj = updateState(stateObj);
+return stateObj;
 }
 
 function fisherYatesShuffle(arrayObj) {
@@ -992,16 +1028,14 @@ function fisherYatesShuffle(arrayObj) {
 }
 
 async function chooseThisCard(stateObj, index, sampledCardPool) {
-  console.log("old length " + stateObj.player.encounterDeck.length)
   console.log("added " + sampledCardPool[index].name + " to deck")
   stateObj = immer.produce(stateObj, (newState) => {
     newState.player.encounterDeck.push(sampledCardPool[index]);
     newState.fightStarted = false
   })
 
-    stateObj = await changeState(stateObj)  
+    //stateObj = await changeState(stateObj)  
     stateObj = await changeStatus(stateObj, Status.inFight)
-    console.log("new length " + stateObj.player.encounterDeck.length)
   return stateObj;
 }
 
@@ -1025,8 +1059,54 @@ async function renderChooseEncounterCardReward(stateObj) {
 };
 
 async function resetAfterFight(stateObj) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.fightStarted = false;
+    newState.status = Status.ChoosingMonster;
+    newState.playerToAttackIndex = false;
+    newState.enemyToBeAttackedIndex = false;
+    newState.canPlay = true;
+    newState.turnCounter = 0
+    newState.cardsPerTurn = 0
 
-  stateObj = {...gameStartState}
+    newState.player.maxHP += 1
+    newState.player.currentHP = newState.player.maxHP 
+
+    newState.player.lifeRequirementReduction
+    newState.player.endofTurnMultiplier
+    newState.player.onDeathMultiplier
+    newState.player.whenPlayedMultiplier
+    newState.player.currentEnergy = 1
+    newState.player.turnEnergy = 2
+    newState.player.encounterDraw = [];
+    newState.player.encounterHand = []
+
+  })
+
+  let gameStartState = {
+  
+    opponent: {
+      name: "opponent",
+      currentHP: 10,
+  
+      currentEnergy: 1,
+      turnEnergy: 2,
+  
+      encounterDraw: [],
+      monstersInPlay: [],
+      encounterHand: [],
+  
+      lifeRequirementReduction: 0,
+      endofTurnMultiplier: 1,
+      onDeathMultiplier: 1,
+      whenPlayedMultiplier: 1,
+  
+      cardsPerTurn: 0,
+  
+      
+    },
+
+  
+  }
   stateObj = await changeState(stateObj)
   
   return stateObj
@@ -1069,8 +1149,7 @@ async function resetAfterFight(stateObj) {
 
 function shuffleDraw(stateObj, playerShuffling) {
   stateObj = immer.produce(stateObj, (newState) => {
-    let player = (playerShuffling.name === "player") ? newState.player : newState.opponent
-    player.encounterDraw = shuffleArray(player.encounterDraw);
+    newState[playerShuffling.name].encounterDraw = shuffleArray(stateObj[playerShuffling.name].encounterDraw);
   });
   return stateObj;
 }
@@ -1096,7 +1175,7 @@ async function endTurn(stateObj) {
   stateObj = immer.produce(stateObj, (newState) => {
     newState.canPlay = false
   })
-  await changeState(stateObj)
+  await updateState(stateObj)
   stateObj = immer.produce(stateObj, (newState) => {
     newState.player.monstersInPlay.forEach(function (monsterObj, index) {
       monsterObj.canAttack = false;
@@ -1104,14 +1183,11 @@ async function endTurn(stateObj) {
   });
   for (let i = stateObj.player.monstersInPlay.length-1; i > -1; i--) {
     let card = stateObj.player.monstersInPlay[i]
-    if (typeof(card.endOfTurn) === "function") {
+    if (typeof(card.endOfTurn) === "function" && stateObj.status === Status.inFight) {
       await executeAbility("player", i)
       for (let j = 0; j < stateObj.player.endofTurnMultiplier; j++) {
         stateObj = await card.endOfTurn(stateObj, i, stateObj.player.monstersInPlay, stateObj.player);
       }
-      stateObj = immer.produce(stateObj, (newState) => {
-        newState.canPlay = false
-      })
       stateObj = await changeState(stateObj)
       await pause(500)
     }  
@@ -1140,7 +1216,7 @@ async function endTurn(stateObj) {
   stateObj = immer.produce(stateObj, (newState) => {
     newState.canPlay = true
   })
-  await changeState(stateObj)
+  await updateState(stateObj)
 }
 
 async function attackAnimation(attackerName, attackerIndex, targetName, targetIndex) {

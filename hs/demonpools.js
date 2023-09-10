@@ -96,9 +96,9 @@ let testEnemy = {
 let playerEarthHighHPPoisonous = {
     deck: [
         //5
-        seedling, earthelementalI, healerimp, healerimp, healerimp,
+        waterelementalI, earthelementalI, earthelementalI, healerimp, healerimp,
         //4
-        toxicvapors, toxicvapors, sapplingsprout, sapplingsprout, 
+        toxicvapors, toxicvapors, earthelementalII, earthelementalII, 
         //5
         poisonousswamp, poisonousswamp, earthelementalIII, earthelementalIII, healingspring,
         //1
@@ -126,6 +126,13 @@ let playerEarthGainLife1 = {
     text: "Raise your own life total and play powerful creatures!"
 }
 
+let testPlayer = {
+    deck: [testKiller, testKiller, testKiller, testKiller, testKiller],
+    heroPower: 0,
+    name: "Testing Mode",
+    text: "Roleplay as a developer looking for bugs!"
+}
+
 
 let potentialEnemies = [enemyEarth1highLife, enemyEarth1HighHP]
-let potentialPlayers = [playerEarthGainLife1, playerEarthHighHPPoisonous]
+let potentialPlayers = [playerEarthGainLife1, playerEarthHighHPPoisonous, testPlayer]

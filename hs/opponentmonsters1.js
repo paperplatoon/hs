@@ -7,7 +7,8 @@ let heroPowers = [
     lifeGain: 2,
     priority: 0,
     buffText: (numberParameter) => { `Your Conjurer Trick gains ${numberParameter} extra life` },
-    text: (stateObj, playerObj) => { return `Gain ${playerObj.heroPower.lifeGain} Life`   },
+    text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
+      `Gain ${playerObj.heroPower.lifeGain} Life` : `Gain 2 Life` },
     action: async (stateObj, playerObj) => {
       stateObj = await gainLife(stateObj, stateObj[playerObj.name], stateObj[playerObj.name].heroPower.lifeGain)
       stateObj = immer.produce(stateObj, (newState) => {
@@ -19,11 +20,13 @@ let heroPowers = [
   },
 //2
   {
-    cost: 1,
-    title: "Gain HP",
+    cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
+    baseCost: 1,
+    title: "Brief Shield",
     HPBuff: 1,
     priority: 0,
-    text: (stateObj, playerObj) => { return `A random friendly minion gains +${stateObj[playerObj.name].heroPower.HPBuff} HP` },
+    text: (stateObj, playerObj) => {  return (stateObj.status === Status.inFight) ? 
+      `Give a random friendly pet +${stateObj[playerObj.name].heroPower.HPBuff} Defense`: `Give a random friendly pet +1 Defense`},
     action: async (stateObj, playerObj) => {
       if (stateObj[playerObj.name].monstersInPlay.length > 0) {
         let t = Math.floor(Math.random() * stateObj[playerObj.name].monstersInPlay.length)
@@ -43,7 +46,8 @@ let heroPowers = [
     title: "Summon Growth",
     counter: 1,
     priority: 1,
-    text: (stateObj, playerObj) => { return  `Summon a ${stateObj[playerObj.name].heroPower.counter}/${stateObj[playerObj.name].heroPower.counter} minion` },
+    text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
+      `Summon a ${stateObj[playerObj.name].heroPower.counter}/${stateObj[playerObj.name].heroPower.counter} demon. Improve` : `Summon a 1/1 demon. Improve` },
     action: async (stateObj, playerObj) => {
       let c = playerObj.heroPower.counter
       stateObj = await createNewMinion(stateObj, playerObj, c, c, c, c, name="Personal Growth", minion=potgrowth)
@@ -62,7 +66,8 @@ let heroPowers = [
     title: "Gain Attack",
     HPBuff: 1,
     priority: 0,
-    text: (stateObj, playerObj) => { return `A random friendly minion gains +${stateObj[playerObj.name].heroPower.HPBuff} attack` },
+    text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
+      `Give a random friendly minion +${stateObj[playerObj.name].heroPower.HPBuff} Attack` : `Give a random friendly minion +1 Attack` },
     action: async (stateObj, playerObj) => {
       if (stateObj[playerObj.name].monstersInPlay.length > 0) {
         let t = Math.floor(Math.random() * stateObj[playerObj.name].monstersInPlay.length)
@@ -82,9 +87,8 @@ let heroPowers = [
     title: "Sting",
     HPBuff: 1,
     priority: 0,
-    text: (stateObj, playerObj) => { 
-        return `Deal ${stateObj[playerObj.name].heroPower.HPBuff} damage directly to your opponent` 
-    },
+    text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
+      `Deal ${stateObj[playerObj.name].heroPower.HPBuff} damage directly to your opponent` : `Deal 1 damage directly to your opponent` },
     increaseText: (stateObj, playerObj, buffNumber) => { 
       return `Your hero power deals ${1*buffNumber} more damage` 
     },
@@ -106,7 +110,7 @@ let heroPowers = [
     priority: 0,
     text: (stateObj, playerObj) => { 
       let textString = ``
-      textString = (stateObj[playerObj.name].heroPower.HPBuff === 0) ? `Destroy a random enemy minion` : `Destroy ${stateObj[playerObj.name].heroPower.HPBuff+1} random enemy minions` 
+      textString = (stateObj[playerObj.name].heroPower.HPBuff === 0 || stateObj.status !== Status.inFight) ? `Destroy a random enemy minion` : `Destroy ${stateObj[playerObj.name].heroPower.HPBuff+1} random enemy minions` 
       return textString
     },
     increaseText: (stateObj, playerObj, buffNumber) => { 
@@ -489,6 +493,22 @@ let elementalI = {
     maxHP: 5,
     avatar: "img/waterpuddle.png",
     canAttack: false,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
+  let testKiller = {
+    name: "Elemental V",
+    elementType: "fire",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 0,
+    attack: 50,
+    currentHP: 1,
+    maxHP: 1,
+    avatar: "img/waterpuddle.png",
+    canAttack: true,
     text: (state, index, array) => { return `` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },

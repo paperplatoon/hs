@@ -32,7 +32,7 @@ let seedling = {
     avatar: "img/waterpuddle.png",
     hpToGain: 1,
     canAttack: false,
-    text: (state, index, array) => { return `End of Turn: Gain +${array[index].hpToGain} HP` },
+    text: (state, index, array) => { return `End of Turn: this gains +${array[index].hpToGain} HP` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     endOfTurn: async (stateObj, index, array, playerObj) => {
@@ -52,7 +52,7 @@ let seedling = {
     lifeGain: 2,
     avatar: "img/waterpuddle.png",  
     canAttack: false,
-    text: (state, index, array) => { return `End of Turn: Summoner gains ${array[index].lifeGain} Life` },
+    text: (state, index, array, playerObj) => { return `End of Turn: ` + playerObj.name + ` gains ${array[index].lifeGain} Life` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     endOfTurn: async (stateObj, index, array, playerObj) => {
@@ -73,7 +73,7 @@ let seedling = {
     avatar: "img/waterpuddle.png",
     hpGain: 1,
     canAttack: false,
-    text: (state, index, array) => { return `End of Turn: Gain +${array[index].hpGain} HP`  },
+    text: (state, index, array) => { return `End of Turn: this gains +${array[index].hpGain} HP`  },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     endOfTurn: async (stateObj, index, array, playerObj) => {
@@ -105,7 +105,8 @@ let seedling = {
   let forestdeity = {
     name: "Forest Deity",
     elementType: "earth",
-    cardType: "deity",
+    cardType: "minion",
+    tribe: "deity",
     baseCost: 4,
     attack: 3,
     currentHP: 4,
@@ -135,7 +136,7 @@ let seedling = {
     avatar: "img/waterpuddle.png",
     canAttack: false,
     lifeGain: 5,
-    text: (state, index, array) => { return `End of Turn: Summoner gains ${array[index].lifeGain} Life` },
+    text: (state, index, array, playerObj) => { return `End of Turn: ` + playerObj.name + ` gains ${array[index].lifeGain} Life` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },    
     endOfTurn: async (stateObj, index, array, playerObj) => {
@@ -155,7 +156,7 @@ let seedling = {
     avatar: "img/waterpuddle.png",
     canAttack: true,
     lifeGain: 5,
-    text: (state, index, array) => { return `Your "End of Turn" effects trigger twice"` },
+    text: (state, index, array, playerObj) => { return playerObj.name + `'s "End of Turn" effects trigger twice"` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },    
     action: async (stateObj, index, array, playerObj) => {
@@ -186,7 +187,7 @@ let seedling = {
     avatar: "img/waterpuddle.png",
     canAttack: true,
     lifeGain: 5,
-    text: (state, index, array) => { return `Your "When Played" effects trigger twice"` },
+    text: (state, index, array, playerObj) => { return playerObj.name + `'s "When Played" effects trigger twice"` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },    
     action: async (stateObj, index, array, playerObj) => {
@@ -217,7 +218,7 @@ let seedling = {
     avatar: "img/waterpuddle.png",
     canAttack: true,
     lifeGain: 5,
-    text: (state, index, array) => { return `Your "On Death" effects trigger twice"` },
+    text: (state, index, array, playerObj) => { return playerObj.name + `'s "On Death" effects trigger twice"` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },    
     action: async (stateObj, index, array, playerObj) => {
@@ -278,7 +279,7 @@ let seedling = {
     avatar: "img/plant1.png",
     canAttack: false,
     lifeGain: 2,
-    text: (state, index, array) => { return `On Death: Summoner gains ${array[index].lifeGain} Life`  },
+    text: (state, index, array, playerObj) => { return `On Death: ` + playerObj.name + ` gains ${array[index].lifeGain} Life`  },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },     
     onDeath: async (stateObj, index, array, playerObj) => {
@@ -299,7 +300,7 @@ let seedling = {
     avatar: "img/plant1.png",
     canAttack: false,
     lifeGain: 3,
-    text: (state, index, array) => { return `When Played: Summoner gains ${array[index].lifeGain} Life`  },
+    text: (state, index, array, playerObj) => { return `When Played: Summoner gains ${array[index].lifeGain} Life`  },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; }, 
     action: async (stateObj, index, array, playerObj) => { 
@@ -320,7 +321,7 @@ let seedling = {
     avatar: "img/plant1.png",
     canAttack: false,
     lifeGain: 1,
-    text: (state, index, array) => { return `When Played: Summoner gains ${array[index].lifeGain} Life`  },
+    text: (state, index, array, playerObj) => { return `When Played: ` + playerObj.name + ` gains ${array[index].lifeGain} Life`  },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; }, 
     action: async (stateObj, index, array, playerObj) => { 
@@ -341,7 +342,7 @@ let seedling = {
     avatar: "img/plant1.png",
     canAttack: false,
     lifeGain: 1,
-    text: (state, index, array) => { return `On Death: Summoner gains ${array[index].lifeGain} Life`  },
+    text: (state, index, array, playerObj) => { return `On Death: ` + playerObj.name + ` gains ${array[index].lifeGain} Life`  },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; }, 
     onDeath: async (stateObj, index, array, playerObj) => {
@@ -407,13 +408,15 @@ let seedling = {
     maxHP: 8,
     avatar: "img/plant1.png",
     canAttack: false,
-    text: (state, index, array) => {return `On Play: set friendly minions' attack to be equal to their HP` },
+    text: (state, index, array) => {return `On Play: set friendly demons' Attack equal to their Defense` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },   
     action: async (stateObj, index, array, playerObj) => {
       for (let i = 0; i < playerObj.monstersInPlay.length; i++) {
-        let attackToAdd = playerObj.monstersInPlay[i].currentHP - playerObj.monstersInPlay[i].attack
-        stateObj = await giveDemonStats(stateObj, playerObj, i, "attack", attackToAdd)
+        if (i !== index) {
+            let attackToAdd = playerObj.monstersInPlay[i].currentHP - playerObj.monstersInPlay[i].attack
+            stateObj = await giveDemonStats(stateObj, playerObj, i, "attack", attackToAdd)
+        }
       }
       return stateObj;
     },
@@ -429,7 +432,7 @@ let seedling = {
     maxHP: 3,
     avatar: "img/plant1.png",
     canAttack: false,
-    text: (state, index, array) => {return `End of Turn: Deal damage to the opponent equal to this minion's HP` },
+    text: (state, index, array, playerObj) => {return `End of Turn: Deal this minions' Defense value to the ` + playerObj.name },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },  
     endOfTurn: async (stateObj, index, array, playerObj) => {
