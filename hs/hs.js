@@ -56,7 +56,7 @@ let gameStartState = {
     onDeathMultiplier: 1,
     whenPlayedMultiplier: 1,
     heroPower: false,
-    quest: {...quests[0]},
+    quest: {...quests[1]},
 
     cardsPerTurn: 0,
 
@@ -293,7 +293,19 @@ async function gainLife(stateObj, playerSummoning, lifeToGain) {
     let player = (playerSummoning.name === "player") ? newState.player : newState.opponent
     player.currentHP += lifeToGain;
   })
-  await updateState(stateObj)
+
+  if (playerSummoning.name === "player" && playerSummoning.quest.title === "Gain Life") {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.player.quest.targetLife -= lifeToGain;
+    })
+    if (stateObj.player.quest.targetLife <= 0) {
+      stateObj = await stateObj.player.quest.action(stateObj, stateObj.player)
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState.player.quest = false
+      })
+    }
+  } 
+  stateObj = await changeState(stateObj)
   return stateObj;
 }
 

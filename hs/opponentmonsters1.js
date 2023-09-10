@@ -16,6 +16,21 @@ let quests = [
       return stateObj;
     },
   },
+
+  {
+    title: "Gain Life",
+    targetLife: 7,
+    conditionMet: false,
+    text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
+      `Gain ${playerObj.quest.targetLife} Life` : `Gain 7 life` },
+    action: async (stateObj, playerObj) => {
+      for (let c=0; c < 3; c++) {
+        stateObj = await drawACard(stateObj, stateObj.player)
+      }
+      
+      return stateObj;
+    },
+  },
 ]
 
 let heroPowers = [
