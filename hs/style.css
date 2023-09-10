@@ -65,13 +65,14 @@
 }
 
 .mana-hand-div {
-  width: 4vmin;
-  height: 4vmin;
+  width: 6vmin;
+  height: 6vmin;
+  font-size: 3.5vmin;
   border-radius: 50%;
   padding: 0.5vmin;
   border: 1px dashed black;
   text-align: center;
-  line-height: 4vmin;
+  line-height: 6vmin;
   background: linear-gradient(90deg, rgb(247, 26, 255), rgb(249, 67, 255), rgb(250, 120, 255), rgb(226, 130, 255), rgb(217, 90, 255), rgb(206, 44, 255));
   color: white;
 }
@@ -269,7 +270,7 @@ font-size: 1.2vw;
 
 
 #handContainer2, #playerMonstersInPlay, #enemyMonstersInPlay {
-  width: 91vw;
+  width: 99vw;
   height: 30vh;
   background-color: #0500332a;
   display: flex;
@@ -285,15 +286,18 @@ font-size: 1.2vw;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  width: 9.5vw;
+  justify-content: space-around;
+  width: 15vw;
   height: 100%;
 }
 
 .hp-mana-end-div {
   display: flex;
   flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
   height: 12vh;
+  width: 100%;
 
 }
 
@@ -808,7 +812,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   }
 
   .conjurer-trick-button {
-    width: 7vw;
+    width: 10vw;
     height: 15vh;
     background-color: #b9fdff;
   }

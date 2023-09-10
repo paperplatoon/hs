@@ -538,6 +538,27 @@ function createConjurerTrickButton(stateObj, playerObj) {
   return ConjurerTrickButton
 }
 
+function createHandEndDiv(stateObj, playerObj) {
+  let trickButton = createConjurerTrickButton(stateObj, stateObj[playerObj.name])
+  let handEndDiv = document.createElement("Div");
+  handEndDiv.classList.add("hand-end-div")
+  let HPManaDiv = document.createElement("Div");
+  HPManaDiv.classList.add("hp-mana-end-div")
+  let HPDiv = document.createElement("Div");
+  HPDiv.classList.add("stats-container-div", "hp-hand-div")
+  HPDiv.textContent = stateObj[playerObj.name].currentHP;
+  let ManaDiv = document.createElement("Div");
+  ManaDiv.classList.add("stats-container-div", "mana-hand-div")
+  ManaDiv.textContent = stateObj[playerObj.name].currentEnergy
+  HPManaDiv.append(ManaDiv, HPDiv)
+  if (playerObj.name === "player") {
+    handEndDiv.append(HPManaDiv, trickButton)
+  } else {
+    handEndDiv.append(trickButton, HPManaDiv)
+  }
+  return handEndDiv
+}
+
 function renderHand(stateObj) {
   document.getElementById("handContainer2").innerHTML = "";
   if (stateObj.player.encounterHand.length > 0) {
@@ -545,25 +566,7 @@ function renderHand(stateObj) {
       await renderCard(stateObj, stateObj.player.encounterHand, index, stateObj.player, "#handContainer2", functionToAdd=false)
     });
   }
-  trickButton = createConjurerTrickButton(stateObj, stateObj.player)
-
-  let handEndDiv = document.createElement("Div");
-  handEndDiv.classList.add("hand-end-div")
-  let HPManaDiv = document.createElement("Div");
-  HPManaDiv.classList.add("hp-mana-end-div")
-  let HPDiv = document.createElement("Div");
-  HPDiv.classList.add("stats-container-div", "hp-hand-div")
-  HPDiv.textContent = stateObj.player.currentHP;
-  let ManaDiv = document.createElement("Div");
-  ManaDiv.classList.add("stats-container-div", "mana-hand-div")
-  ManaDiv.textContent = stateObj.player.currentEnergy
-  HPManaDiv.append(ManaDiv, HPDiv)
-  handEndDiv.append(HPManaDiv, trickButton)
-
-
-
-  
-  
+  let handEndDiv = createHandEndDiv(stateObj, stateObj.player)
   document.getElementById("handContainer2").append(handEndDiv)
 }
 
@@ -604,6 +607,8 @@ function renderEnemyMonstersInPlay(stateObj) {
       renderCard(stateObj, stateObj.opponent.monstersInPlay, index, stateObj.opponent, "#enemyMonstersInPlay", functionToAdd=false)
     });
   }
+  let handEndDiv = createHandEndDiv(stateObj, stateObj.opponent)
+  document.getElementById("enemyMonstersInPlay").append(handEndDiv)
 }
 
 function renderEnemyMonstersToChoose(stateObj) {
@@ -800,65 +805,67 @@ async function renderCard(stateObj, cardArray, index, playerObj, divName=false, 
             });
 
           } else if (cardArray === stateObj.player.monstersInPlay && cardArray[index].canAttack === true) {
+            if (stateObj.canPlay === true) {
             const enemyMonsters = document.querySelector("#enemyMonstersInPlay");
-            cardDiv.setAttribute("draggable", "true")
-            cardDiv.classList.add("can-attack");
-            if (cardArray[index].elementType === "water") {
-              cardDiv.classList.add("can-attack-water");
-            } else if (cardArray[index].elementType === "earth") {
-              cardDiv.classList.add("can-attack-earth");
-            } else if (cardArray[index].elementType === "air") {
-              cardDiv.classList.add("can-attack-air");
-            } else {
-              cardDiv.classList.add("can-attack-fire");
+              cardDiv.setAttribute("draggable", "true")
+              cardDiv.classList.add("can-attack");
+              if (cardArray[index].elementType === "water") {
+                cardDiv.classList.add("can-attack-water");
+              } else if (cardArray[index].elementType === "earth") {
+                cardDiv.classList.add("can-attack-earth");
+              } else if (cardArray[index].elementType === "air") {
+                cardDiv.classList.add("can-attack-air");
+              } else {
+                cardDiv.classList.add("can-attack-fire");
+              }
+                  cardDiv.addEventListener("click", function () {
+                    playerMonsterIsAttacking(stateObj, index, stateObj.player.monstersInPlay);
+                  });
+
+                  cardDiv.addEventListener("dragstart", (event) => {
+                      event.dataTransfer.setData("text/plain", cardDiv.id);
+                    });
+
+                    enemyMonsters.addEventListener("dragover", (event) => {
+                      let droppableElements = document.querySelectorAll("#enemyMonstersInPlay .card");
+
+                    droppableElements.forEach((element, targetIndex) => {
+                      element.addEventListener("dragover", (event) => {
+                        event.preventDefault();
+                      });
+
+                      element.addEventListener("drop", (event) => {
+                        event.preventDefault();
+                        const cardId = event.dataTransfer.getData("text/plain");
+                      
+                      if (cardId && cardId[0] === "p") {
+                        str = Number(cardId.charAt(cardId.length-1)) 
+                        console.log("played card id is " + str)
+                        console.log("targeted index is " + targetIndex)
+                        stateObj = completeAttack(stateObj, str, targetIndex)
+
+
+                        event.stopImmediatePropagation();
+                      }
+                        // Call your function with the index of the target zone element
+                        //yourFunction(targetIndex);
+                      });
+                    });
+                    })
+
+                }
             }
-                cardDiv.addEventListener("click", function () {
-                  playerMonsterIsAttacking(stateObj, index, stateObj.player.monstersInPlay);
-                });
 
-                cardDiv.addEventListener("dragstart", (event) => {
-                    event.dataTransfer.setData("text/plain", cardDiv.id);
-                  });
-
-                  enemyMonsters.addEventListener("dragover", (event) => {
-                    let droppableElements = document.querySelectorAll("#enemyMonstersInPlay .card");
-
-                  droppableElements.forEach((element, targetIndex) => {
-                    element.addEventListener("dragover", (event) => {
-                      event.preventDefault();
-                    });
-
-                    element.addEventListener("drop", (event) => {
-                      event.preventDefault();
-                      const cardId = event.dataTransfer.getData("text/plain");
-                    
-                    if (cardId && cardId[0] === "p") {
-                      str = Number(cardId.charAt(cardId.length-1)) 
-                      console.log("played card id is " + str)
-                      console.log("targeted index is " + targetIndex)
-                      stateObj = completeAttack(stateObj, str, targetIndex)
-
-
-                      event.stopImmediatePropagation();
-                    }
-                      // Call your function with the index of the target zone element
-                      //yourFunction(targetIndex);
-                    });
-                  });
-                  })
-
+            if (cardArray === stateObj.player.monstersInPlay && stateObj.playerToAttackIndex === index) {
+              cardDiv.classList.add("is-attacking");
+            }
     
-          }
-
-          if (cardArray === stateObj.player.monstersInPlay && stateObj.playerToAttackIndex === index) {
-            cardDiv.classList.add("is-attacking");
-          }
-  
-          if (functionToAdd) {
-            cardDiv.addEventListener("click", function () {
-              functionToAdd(stateObj, index, cardArray);
-            });
-          }
+            if (functionToAdd) {
+              cardDiv.addEventListener("click", function () {
+                functionToAdd(stateObj, index, cardArray);
+              });
+            }
+          
 
           
         
@@ -1078,7 +1085,21 @@ async function resetAfterFight(stateObj) {
     newState.player.currentEnergy = 1
     newState.player.turnEnergy = 2
     newState.player.encounterDraw = [];
+    newState.player.monstersInPlay = [];
     newState.player.encounterHand = []
+
+    newState.opponent.encounterDraw = [];
+    newState.opponent.monstersInPlay = [];
+    newState.opponent.encounterHand = []
+    newState.opponent.maxHP += 1
+    newState.opponent.currentHP = newState.player.maxHP 
+
+    newState.opponent.lifeRequirementReduction
+    newState.opponent.endofTurnMultiplier
+    newState.opponent.onDeathMultiplier
+    newState.opponent.whenPlayedMultiplier
+    newState.opponent.currentEnergy = 1
+    newState.opponent.turnEnergy = 2
 
   })
 
