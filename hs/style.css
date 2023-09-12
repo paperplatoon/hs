@@ -33,7 +33,7 @@
 .deck-to-choose {
   color: black;
   background-color: #b9fdff;
-  width: 25vw;
+  width: 20vw;
   height: 30vw;
   border: 0px solid black;
   text-align: center;
@@ -157,7 +157,7 @@ font-size: 1.2vw;
   color: white;
 }
 
-.hp-hand-div {
+.hp-hand-div, .opponent-hp-hand-div, .player-hp-hand-div {
   width: 4vw;
   height: 7vh;
   line-height: 6vh;
@@ -1113,5 +1113,79 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
     opacity: 1;
     transform: scale(1.1);
     border-width: 10px;
+  }
+}
+
+.draw-animation-div {
+  width: 12vw;
+  height: 25vh;
+  background-color: green;
+  visibility: hidden;
+}
+
+.draw-div-anim-0, .draw-div-anim-1, .draw-div-anim-2, .draw-div-anim-3, 
+.draw-div-anim-4, .draw-div-anim-5, .draw-div-anim-6, .draw-div-anim-7 {
+  animation-duration: 0.5s;
+  background-color: brown;
+  overflow: hidden;
+  visibility: visible;
+  position: absolute;
+  opacity: 0.5;
+}
+
+.draw-div-anim-5 {
+  animation-duration: 0.9s;
+}
+
+.draw-div-anim-0 {
+  animation-name: draw-0;
+  animation-duration: 0.15s;
+  --draw-left-0: 
+
+}
+
+.draw-div-anim-1 {
+  animation-name: draw-1;
+  animation-duration: 0.3s;
+}
+
+.draw-div-anim-2 {
+  animation-name: draw-2;
+  animation-duration: 0.45s;
+}
+
+.draw-div-anim-3 {
+  animation-name: draw-3;
+  animation-duration: 0.6s;
+}
+
+.draw-div-anim-4 {
+  animation-name: draw-4;
+  animation-duration: 0.75s;
+}
+
+.draw-div-anim-5 {
+  animation-name: draw-5;
+  animation-duration: 0.9s;
+}
+
+.draw-div-anim-6 {
+  animation-name: draw-6;
+}
+
+.draw-div-anim-7 {
+  animation-name: draw-7;
+}
+
+@keyframes draw {
+  0% { transform: translateX(0) translateY(0);    
+    left: var(--draw-left-0);
+    width: 8vmin;
+    height: 4vmin;
+    }
+  100% { 
+    left: var(--draw-left-100);
+    width: 13vw;
+    height: 10vh;
   }
 }

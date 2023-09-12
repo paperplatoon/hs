@@ -41,7 +41,7 @@ let heroPowers = [
     title: "Gain Life",
     lifeGain: 2,
     priority: 0,
-    buffText: (numberParameter) => { `Your Conjurer Trick gains ${numberParameter} extra life` },
+    buffText: (numberParameter) => { `Your Feat gains ${numberParameter} extra life` },
     text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
       `Gain ${playerObj.heroPower.lifeGain} Life` : `Gain 2 Life` },
     action: async (stateObj, playerObj) => {
@@ -57,15 +57,16 @@ let heroPowers = [
   {
     cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
     baseCost: 1,
-    title: "Brief Shield",
+    title: "Small Shield",
     HPBuff: 1,
     priority: 0,
+    buffText: (numberParameter) => { `Your Feat gives demons ${numberParameter} extra Health` },
     text: (stateObj, playerObj) => {  return (stateObj.status === Status.inFight) ? 
-      `Give a random friendly pet +${stateObj[playerObj.name].heroPower.HPBuff} Defense`: `Give a random friendly pet +1 Defense`},
+      `Give a random friendly pet +${stateObj[playerObj.name].heroPower.HPBuff} Defense`: `Give a random friendly pet +1 Health`},
     action: async (stateObj, playerObj) => {
       if (stateObj[playerObj.name].monstersInPlay.length > 0) {
         let t = Math.floor(Math.random() * stateObj[playerObj.name].monstersInPlay.length)
-        stateObj = await giveDemonStats(stateObj, playerObj, t, "currentHP", stateObj[playerObj.name].heroPower.HPBuff, false, "maxHP", stateObj[playerObj.name].heroPower.HPBuff)
+        stateObj = await giveDemonStats(stateObj, playerObj, t, "currentHealth", stateObj[playerObj.name].heroPower.HPBuff, false, "maxHealth", stateObj[playerObj.name].heroPower.HPBuff)
       }
       stateObj = immer.produce(stateObj, (newState) => {
         newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
@@ -81,6 +82,7 @@ let heroPowers = [
     title: "Summon Growth",
     counter: 1,
     priority: 1,
+    buffText: (numberParameter) => { `Your Feat's Growth gains +${numberParameter}/+${numberParameter}` },
     text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
       `Summon a ${stateObj[playerObj.name].heroPower.counter}/${stateObj[playerObj.name].heroPower.counter} demon. Improve` : `Summon a 1/1 demon. Improve` },
     action: async (stateObj, playerObj) => {
@@ -101,6 +103,7 @@ let heroPowers = [
     title: "Gain Attack",
     HPBuff: 1,
     priority: 0,
+    buffText: (numberParameter) => { `Your Feat gives ${numberParameter} more Attack` },
     text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
       `Give a random friendly minion +${stateObj[playerObj.name].heroPower.HPBuff} Attack` : `Give a random friendly minion +1 Attack` },
     action: async (stateObj, playerObj) => {
@@ -122,15 +125,13 @@ let heroPowers = [
     title: "Sting",
     HPBuff: 1,
     priority: 0,
+    buffText: (numberParameter) => { `Your Feat deals ${numberParameter} extra damage` },
     text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
       `Deal ${stateObj[playerObj.name].heroPower.HPBuff} damage directly to your opponent` : `Deal 1 damage directly to your opponent` },
-    increaseText: (stateObj, playerObj, buffNumber) => { 
-      return `Your hero power deals ${1*buffNumber} more damage` 
-    },
     action: async (stateObj, playerObj) => {
       stateObj = immer.produce(stateObj, (newState) => {
         let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
-        opponent.currentHP -= stateObj[playerObj.name].heroPower.HPBuff
+        opponent.currentLife -= stateObj[playerObj.name].heroPower.HPBuff
       })
       stateObj = await changeState(stateObj)
       return stateObj;
@@ -143,14 +144,17 @@ let heroPowers = [
     title: "Erase",
     HPBuff: 0,
     priority: 0,
+    buffText: (numberParameter) => { 
+      let textString = `Your Feat kills ${numberParameter} extra demon`
+      if (numberParameter > 1) { textString += `s`}
+      textString += `. It costs ${2*numberParameter} more` 
+      return textString
+    },
     text: (stateObj, playerObj) => { 
       let textString = ``
       textString = (stateObj[playerObj.name].heroPower.HPBuff === 0 || stateObj.status !== Status.inFight) ? `Destroy a random enemy minion` : `Destroy ${stateObj[playerObj.name].heroPower.HPBuff+1} random enemy minions` 
       return textString
     },
-    increaseText: (stateObj, playerObj, buffNumber) => { 
-        return `Your hero power costs ${2*buffNumber} more and destroys ${buffNumber*1} more minion` 
-      },
     action: async (stateObj, playerObj) => {
       for (i =0; i < stateObj[playerObj.name].heroPower.HPBuff+1; i++) {
         stateObj = immer.produce(stateObj, (newState) => {
@@ -158,7 +162,7 @@ let heroPowers = [
           let mArray = (playerObj.name === "player") ? newState.opponent.monstersInPlay : newState.player.monstersInPlay
           if (mArray.length > 0) {
             let t = Math.floor(Math.random() * mArray.length)
-            mArray[t].currentHP = 0;
+            mArray[t].currentHealth = 0;
           }
           newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
         })
@@ -177,8 +181,8 @@ let tiderider = {
   tribe: "none",
   baseCost: 1,
   attack: 1,
-  currentHP: 1,
-  maxHP: 1,
+  currentHealth: 1,
+  maxHealth: 1,
   avatar: "img/waterpuddle.png",
   hpToGain: 1,
   canAttack: false,
@@ -186,7 +190,7 @@ let tiderider = {
   minReq: (state, index, array) => { return array[index].baseCost; },
   cost:  (state, index, array) => { return array[index].baseCost; },
   endOfTurn: async (stateObj, index, array, playerObj) => {
-    stateObj = await giveDemonStats(stateObj, playerObj, index, "currentHP", 1, false, "maxHP", 1)
+    stateObj = await giveDemonStats(stateObj, playerObj, index, "currentHealth", 1, false, "maxHealth", 1)
     return stateObj;
   }
 };
@@ -198,8 +202,8 @@ let oysterspirit = {
   tribe: "none",
   baseCost: 1,
   attack: 1,
-  currentHP: 1,
-  maxHP: 1,
+  currentHealth: 1,
+  maxHealth: 1,
   avatar: "img/waterpuddle.png",
   hpToGain: 1,
   canAttack: false,
@@ -207,7 +211,7 @@ let oysterspirit = {
   minReq: (state, index, array) => { return array[index].baseCost; },
   cost:  (state, index, array) => { return array[index].baseCost; },
   endOfTurn: async (stateObj, index, array, playerObj) => {
-    stateObj = await giveDemonStats(stateObj, playerObj, index, "currentHP", 1, false, "maxHP", 1)
+    stateObj = await giveDemonStats(stateObj, playerObj, index, "currentHealth", 1, false, "maxHealth", 1)
     return stateObj;
   }
 };
@@ -220,8 +224,8 @@ let elementalI = {
   tribe: "elemental",
   baseCost: 1,
   attack: 1,
-  currentHP: 2,
-  maxHP: 2,
+  currentHealth: 2,
+  maxHealth: 2,
   avatar: "img/waterpuddle.png",
   canAttack: false,
   text: (state, index, array) => { return `` },
@@ -235,8 +239,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 2,
     attack: 2,
-    currentHP: 3,
-    maxHP: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -252,8 +256,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 3,
     attack: 3,
-    currentHP: 4,
-    maxHP: 4,
+    currentHealth: 4,
+    maxHealth: 4,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -268,8 +272,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 4,
     attack: 3,
-    currentHP: 5,
-    maxHP: 5,
+    currentHealth: 5,
+    maxHealth: 5,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -284,8 +288,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 5,
     attack: 5,
-    currentHP: 6,
-    maxHP: 6,
+    currentHealth: 6,
+    maxHealth: 6,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -300,8 +304,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 1,
     attack: 1,
-    currentHP: 4,
-    maxHP: 4,
+    currentHealth: 4,
+    maxHealth: 4,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -316,8 +320,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 2,
     attack: 2,
-    currentHP: 4,
-    maxHP: 4,
+    currentHealth: 4,
+    maxHealth: 4,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -332,8 +336,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 3,
     attack: 2,
-    currentHP: 6,
-    maxHP: 6,
+    currentHealth: 6,
+    maxHealth: 6,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -348,8 +352,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 4,
     attack: 3,
-    currentHP: 6,
-    maxHP: 6,
+    currentHealth: 6,
+    maxHealth: 6,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -364,8 +368,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 5,
     attack: 3,
-    currentHP: 8,
-    maxHP: 8,
+    currentHealth: 8,
+    maxHealth: 8,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -380,8 +384,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 1,
     attack: 2,
-    currentHP: 2,
-    maxHP: 2,
+    currentHealth: 2,
+    maxHealth: 2,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -396,8 +400,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 2,
     attack: 3,
-    currentHP: 3,
-    maxHP: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -412,8 +416,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 3,
     attack: 4,
-    currentHP: 4,
-    maxHP: 4,
+    currentHealth: 4,
+    maxHealth: 4,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -428,8 +432,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 4,
     attack: 5,
-    currentHP: 5,
-    maxHP: 5,
+    currentHealth: 5,
+    maxHealth: 5,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -444,8 +448,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 5,
     attack: 6,
-    currentHP: 6,
-    maxHP: 6,
+    currentHealth: 6,
+    maxHealth: 6,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -460,8 +464,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 1,
     attack: 3,
-    currentHP: 1,
-    maxHP: 1,
+    currentHealth: 1,
+    maxHealth: 1,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -476,8 +480,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 2,
     attack: 4,
-    currentHP: 2,
-    maxHP: 2,
+    currentHealth: 2,
+    maxHealth: 2,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -492,8 +496,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 3,
     attack: 6,
-    currentHP: 3,
-    maxHP: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -508,8 +512,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 4,
     attack: 6,
-    currentHP: 4,
-    maxHP: 4,
+    currentHealth: 4,
+    maxHealth: 4,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -524,8 +528,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 5,
     attack: 7,
-    currentHP: 5,
-    maxHP: 5,
+    currentHealth: 5,
+    maxHealth: 5,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `` },
@@ -540,8 +544,8 @@ let elementalI = {
     tribe: "elemental",
     baseCost: 0,
     attack: 50,
-    currentHP: 1,
-    maxHP: 1,
+    currentHealth: 1,
+    maxHealth: 1,
     avatar: "img/waterpuddle.png",
     canAttack: true,
     text: (state, index, array) => { return `` },
@@ -557,8 +561,8 @@ let elementalI = {
     rarity: "common",
     baseCost: 1,
     attack: 1,
-    currentHP: 3,
-    maxHP: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -589,8 +593,8 @@ let elementalI = {
     rarity: "common",
     baseCost: 1,
     attack: 2,
-    currentHP: 3,
-    maxHP: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -621,8 +625,8 @@ let elementalI = {
     rarity: "common",
     baseCost: 1,
     attack: 1,
-    currentHP: 3,
-    maxHP: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -656,8 +660,8 @@ let elementalI = {
     rarity: "rare",
     baseCost: 1,
     attack: 1,
-    currentHP: 4,
-    maxHP: 4,
+    currentHealth: 4,
+    maxHealth: 4,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -688,8 +692,8 @@ let elementalI = {
     rarity: "epic",
     baseCost: 1,
     attack: 1,
-    currentHP: 5,
-    maxHP: 5,
+    currentHealth: 5,
+    maxHealth: 5,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -721,8 +725,8 @@ let elementalI = {
     rarity: "common",
     baseCost: 2,
     attack: 2,
-    currentHP: 3,
-    maxHP: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -753,8 +757,8 @@ let elementalI = {
     rarity: "rare",
     baseCost: 2,
     attack: 2,
-    currentHP: 4,
-    maxHP: 4,
+    currentHealth: 4,
+    maxHealth: 4,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -785,8 +789,8 @@ let elementalI = {
     rarity: "epic",
     baseCost: 2,
     attack: 2,
-    currentHP: 5,
-    maxHP: 5,
+    currentHealth: 5,
+    maxHealth: 5,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -817,8 +821,8 @@ let elementalI = {
     rarity: "epic",
     baseCost: 2,
     attack: 1,
-    currentHP: 7,
-    maxHP: 7,
+    currentHealth: 7,
+    maxHealth: 7,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -849,8 +853,8 @@ let elementalI = {
     rarity: "common",
     baseCost: 3,
     attack: 3,
-    currentHP: 4,
-    maxHP: 4,
+    currentHealth: 4,
+    maxHealth: 4,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -881,8 +885,8 @@ let elementalI = {
     rarity: "rare",
     baseCost: 3,
     attack: 3,
-    currentHP: 5,
-    maxHP: 5,
+    currentHealth: 5,
+    maxHealth: 5,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -913,8 +917,8 @@ let elementalI = {
     rarity: "rare",
     baseCost: 3,
     attack: 2,
-    currentHP: 7,
-    maxHP: 7,
+    currentHealth: 7,
+    maxHealth: 7,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -945,8 +949,8 @@ let elementalI = {
     rarity: "epic",
     baseCost: 3,
     attack: 3,
-    currentHP: 6,
-    maxHP: 6,
+    currentHealth: 6,
+    maxHealth: 6,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -977,8 +981,8 @@ let elementalI = {
     rarity: "epic",
     baseCost: 3,
     attack: 2,
-    currentHP: 8,
-    maxHP: 8,
+    currentHealth: 8,
+    maxHealth: 8,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -1009,8 +1013,8 @@ let elementalI = {
     rarity: "common",
     baseCost: 4,
     attack: 4,
-    currentHP: 5,
-    maxHP: 5,
+    currentHealth: 5,
+    maxHealth: 5,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -1041,8 +1045,8 @@ let elementalI = {
     rarity: "rare",
     baseCost: 4,
     attack: 4,
-    currentHP: 6,
-    maxHP: 6,
+    currentHealth: 6,
+    maxHealth: 6,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -1073,8 +1077,8 @@ let elementalI = {
     rarity: "rare",
     baseCost: 4,
     attack: 3,
-    currentHP: 8,
-    maxHP: 8,
+    currentHealth: 8,
+    maxHealth: 8,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -1105,8 +1109,8 @@ let elementalI = {
     rarity: "rare",
     baseCost: 4,
     attack: 2,
-    currentHP: 10,
-    maxHP: 10,
+    currentHealth: 10,
+    maxHealth: 10,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -1137,8 +1141,8 @@ let elementalI = {
     rarity: "epic",
     baseCost: 4,
     attack: 4,
-    currentHP: 7,
-    maxHP: 7,
+    currentHealth: 7,
+    maxHealth: 7,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -1169,8 +1173,8 @@ let elementalI = {
     rarity: "epic",
     baseCost: 4,
     attack: 3,
-    currentHP: 9,
-    maxHP: 9,
+    currentHealth: 9,
+    maxHealth: 9,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -1201,8 +1205,8 @@ let elementalI = {
     rarity: "epic",
     baseCost: 4,
     attack: 2,
-    currentHP: 11,
-    maxHP: 11,
+    currentHealth: 11,
+    maxHealth: 11,
     elemental: true,
     avatar: "img/waterpuddle.png",
   
@@ -1233,8 +1237,8 @@ let elementalI = {
     rarity: "legendary",
     baseCost: 4,
     attack: 4,
-    currentHP: 9,
-    maxHP: 9,
+    currentHealth: 9,
+    maxHealth: 9,
     elemental: true,
     avatar: "img/waterpuddle.png",
   

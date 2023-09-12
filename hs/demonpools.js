@@ -92,6 +92,22 @@ let testEnemy = {
     heroPower: 2 //gainLife
 }
 
+let newPlayer = {
+    deck: [
+        //5
+        waterelementalI, waterelementalI, earthelementalI, earthelementalI, healerimp,
+        //4
+        darkritualImp, darkritualImp, waterelementalII, earthelementalII,
+        //5
+        waterelementalIII, waterelementalIII, earthelementalIII, earthelementalIII, risingtsunami,
+        //1
+        cowardlyspirit
+    ],
+    heroPower: 1,
+    name: "New Player",
+    text: "Use a very simple deck!"
+}
+
 //15    
 let playerEarthHighHPPoisonous = {
     deck: [
@@ -135,4 +151,4 @@ let testPlayer = {
 
 
 let potentialEnemies = [enemyEarth1highLife, enemyEarth1HighHP]
-let potentialPlayers = [playerEarthGainLife1, playerEarthHighHPPoisonous, testPlayer]
+let potentialPlayers = [playerEarthGainLife1, playerEarthHighHPPoisonous, newPlayer, testPlayer]
