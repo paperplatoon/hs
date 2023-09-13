@@ -56,7 +56,7 @@ let gameStartState = {
     onDeathMultiplier: 1,
     whenPlayedMultiplier: 1,
     heroPower: false,
-    quest: {...quests[1]},
+    quest: {...quests[0]},
 
     cardsPerTurn: 0,
 
@@ -1296,8 +1296,8 @@ async function endTurnIncrement(stateObj) {
           console.log(stateObj.opponent.monstersInPlay[i].name + " deals " + stateObj.opponent.monstersInPlay[i].attack + " damage to you.")
           newState.player.currentLife -= newState.opponent.monstersInPlay[i].attack
         })
-        await addImpact("opponent", i);
-        await addImpact("player", "health");
+        //await addImpact("opponent", i);
+        //await addImpact("player", "health");
       }
 
       stateObj = await changeState(stateObj)
@@ -1389,23 +1389,26 @@ async function drawACard(stateObj, playerDrawing) {
     chosenPlayer.encounterHand.push(topCard);
   })
 
-  // animString = "draw-div-anim-" + stateObj[playerDrawing.name].encounterHand.length
-  // document.querySelectorAll(".draw-animation-div")[handLength].classList.add(animString)
-  // await pause(350)
+  stateObj = await updateState(stateObj);
 
 
   //checking quest completion
-  if (playerDrawing.name === "player" && playerDrawing.quest.title === "Draw Cards") {
-    stateObj = immer.produce(stateObj, (newState) => {
-      newState.player.quest.targetCards -= 1;
-    })
-    if (stateObj.player.quest.targetCards <= 0) {
-      stateObj = await stateObj.player.quest.action(stateObj, stateObj.player)
+  if (playerDrawing.name === "player") {
+    document.querySelectorAll("#handContainer2 .card")[stateObj[playerDrawing.name].encounterHand.length-1].classList.add("drawing-animation")
+    await pause(500)
+    if (playerDrawing.quest.title === "Draw Cards") {
       stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.quest = false
-      })
+        newState.player.quest.targetCards -= 1;
+      });
+
+    if (stateObj.player.quest.targetCards <= 0) {
+      stateObj = await stateObj.player.quest.action(stateObj, stateObj.player);
+      stateObj = immer.produce(stateObj, (newState) => {
+        newState.player.quest = false;
+      });
     }
-  } 
+  }
+}
   stateObj = await changeState(stateObj)
   return stateObj;
 }
