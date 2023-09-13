@@ -28,7 +28,7 @@ const Status = {
 };
 
 let preFightState = {
-  testingMode: false,
+  testingMode: true,
   canPlay: true,
   fightStarted: false,
   status: Status.ChoosingMonster,
@@ -87,7 +87,7 @@ let gameStartState = {
   playerToAttackIndex: false,
   enemyToBeAttackedIndex: false,
   canPlay: true,
-  testingMode: false,
+  testingMode: true,
 };
 
 let state = { ...gameStartState };
@@ -113,7 +113,7 @@ async function startEncounter(stateObj) {
       // newState.player.monstersInPlay = [sparkingimp, deityoflight];
       newState.player.currentEnergy = 15;
       newState.player.currentLife = 31;
-      newState.opponent.monstersInPlay = [tiderider, tiderider];
+      newState.opponent.monstersInPlay = [sacrificialsprite, tiderider];
       // newState.player.heroPower = heroPowers[testPlayer.heroPower]
       newState.opponent.heroPower = heroPowers[testEnemy.heroPower];
       newState.opponent.encounterDraw = testEnemy.deck;
@@ -382,7 +382,7 @@ async function gainLife(stateObj, playerSummoning, lifeToGain) {
       });
     }
   }
-  stateObj = await changeState(stateObj);
+  stateObj = await updateState(stateObj);
   return stateObj;
 }
 
@@ -567,8 +567,10 @@ function renderChooseHeroPower(stateObj) {
 
 //changeState issues iwth onDeath calling itself probably causing this; look into the minion
 async function handleDeathsForPlayer(stateObj, playerObj) {
+  console.log("calling hdfp")
   if (playerObj.monstersInPlay.length > 0) {
     let indexesToDelete = [];
+
     playerObj.monstersInPlay.forEach(function (monster, index) {
       if (monster.currentHealth <= 0) {
         console.log(playerObj.name + "'s " + monster.name + " has died.");
