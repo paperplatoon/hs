@@ -203,7 +203,7 @@ let minorefrit = {
     maxHealth: 2,
     avatar: "img/fireMonster.png",
     canAttack: false,
-    text: (state, index, array, playerObj) => { return `When Played: ${playerObj.heroPower.buffText(state, playerObj, 1)}` },
+    text: (state, index, array, playerObj) => { return `When Played: ${playerObj.heroPower.buffText(1)}` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {

@@ -157,6 +157,10 @@ font-size: 1.2vw;
   color: white;
 }
 
+.hidden {
+  visibility: hidden;
+}
+
 .hp-hand-div, .opponent-hp-hand-div, .player-hp-hand-div {
   width: 4vw;
   height: 7vh;
@@ -250,7 +254,14 @@ font-size: 1.2vw;
   background-color: rgb(200, 254, 200);
 }
 
+.avatar-death {
+  animation: avatarDeath 0.8s forwards;
+}
 
+@keyframes avatarDeath {
+  0% { opacity: 1; transform: scale(1); filter: contrast(0) sepia(100%) hue-rotate(0deg); }
+  100% { opacity: 0; transform: scale(0.2); filter: contrast(0) sepia(100%) hue-rotate(320deg); }
+}
 
 
 .avatar {
@@ -260,6 +271,7 @@ font-size: 1.2vw;
   margin: 0.2vmin;
   flex-shrink: -1;
   opacity: 1;
+  transition: 0.5s all;
 }
 
 .reward-choice-div {
@@ -724,7 +736,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 }
 
 .hidden {
-  visibility: hidden;
+  visibility: none;
 }
 
 .dev-mode-div {
@@ -1039,8 +1051,9 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 
 .green-filter {
   filter: contrast(0) sepia(100%) hue-rotate(100deg);
-   
 }
+
+
 
 @keyframes minionDeath {
   0% { opacity: 1;  }
@@ -1092,7 +1105,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 }
 
 .execute-ability {
-  animation: executeAbility 0.75s forwards ;
+  animation: executeAbility 0.5s forwards ;
 }
 
 @keyframes executeAbility {

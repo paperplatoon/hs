@@ -41,7 +41,7 @@ let heroPowers = [
     title: "Gain Life",
     lifeGain: 2,
     priority: 0,
-    buffText: (numberParameter) => { `Your Feat gains ${numberParameter} extra life` },
+    buffText: (numberParameter) => {return `Your Feat gains ${numberParameter} extra life` },
     text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
       `Gain ${playerObj.heroPower.lifeGain} Life` : `Gain 2 Life` },
     action: async (stateObj, playerObj) => {
@@ -60,7 +60,7 @@ let heroPowers = [
     title: "Small Shield",
     HPBuff: 1,
     priority: 0,
-    buffText: (numberParameter) => { `Your Feat gives demons ${numberParameter} extra Health` },
+    buffText: (numberParameter) => { return `Your Feat gives demons ${numberParameter} extra Health` },
     text: (stateObj, playerObj) => {  return (stateObj.status === Status.inFight) ? 
       `Give a random friendly pet +${stateObj[playerObj.name].heroPower.HPBuff} Defense`: `Give a random friendly pet +1 Health`},
     action: async (stateObj, playerObj) => {
@@ -82,7 +82,7 @@ let heroPowers = [
     title: "Summon Growth",
     counter: 1,
     priority: 1,
-    buffText: (numberParameter) => { `Your Feat's Growth gains +${numberParameter}/+${numberParameter}` },
+    buffText: (numberParameter) => { return `Your Feat's Growth gains +${numberParameter}/+${numberParameter}` },
     text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
       `Summon a ${stateObj[playerObj.name].heroPower.counter}/${stateObj[playerObj.name].heroPower.counter} demon. Improve` : `Summon a 1/1 demon. Improve` },
     action: async (stateObj, playerObj) => {
@@ -103,7 +103,7 @@ let heroPowers = [
     title: "Gain Attack",
     HPBuff: 1,
     priority: 0,
-    buffText: (numberParameter) => { `Your Feat gives ${numberParameter} more Attack` },
+    buffText: (numberParameter) => { return `Your Feat gives ${numberParameter} more Attack` },
     text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
       `Give a random friendly minion +${stateObj[playerObj.name].heroPower.HPBuff} Attack` : `Give a random friendly minion +1 Attack` },
     action: async (stateObj, playerObj) => {
@@ -125,7 +125,7 @@ let heroPowers = [
     title: "Sting",
     HPBuff: 1,
     priority: 0,
-    buffText: (numberParameter) => { `Your Feat deals ${numberParameter} extra damage` },
+    buffText: (numberParameter) => { return `Your Feat deals ${numberParameter} extra damage` },
     text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
       `Deal ${stateObj[playerObj.name].heroPower.HPBuff} damage directly to your opponent` : `Deal 1 damage directly to your opponent` },
     action: async (stateObj, playerObj) => {
