@@ -57,7 +57,7 @@ let gameStartState = {
     onDeathMultiplier: 1,
     whenPlayedMultiplier: 1,
     heroPower: false,
-    quest: {...quests[1]},
+    quest: {...quests[3]},
 
     cardsPerTurn: 0,
 
@@ -321,6 +321,7 @@ async function gainLife(stateObj, playerSummoning, lifeToGain) {
 //can fix maxHealth
 
 async function giveDemonStats(stateObj, playerObj, index, stat1Name, stat1Value, inHand=false, stat2Name=false, stat2Value=false, stat3Name=false, stat3Value=false) {
+  const updateAmount = stat2Value
   stateObj = immer.produce(stateObj, (newState) => {
     let player = (playerObj.name === "player") ? newState.player : newState.opponent
     let array = (inHand) ? player.encounterHand : player.monstersInPlay
@@ -337,6 +338,14 @@ async function giveDemonStats(stateObj, playerObj, index, stat1Name, stat1Value,
       array[index][stat3Name] += stat3Value
     }
   })
+  if (stat2Name) {
+    if (stat2Name === "maxHealth" && stateObj[playerObj.name].quest) {
+      if (stateObj[playerObj.name].quest.title === "Grant Health") {
+        console.log('updating grant health with ' + updateAmount)
+        stateObj = await updateQuest(stateObj, stateObj[playerObj.name], updateAmount) 
+      }
+    }
+  }
   await changeState(stateObj)
   return stateObj;
 }
@@ -1411,29 +1420,49 @@ async function drawACard(stateObj, playerDrawing) {
   return stateObj;
 }
 
-async function updateQuest(stateObj, playerObj, value=false) {
+
+
+async function updateQuest(stateObj, playerObj, value=1) {
   if (playerObj.quest.title === "Draw Cards") {
     stateObj = immer.produce(stateObj, (newState) => {
-      newState.player.quest.targetCards -= 1;
+      newState.player.quest.target -= value;
     });
-    if (stateObj.player.quest.targetCards <= 0) {
+    if (stateObj.player.quest.target <= 0) {
       stateObj = await triggerQuest(stateObj, stateObj.player)
     }
   } else if (playerObj.quest.title === "Gain Life") {
     stateObj = immer.produce(stateObj, (newState) => {
-      newState.player.quest.targetLife -= value;
+      newState.player.quest.target -= value;
     });
-    if (stateObj.player.quest.targetLife <= 0) {
+    if (stateObj.player.quest.target <= 0) {
       stateObj = await triggerQuest(stateObj, stateObj.player)
     }
   } else if (playerObj.quest.title === "Face Damage") {
     stateObj = immer.produce(stateObj, (newState) => {
-      newState.player.quest.targetDamage -= value;
+      newState.player.quest.target -= value;
     });
-    if (stateObj.player.quest.targetDamage <= 0) {
+    if (stateObj.player.quest.target <= 0) {
+      stateObj = await triggerQuest(stateObj, stateObj.player)
+    }
+  } else if (playerObj.quest.title === "Grant Health") {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.player.quest.target -= value;
+    });
+    if (stateObj.player.quest.target <= 0) {
       stateObj = await triggerQuest(stateObj, stateObj.player)
     }
   }
+  return stateObj
+}
+
+async function updateQuest(stateObj, playerObj, value=1) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState[playerObj.name].quest.target -= value;
+  })
+  if (stateObj[playerObj.name].quest.target <= 0) {
+    stateObj = await triggerQuest(stateObj, stateObj.player)
+  }
+  stateObj = await updateState(stateObj)
   return stateObj
 }
 
