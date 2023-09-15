@@ -1271,6 +1271,10 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   animation: questCard 2s forwards ;
 }
 
+.scale-down-75 {
+  transform: scale(0.75)
+}
+
 @keyframes questCard {
   0% { transform: scale(0.1); filter: contrast(0) sepia(100%); }
   50% { transform: scale(1); filter: contrast(2) sepia(100%); }

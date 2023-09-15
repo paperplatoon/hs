@@ -26,6 +26,7 @@ const Status = {
   wonFight: renderWonFight,
   chooseEnemyMonster: renderChooseEnemy,
   ChoosingMonster: renderChooseDeck,
+  chooseOpeningQuest: renderChooseOpeningQuest,
   ChooseEncounterCardReward: renderChooseEncounterCardReward,
 }
 
@@ -666,7 +667,6 @@ function renderEnemyMonstersInPlay(stateObj) {
       renderCard(stateObj, stateObj.opponent.monstersInPlay, index, stateObj.opponent, "#enemyMonstersInPlay", functionToAdd=false)
     });
   }
-  
 }
 
 function renderEnemyMonstersToChoose(stateObj) {
@@ -678,6 +678,18 @@ function renderEnemyMonstersToChoose(stateObj) {
   }
 }
 
+async function renderQuestDivArray(stateObj) {
+  // let pMonsters = document.getElementById("playerMonstersInPlay")
+  // pMonsters.innerHTML = "";
+  let questDivArray = []
+  let shuffledQuests = shuffleArray(quests).splice(0,4);
+  for (let i = 0; i < shuffledQuests.length; i++) {
+    quest = await renderQuest(stateObj, shuffledQuests[i], functionToAdd=chooseThisQuest);
+    questDivArray.push(quest)
+  }
+    return questDivArray
+  }
+
 async function renderDivs(stateObj) {
   if (stateObj.fightStarted === false) {
     stateObj = await startEncounter(stateObj);
@@ -685,14 +697,23 @@ async function renderDivs(stateObj) {
       newState.fightStarted = true;
     })
   }
-
   document.getElementById("app").innerHTML = ""
   let restOfScreen = renderFightDiv();
   document.querySelector("#app").append(restOfScreen);
   renderEnemyMonstersInPlay(stateObj);
   renderPlayerMonstersInPlay(stateObj);
   renderHand(stateObj);
-  
+}
+
+async function renderChooseOpeningQuest(stateObj) {
+  document.getElementById("app").innerHTML = ""
+  let questChoiceDiv = document.createElement("Div")
+  questChoiceDiv.classList.add("quest-choice-div")
+  let questDivArray = await renderQuestDivArray(stateObj)
+  for (let i = 0; i < questDivArray.length; i++) {
+    questChoiceDiv.append(questDivArray[i])
+  }
+  document.getElementById("app").append(questChoiceDiv)
 }
 
 async function renderChooseEnemy(stateObj) {
@@ -734,6 +755,22 @@ async function renderWonFight(stateObj) {
   document.getElementById("app").innerHTML = "<p>You won the fight!</p> <button onClick=changeState(gameStartState)> Click me to retry</button>"
 }
 
+async function renderQuest(stateObj, questObj, functionToAdd=false) {
+  let questDiv = document.createElement("Div");
+  questDiv.classList.add("quest");
+  let questText = document.createElement("p");
+  questText.textContent = questObj.text(stateObj, stateObj.player)
+  questDiv.append(questText)
+  let questReward = await renderCard(stateObj, questRewards, questObj.reward, stateObj.player);
+  questReward.classList.add("scale-down-75")
+  questDiv.append(questReward)
+  if (functionToAdd) {
+    questDiv.addEventListener("click", function () {
+      functionToAdd(stateObj, questObj.id);
+    });
+  }
+  return questDiv
+}
 
 async function renderCard(stateObj, cardArray, index, playerObj, divName=false, functionToAdd=false) {
     let cardObj = cardArray[index];
@@ -1040,6 +1077,15 @@ function chooseThisMonster(stateObj, index) {
 function chooseThisHeroPower(stateObj, index) {
   stateObj = immer.produce(stateObj, (newState) => {
     newState.player.heroPower = {...heroPowers[index]}
+    newState.status = Status.chooseOpeningQuest
+  })
+ stateObj = updateState(stateObj);
+return stateObj;
+}
+
+function chooseThisQuest(stateObj, index) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState.player.quest = {...quests[index]}
     newState.status = Status.inFight
   })
  stateObj = updateState(stateObj);
