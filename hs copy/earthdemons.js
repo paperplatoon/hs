@@ -300,7 +300,7 @@ let seedling = {
     avatar: "img/plant1.png",
     canAttack: false,
     lifeGain: 3,
-    text: (state, index, array, playerObj) => { return `Play: ` + playerObj.name + ` gains ${array[index].lifeGain} Lifeforce`  },
+    text: (state, index, array, playerObj) => { return `Play: ` + playerObj.name + ` gains ${array[index].lifeGain} Life`  },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; }, 
     action: async (stateObj, index, array, playerObj) => { 
@@ -321,7 +321,7 @@ let seedling = {
     avatar: "img/plant1.png",
     canAttack: false,
     lifeGain: 1,
-    text: (state, index, array, playerObj) => { return `Play: ` + playerObj.name + ` gains ${array[index].lifeGain} Lifeforce`  },
+    text: (state, index, array, playerObj) => { return `Play: ` + playerObj.name + ` gains ${array[index].lifeGain} Life`  },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; }, 
     action: async (stateObj, index, array, playerObj) => { 
@@ -342,7 +342,7 @@ let seedling = {
     avatar: "img/plant1.png",
     canAttack: false,
     lifeGain: 1,
-    text: (state, index, array, playerObj) => { return `Die: ` + playerObj.name + ` gains ${array[index].lifeGain} Lifeforce`  },
+    text: (state, index, array, playerObj) => { return `Die: ` + playerObj.name + ` gains ${array[index].lifeGain} Life`  },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; }, 
     onDeath: async (stateObj, index, array, playerObj) => {
@@ -432,14 +432,14 @@ let seedling = {
     maxHealth: 3,
     avatar: "img/plant1.png",
     canAttack: false,
-    text: (state, index, array, playerObj) => {return `End Turn: ` + playerObj.name +  ` loses Lifeforce equal to this minion's Health`},
+    text: (state, index, array, playerObj) => {return `End Turn: ` + playerObj.name +  ` loses Life equal to this minion's Health`},
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },  
     endOfTurn: async (stateObj, index, array, playerObj) => {
         stateObj = immer.produce(stateObj, (newState) => {
             let playerInside = (playerObj.name === "player") ? newState.player : newState.opponent
             let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
-            opponent.currentLifeforce -= playerInside.monstersInPlay[index].currentHealth // + stateObj.playerInside.earthDamage
+            opponent.currentLife -= playerInside.monstersInPlay[index].currentHealth // + stateObj.playerInside.earthDamage
         })
         stateObj = await changeState(stateObj)
         return stateObj;
@@ -456,14 +456,14 @@ let seedling = {
     maxHealth: 4,
     avatar: "img/plant1.png",
     canAttack: false,
-    text: (state, index, array, playerObj) => {return `End Turn: ` + playerObj.name +  ` loses Lifeforce equal to this minion's Health`},
+    text: (state, index, array, playerObj) => {return `End Turn: ` + playerObj.name +  ` loses Life equal to this minion's Health`},
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },  
     endOfTurn: async (stateObj, index, array, playerObj) => {
         stateObj = immer.produce(stateObj, (newState) => {
             let playerInside = (playerObj.name === "player") ? newState.player : newState.opponent
             let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
-            opponent.currentLifeforce -= playerInside.monstersInPlay[index].currentHealth // + stateObj.playerInside.earthDamage
+            opponent.currentLife -= playerInside.monstersInPlay[index].currentHealth // + stateObj.playerInside.earthDamage
         })
         stateObj = await changeState(stateObj)
         return stateObj;
@@ -661,7 +661,7 @@ let seedling = {
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
-        if (stateObj[playerObj.name].currentLifeforce >= 25) {
+        if (stateObj[playerObj.name].currentLife >= 25) {
             stateObj = await giveDemonStats(stateObj, playerObj, index,  "currentHealth", 2, false, "maxHealth", 2, "attack", 2)
         }
         return stateObj;
@@ -682,7 +682,7 @@ let seedling = {
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
-        if (stateObj[playerObj.name].currentLifeforce >= 25) {
+        if (stateObj[playerObj.name].currentLife >= 25) {
             stateObj = await giveDemonStats(stateObj, playerObj, index,  "currentHealth", 2, false, "maxHealth", 2, "attack", 2)
         }
         return stateObj;
@@ -703,7 +703,7 @@ let seedling = {
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
-        if (stateObj[playerObj.name].currentLifeforce >= 25) {
+        if (stateObj[playerObj.name].currentLife >= 25) {
             stateObj = await giveDemonStats(stateObj, playerObj, index,  "currentHealth", array[index].currentHealth, false, "maxHealth", array[index].currentHealth)
         }
         return stateObj;
@@ -725,7 +725,7 @@ let seedling = {
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
-        if (stateObj[playerObj.name].currentLifeforce >= 20) {
+        if (stateObj[playerObj.name].currentLife >= 20) {
             stateObj = await giveDemonStats(stateObj, playerObj, index,  "currentHealth", 2, false, "maxHealth", 2, "attack", 1)
         }
         return stateObj;

@@ -22,6 +22,18 @@ let quests = [
           return stateObj;
         },
     },
+
+    {
+      title: "Face Damage",
+      targetDamage: 5,
+      conditionMet: false,
+      text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
+        `Deal ${playerObj.quest.targetDamage} damage to opponent's Life` : `Deal 5 damage to opponent's Life` },
+        action: async (stateObj, playerObj) => {
+          stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], dealDamageReward)
+          return stateObj;
+        },
+    },
   ]
 
   let drawcardsReward = {
@@ -48,6 +60,29 @@ let quests = [
         }
         stateObj = await changeState(stateObj)
         return stateObj;
+    }
+  };
+
+  let dealDamageReward = {
+    name: "Reward 2",
+    elementType: "earth",
+    cardType: "minion",
+    tribe: "none",
+    baseCost: 3,
+    attack: 2,
+    currentHealth: 5,
+    maxHealth: 5,
+    avatar: "img/waterpuddle.png",
+    hpToGain: 1,
+    canAttack: false,
+    text: (state, index, array) => { return `Play: Draw 3 cards` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+    action: async (stateObj, index, array, playerObj) => {
+      for (let c=0; c < 3; c++) {
+        stateObj = await drawACard(stateObj, stateObj[playerObj.name])
+      }
+      return stateObj;
     }
   };
 

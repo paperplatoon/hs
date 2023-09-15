@@ -143,7 +143,7 @@ let playerEarthGainLife1 = {
 }
 
 let testPlayer = {
-    deck: [testKiller, testKiller, testKiller, testKiller, testKiller],
+    deck: [testKiller, testKiller, testKiller, testKiller, testKiller2],
     heroPower: 0,
     name: "Testing Mode",
     text: "Roleplay as a developer looking for bugs!"

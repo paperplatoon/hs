@@ -381,6 +381,22 @@ let elementalI = {
     cost:  (state, index, array) => { return array[index].baseCost; },
   }
 
+  let testKiller2 = {
+    name: "Elemental V",
+    elementType: "fire",
+    cardType: "minion",
+    tribe: "elemental",
+    baseCost: 0,
+    attack: 5,
+    currentHealth: 1,
+    maxHealth: 1,
+    avatar: "img/waterpuddle.png",
+    canAttack: true,
+    text: (state, index, array) => { return `` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+  }
+
 
 
   let airelementalI = {

@@ -31,6 +31,7 @@ const Status = {
 
 let preFightState = {
   testingMode: false,
+  inCombat: false,
   canPlay: true,
   fightStarted: false,
   status: Status.ChoosingMonster,
@@ -56,7 +57,7 @@ let gameStartState = {
     onDeathMultiplier: 1,
     whenPlayedMultiplier: 1,
     heroPower: false,
-    quest: {...quests[1]},
+    quest: {...quests[2]},
 
     cardsPerTurn: 0,
 
@@ -169,26 +170,28 @@ async function updateState(newStateObj) {
 }
 
 async function completeAttack(stateObj, attackerIndex = stateObj.playerToAttackIndex, defenderIndex = stateObj.enemyToBeAttackedIndex) {
+  document.querySelectorAll("#playerMonstersInPlay .avatar")[attackerIndex].classList.add("attack-windup")
+  await pause(300)
+  document.querySelectorAll("#playerMonstersInPlay .attack" )[attackerIndex].classList.add("attack-bulge")
   if (defenderIndex === 99) {
-      document.querySelectorAll("#playerMonstersInPlay .avatar")[attackerIndex].classList.add("attack-windup")
-      await pause(300)
-      document.querySelectorAll("#enemyMonstersInPlay .hp-hand-div")[0].classList.add("attack-impact")
-      document.querySelectorAll("#playerMonstersInPlay .attack" )[attackerIndex].classList.add("attack-bulge")
-      await pause(200)
-      stateObj = immer.produce(stateObj, (newState) => {
+    stateObj = immer.produce(stateObj, (newState) => {
       let AttackingMonster = newState.player.monstersInPlay[attackerIndex]
       console.log(AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to the opponent")
       newState.opponent.currentLife -= AttackingMonster.attack
       AttackingMonster.canAttack = false
       newState.playerToAttackIndex = false;
       newState.enemyToBeAttackedIndex = false
+      newState.status = Status.inFight
     })
+    stateObj = await updateQuest(stateObj, stateObj.player, stateObj.player.monstersInPlay[attackerIndex].attack)
+    stateObj = await updateState(stateObj)
+    document.querySelectorAll("#enemyMonstersInPlay .hp-hand-div")[0].classList.add("attack-impact")
+    await pause(200)
+    document.querySelectorAll("#enemyMonstersInPlay .hp-hand-div")[0].classList.remove("attack-impact")   
   } else {
-      document.querySelectorAll("#playerMonstersInPlay .avatar")[attackerIndex].classList.add("attack-windup")
-      await pause(300)
       document.querySelectorAll("#enemyMonstersInPlay .avatar")[defenderIndex].classList.add("attack-impact")
-      document.querySelectorAll("#playerMonstersInPlay .attack" )[attackerIndex].classList.add("attack-bulge")
       await pause(200)
+      document.querySelectorAll("#enemyMonstersInPlay .avatar")[defenderIndex].classList.remove("attack-impact")
       stateObj = immer.produce(stateObj, (newState) => {
         let AttackingMonster = newState.player.monstersInPlay[attackerIndex]
         let DefendingMonster = newState.opponent.monstersInPlay[defenderIndex]
@@ -198,16 +201,13 @@ async function completeAttack(stateObj, attackerIndex = stateObj.playerToAttackI
         AttackingMonster.canAttack = false
         newState.playerToAttackIndex = false;
         newState.enemyToBeAttackedIndex = false
+        newState.status = Status.inFight
       })
-      stateObj = await updateState(stateObj)
-      await pause(200)
-      document.querySelectorAll("#enemyMonstersInPlay .avatar")[defenderIndex].classList.remove("attack-impact")
-      document.querySelectorAll("#playerMonstersInPlay .avatar")[attackerIndex].classList.remove("attack-windup")
-      document.querySelectorAll("#playerMonstersInPlay .attack" )[attackerIndex].classList.remove("attack-bulge")
-      stateObj = await changeState(stateObj)
-      
-    } 
-  await changeState(stateObj);
+  } 
+
+  document.querySelectorAll("#playerMonstersInPlay .avatar")[attackerIndex].classList.remove("attack-windup")
+  document.querySelectorAll("#playerMonstersInPlay .attack" )[attackerIndex].classList.remove("attack-bulge")
+  stateObj = await changeState(stateObj);
   return stateObj
 }
 
@@ -1367,6 +1367,7 @@ async function drawACard(stateObj, playerDrawing) {
 
   if (playerDrawing.encounterDraw.length === 0) {
     console.log("player is out of cards!")
+    return stateObj
   }
 
   stateObj = immer.produce(stateObj, (newState) => {
@@ -1406,6 +1407,13 @@ async function updateQuest(stateObj, playerObj, value=false) {
       newState.player.quest.targetLife -= value;
     });
     if (stateObj.player.quest.targetLife <= 0) {
+      stateObj = await triggerQuest(stateObj, stateObj.player)
+    }
+  } else if (playerObj.quest.title === "Face Damage") {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.player.quest.targetDamage -= value;
+    });
+    if (stateObj.player.quest.targetDamage <= 0) {
       stateObj = await triggerQuest(stateObj, stateObj.player)
     }
   }
