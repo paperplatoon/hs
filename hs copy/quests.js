@@ -1,16 +1,12 @@
 let quests = [
     {
       title: "Draw Cards",
-      targetCards: 7,
+      targetCards: 4,
       conditionMet: false,
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
         `Draw ${playerObj.quest.targetCards} cards` : `Draw 7 cards` },
       action: async (stateObj, playerObj) => {
-        console.log("executing reward")
-          stateObj = immer.produce(stateObj, (newState) => {
-            newState[playerObj.name].encounterHand.push(drawcardsReward)
-          })
-        stateObj = await updateState(stateObj)
+        stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], drawcardsReward)
         return stateObj;
       },
     },
@@ -21,25 +17,22 @@ let quests = [
       conditionMet: false,
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
         `Gain ${playerObj.quest.targetLife} Life` : `Gain 7 life` },
-      action: async (stateObj, playerObj) => {
-        for (let c=0; c < 3; c++) {
-          stateObj = await drawACard(stateObj, stateObj.player)
-        }
-        
-        return stateObj;
-      },
+        action: async (stateObj, playerObj) => {
+          stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], gainLifeReward)
+          return stateObj;
+        },
     },
   ]
 
   let drawcardsReward = {
-    name: "Card Drawer",
+    name: "Reward 1",
     elementType: "air",
     cardType: "minion",
     tribe: "none",
     baseCost: 3,
-    attack: 4,
-    currentHealth: 4,
-    maxHealth: 4,
+    attack: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     avatar: "img/waterpuddle.png",
     hpToGain: 1,
     canAttack: false,
@@ -55,5 +48,28 @@ let quests = [
         }
         stateObj = await changeState(stateObj)
         return stateObj;
+    }
+  };
+
+  let gainLifeReward = {
+    name: "Reward 2",
+    elementType: "earth",
+    cardType: "minion",
+    tribe: "none",
+    baseCost: 3,
+    attack: 2,
+    currentHealth: 5,
+    maxHealth: 5,
+    avatar: "img/waterpuddle.png",
+    hpToGain: 1,
+    canAttack: false,
+    text: (state, index, array) => { return `Play: Draw 3 cards` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+    action: async (stateObj, index, array, playerObj) => {
+      for (let c=0; c < 3; c++) {
+        stateObj = await drawACard(stateObj, stateObj[playerObj.name])
+      }
+      return stateObj;
     }
   };

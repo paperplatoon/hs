@@ -56,7 +56,7 @@ let gameStartState = {
     onDeathMultiplier: 1,
     whenPlayedMultiplier: 1,
     heroPower: false,
-    quest: {...quests[0]},
+    quest: {...quests[1]},
 
     cardsPerTurn: 0,
 
@@ -139,7 +139,6 @@ async function startEncounter(stateObj) {
     stateObj = shuffleDraw(stateObj, stateObj.player);
     stateObj = shuffleDraw(stateObj, stateObj.opponent);
     for (let h=0; h < 4; h++) {
-      console.log("drawing a card")
       stateObj = await drawACard(stateObj, stateObj.player)
       stateObj = await drawACard(stateObj, stateObj.opponent)
     }
@@ -296,17 +295,9 @@ async function gainLife(stateObj, playerSummoning, lifeToGain) {
   })
 
   if (playerSummoning.name === "player" && playerSummoning.quest.title === "Gain Life") {
-    stateObj = immer.produce(stateObj, (newState) => {
-      newState.player.quest.targetLife -= lifeToGain;
-    })
-    if (stateObj.player.quest.targetLife <= 0) {
-      stateObj = await stateObj.player.quest.action(stateObj, stateObj.player)
-      stateObj = immer.produce(stateObj, (newState) => {
-        newState.player.quest = false
-      })
-    }
+    stateObj = await updateQuest(stateObj, stateObj.player, lifeToGain) 
   } 
-  stateObj = await changeState(stateObj)
+  stateObj = await updateState(stateObj)
   return stateObj;
 }
 
@@ -560,10 +551,8 @@ function createHandEndDiv(stateObj, playerObj) {
   let handEndDiv = document.createElement("Div");
   handEndDiv.classList.add("hand-end-div")
   if (playerObj.name === "player") {
-    console.log("render player with feat " + playerObj.heroPower.text)
     handEndDiv.classList.add("player-hand-end") 
   } else {
-    console.log("render opponent with feat " + playerObj.heroPower.text)
     handEndDiv.classList.add("opponent-hand-end")
   }
   let HPManaDiv = document.createElement("Div");
@@ -855,18 +844,15 @@ async function renderCard(stateObj, cardArray, index, playerObj, divName=false, 
                 });
                   const enemyHealthDiv = document.querySelectorAll(".opponent-hand-end")[0];
                   enemyHealthDiv.addEventListener("dragover", (event) => {
-                    console.log("drag")
                     event.preventDefault();
                   });
 
                     enemyHealthDiv.addEventListener("drop", (event) => {
                       
-                      console.log("drop")
                       const cardId = event.dataTransfer.getData("text/plain");
                       
                       if (cardId && cardId[0] === "p") {
                         str = cardId.charAt(cardId.length-1) 
-                        console.log("completeing attack index " + str)
                         completeAttack(stateObj, 0, 99);
                         event.stopImmediatePropagation();
                       }
@@ -874,7 +860,6 @@ async function renderCard(stateObj, cardArray, index, playerObj, divName=false, 
                     });
 
                     enemyMonsters.addEventListener("dragover", (event) => {
-                      console.log("dragged over")
                       let droppableElements = document.querySelectorAll("#enemyMonstersInPlay .card");
 
                     droppableElements.forEach((element, targetIndex) => {
@@ -888,8 +873,6 @@ async function renderCard(stateObj, cardArray, index, playerObj, divName=false, 
                       
                       if (cardId && cardId[0] === "p") {
                         str = Number(cardId.charAt(cardId.length-1)) 
-                        console.log("played card id is " + str)
-                        console.log("targeted index is " + targetIndex)
                         stateObj = completeAttack(stateObj, str, targetIndex)
 
 
@@ -1403,20 +1386,26 @@ async function drawACard(stateObj, playerDrawing) {
     document.querySelectorAll("#handContainer2 .card")[stateObj[playerDrawing.name].encounterHand.length-1].classList.add("drawing-animation")
     await pause(500)
     if (playerDrawing.quest.title === "Draw Cards") {
-      stateObj = await questUpdate(stateObj, stateObj.player)    
+      stateObj = await updateQuest(stateObj, stateObj.player)    
     }
   }
   stateObj = await changeState(stateObj)
   return stateObj;
 }
 
-async function questUpdate(stateObj, playerObj, value=false) {
+async function updateQuest(stateObj, playerObj, value=false) {
   if (playerObj.quest.title === "Draw Cards") {
     stateObj = immer.produce(stateObj, (newState) => {
       newState.player.quest.targetCards -= 1;
     });
-
     if (stateObj.player.quest.targetCards <= 0) {
+      stateObj = await triggerQuest(stateObj, stateObj.player)
+    }
+  } else if (playerObj.quest.title === "Gain Life") {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState.player.quest.targetLife -= value;
+    });
+    if (stateObj.player.quest.targetLife <= 0) {
       stateObj = await triggerQuest(stateObj, stateObj.player)
     }
   }
@@ -1424,10 +1413,25 @@ async function questUpdate(stateObj, playerObj, value=false) {
 }
 
 async function triggerQuest(stateObj, playerObj) {
+  document.querySelectorAll("#handContainer2 .player-quest")[0].classList.add("quest-complete-animation")
+  await pause(1000)
   stateObj = await stateObj.player.quest.action(stateObj, playerObj);
   stateObj = immer.produce(stateObj, (newState) => {
     newState.player.quest = false;
   });
+  stateObj = await updateState(stateObj)
+  return stateObj
+}
+
+async function addQuestReward(stateObj, playerObj, cardObj) {
+  stateObj = immer.produce(stateObj, (newState) => {
+    newState[playerObj.name].encounterHand.push(cardObj)
+    newState[playerObj.name].quest = false;
+  })
+  stateObj = await updateState(stateObj)
+  document.querySelectorAll("#handContainer2 .card")[stateObj[playerObj.name].encounterHand.length-1].classList.add("quest-card-add")
+  await pause(2000)
+  document.querySelectorAll("#handContainer2 .card")[stateObj[playerObj.name].encounterHand.length-1].classList.remove("quest-card-add")
   return stateObj
 }
 

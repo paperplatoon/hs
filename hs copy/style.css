@@ -1223,12 +1223,8 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 }
 
 @keyframes drawAnimation {
-  0% {
-    transform: translateX(300px) scale(0.8);
-  }
-  100% {
-    transform: translateX(0px) scale(1);;
-  }
+  0% { transform: translateX(300px) scale(0.8);}
+  100% { transform: translateX(0px) scale(1); }
 }
 
 .player-quest {
@@ -1240,4 +1236,42 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 .player-quest p {
   margin-block-start: 0 !important;
   margin-block-end:0 !important;  
+}
+
+.quest-complete-animation {
+  animation: questAnimation 1s ease-in forwards ;
+}
+
+@keyframes questAnimation {
+  0% { transform: scale(1); filter: contrast(0) sepia(100%); 
+    box-shadow: 0 0 0 5px rgb(201, 231, 3);
+    box-shadow: 0 0 0 10px rgb(194, 216, 25);
+    box-shadow: 0 0 0 15px rgb(181, 199, 43);
+    box-shadow: 0 0 0 20px rgb(196, 212, 91);
+    box-shadow: 0 0 0 25px rgb(199, 209, 119);
+    box-shadow: 0 0 0 30px rgb(199, 204, 158);}
+  50% { transform: scale(1.2); filter: contrast(2) sepia(100%); 
+    box-shadow: 0 0 0 10px rgb(225, 255, 3);
+    box-shadow: 0 0 0 20px rgb(225, 255, 25);
+    box-shadow: 0 0 0 30px rgb(225, 255, 43);
+    box-shadow: 0 0 0 40px rgb(225, 255, 91);
+    box-shadow: 0 0 0 50px rgb(225, 255, 119);
+    box-shadow: 0 0 0 60px rgb(225, 255, 158);}
+    100% { transform: scale(0); filter: contrast(1) sepia(0%); 
+      box-shadow: 0 0 0 5px rgb(210, 170, 3);
+      box-shadow: 0 0 0 10px rgb(210, 170, 25);
+      box-shadow: 0 0 0 15px rgb(210, 170, 43);
+      box-shadow: 0 0 0 20px rgb(210, 170, 91);
+      box-shadow: 0 0 0 25px rgb(210, 170, 119);
+      box-shadow: 0 0 0 30px rgb(210, 170, 158);}
+}
+
+.quest-card-add {
+  animation: questCard 2s forwards ;
+}
+
+@keyframes questCard {
+  0% { transform: scale(0.1); filter: contrast(0) sepia(100%); }
+  50% { transform: scale(1); filter: contrast(2) sepia(100%); }
+  100% { transform: scale(1); filter: contrast(1) sepia(0%);}
 }
