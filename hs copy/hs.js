@@ -57,7 +57,7 @@ let gameStartState = {
     onDeathMultiplier: 1,
     whenPlayedMultiplier: 1,
     heroPower: false,
-    quest: {...quests[2]},
+    quest: {...quests[1]},
 
     cardsPerTurn: 0,
 
@@ -76,6 +76,7 @@ let gameStartState = {
 
     currentEnergy: 1,
     turnEnergy: 2,
+    quest: false,
 
     encounterDraw: [],
     monstersInPlay: [],
@@ -169,21 +170,37 @@ async function updateState(newStateObj) {
   return newStateObj
 }
 
+async function dealFaceDamage(stateObj, playerDealing, attackerIndex, value=false) {
+  let damage = value;
+  if (attackerIndex !== "player") {
+    let AttackingMonster = stateObj[playerDealing.name].monstersInPlay[attackerIndex]
+    damage = (value) ? value : AttackingMonster.attack
+  }
+  
+  stateObj = immer.produce(stateObj, (newState) => {
+    let oppTarget = (playerDealing.name === "player") ? newState.opponent : newState.player
+    oppTarget.currentLife -= damage
+  })
+  if (stateObj[playerDealing.name].quest) {
+    if (stateObj[playerDealing.name].quest.title === "Face Damage") {
+      stateObj = await updateQuest(stateObj, stateObj[playerDealing.name], damage)
+    }
+  }
+  return stateObj
+}
+
 async function completeAttack(stateObj, attackerIndex = stateObj.playerToAttackIndex, defenderIndex = stateObj.enemyToBeAttackedIndex) {
   document.querySelectorAll("#playerMonstersInPlay .avatar")[attackerIndex].classList.add("attack-windup")
   await pause(300)
   document.querySelectorAll("#playerMonstersInPlay .attack" )[attackerIndex].classList.add("attack-bulge")
   if (defenderIndex === 99) {
+    stateObj = await dealFaceDamage(stateObj, stateObj.player, attackerIndex)
     stateObj = immer.produce(stateObj, (newState) => {
-      let AttackingMonster = newState.player.monstersInPlay[attackerIndex]
-      console.log(AttackingMonster.name + " dealt " + AttackingMonster.attack + " damage to the opponent")
-      newState.opponent.currentLife -= AttackingMonster.attack
-      AttackingMonster.canAttack = false
+      newState.player.monstersInPlay[attackerIndex].canAttack = false
       newState.playerToAttackIndex = false;
       newState.enemyToBeAttackedIndex = false
       newState.status = Status.inFight
     })
-    stateObj = await updateQuest(stateObj, stateObj.player, stateObj.player.monstersInPlay[attackerIndex].attack)
     stateObj = await updateState(stateObj)
     document.querySelectorAll("#enemyMonstersInPlay .hp-hand-div")[0].classList.add("attack-impact")
     await pause(200)

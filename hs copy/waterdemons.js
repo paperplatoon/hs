@@ -6,8 +6,8 @@ let beaverspirit = {
     cardType: "minion",
     baseCost: 1,
     attack: 1,
-    currentHP: 3,
-    maxHP: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     avatar: "img/plant1.png",
     canAttack: false,
     text: (state, index, array) => { return `When Played: If you control another Beaver Spirit, summon a 4/4 Dam Spirit`},
@@ -27,8 +27,8 @@ let beaverspirit = {
     cardType: "minion",
     baseCost: 1,
     attack: 1,
-    currentHP: 3,
-    maxHP: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     deathCounter: 0,
     avatar: "img/plant1.png",
     canAttack: false,
@@ -36,7 +36,7 @@ let beaverspirit = {
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
-        if (playerObj.currentHP >= (25 - playerObj.lifeRequirementReduction)) {
+        if (playerObj.currentLife >= (25 - playerObj.lifeRequirementReduction)) {
             stateObj = await createNewMinion(stateObj, playerObj, 2, 2, 2, 2, name="Sappling Spirit", minion=potgrowth)
         }
         return stateObj;
@@ -46,18 +46,18 @@ let beaverspirit = {
   let attunednaturalist = {
     name: "Attuned Naturalist",
     elementType: "water",
-    cardType: "minion",cardType: "minion",
+    cardType: "minion",
     baseCost: 3,
     attack: 2,
-    currentHP: 4,
-    maxHP: 4,
+    currentHealth: 4,
+    maxHealth: 4,
     avatar: "img/plant1.png",
     canAttack: false,
     text: (state, index, array) => { return `When Played: If you have at 30 Life, summon a 6/6 Sappling Spirit` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
-        if (playerObj.currentHP >= (25 - playerObj.lifeRequirementReduction)) {
+        if (playerObj.currentLife >= (25 - playerObj.lifeRequirementReduction)) {
             stateObj = await createNewMinion(stateObj, playerObj, 6, 6, 6, 6, name="Sappling Spirit", minion=potgrowth)
         }
         return stateObj;
@@ -70,8 +70,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 2,
     attack: 1,
-    currentHP: 1,
-    maxHP: 1,
+    currentHealth: 1,
+    maxHealth: 1,
     deathCounter: 0,
     avatar: "img/plant1.png",
     canAttack: false,
@@ -96,8 +96,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 3,
     attack: 1,
-    currentHP: 6,
-    maxHP: 6,
+    currentHealth: 6,
+    maxHealth: 6,
     impCounter: 0,
     avatar: "img/plant1.png",
     canAttack: false,
@@ -117,8 +117,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 1,
     attack: 0,
-    currentHP: 1,
-    maxHP: 1,
+    currentHealth: 1,
+    maxHealth: 1,
     potCounter: 0,
     avatar: "img/plant1.png",  
     canAttack: false,
@@ -138,8 +138,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 1,
     attack: 1,
-    currentHP: 1,
-    maxHP: 1,
+    currentHealth: 1,
+    maxHealth: 1,
     potCounter: 0,
     avatar: "img/plant1.png",
     canAttack: false,
@@ -158,8 +158,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 1,
     attack: 1,
-    currentHP: 3,
-    maxHP: 3,
+    currentHealth: 3,
+    maxHealth: 3,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `When Played: If you have at least 2 other minions, summon a 1/1 fish` },
@@ -179,8 +179,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 2,
     attack: 1,
-    currentHP: 2,
-    maxHP: 2,
+    currentHealth: 2,
+    maxHealth: 2,
     avatar: "img/waterpuddle.png",
     canAttack: false,
     text: (state, index, array) => { return `When Played: Summon a 1/1 pot growth. It gets +1/+1 for each other minion.`  },
@@ -199,8 +199,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 1,
     attack: 1,
-    currentHP: 2,
-    maxHP: 2,
+    currentHealth: 2,
+    maxHealth: 2,
     avatar: "img/plant1.png",
     canAttack: false,
     text: (state, index, array) => { return ``  },
@@ -214,8 +214,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 1,
     attack: 1,
-    currentHP: 2,
-    maxHP: 2,
+    currentHealth: 2,
+    maxHealth: 2,
     avatar: "img/plant1.png",
     canAttack: false,
     text: (state, index, array) => { return `When Played: add a Blue Fish to your hand`   },
@@ -233,8 +233,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 1,
     attack: 1,
-    currentHP: 2,
-    maxHP: 2,
+    currentHealth: 2,
+    maxHealth: 2,
     avatar: "img/plant1.png",
     canAttack: false,
     text: (state, index, array) => { return `When Played: add a random water minion to your hand`   },
@@ -252,8 +252,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 2,
     attack: 1,
-    currentHP: 1,
-    maxHP: 1,
+    currentHealth: 1,
+    maxHealth: 1,
     potCounter: 0,
     avatar: "img/plant1.png",
     canAttack: false,
@@ -277,8 +277,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 4,
     attack: 1,
-    currentHP: 2,
-    maxHP: 2,
+    currentHealth: 2,
+    maxHealth: 2,
     potCounter: 0,
     avatar: "img/plant1.png",
     canAttack: false,
@@ -288,15 +288,15 @@ let tinyhydra = {
     action: async (stateObj, index, arrayObj, playerObj) => {        
         let array = (playerObj.name === "player") ? stateObj.player.monstersInPlay : stateObj.opponent.monstersInPlay
         if (array.length > 1) {
-            let maxHPIndex = false;
-            let maxHP = 0;
+            let maxHealthIndex = false;
+            let maxHealth = 0;
             for (let i=0; i < array.length-1; i++) {
-                if (array[i].currentHP > maxHP) {
-                    maxHP = array[i].currentHP
-                    maxHPIndex = i
+                if (array[i].currentHealth > maxHealth) {
+                    maxHealth = array[i].currentHealth
+                    maxHealthIndex = i
                 }
             }
-            stateObj = await summonDemon(stateObj, array[maxHPIndex], playerObj, 500)
+            stateObj = await summonDemon(stateObj, array[maxHealthIndex], playerObj, 500)
         }
         return stateObj;
     },
@@ -308,8 +308,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 4,
     attack: 3,
-    currentHP: 2,
-    maxHP: 2,
+    currentHealth: 2,
+    maxHealth: 2,
     potCounter: 0,
     avatar: "img/plant1.png",
     canAttack: false,
@@ -319,15 +319,15 @@ let tinyhydra = {
     action: async (stateObj, index, arrayObj, playerObj) => {        
         let array = (playerObj.name === "player") ? stateObj.player.monstersInPlay : stateObj.opponent.monstersInPlay
         if (array.length > 1) {
-            let maxHPIndex = false;
-            let maxHP = 1000000;
+            let maxHealthIndex = false;
+            let maxHealth = 1000000;
             for (let i=0; i < array.length-1; i++) {
-                if (array[i].currentHP < maxHP) {
-                    maxHP = array[i].currentHP
-                    maxHPIndex = i
+                if (array[i].currentHealth < maxHealth) {
+                    maxHealth = array[i].currentHealth
+                    maxHealthIndex = i
                 }
             }
-            stateObj = await summonDemon(stateObj, array[maxHPIndex], playerObj, 500)
+            stateObj = await summonDemon(stateObj, array[maxHealthIndex], playerObj, 500)
         }
         return stateObj;
     },
@@ -339,8 +339,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 1,
     attack: 1,
-    currentHP: 1,
-    maxHP: 1,
+    currentHealth: 1,
+    maxHealth: 1,
     potCounter: 0,
     avatar: "img/plant1.png",
     canAttack: false,
@@ -355,8 +355,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 2,
     attack: 1,
-    currentHP: 1,
-    maxHP: 1,
+    currentHealth: 1,
+    maxHealth: 1,
     potCounter: 0,
     avatar: "img/plant1.png",
     canAttack: false,
@@ -376,8 +376,8 @@ let tinyhydra = {
     cardType: "minion",
     baseCost: 2,
     attack: 1,
-    currentHP: 1,
-    maxHP: 1,
+    currentHealth: 1,
+    maxHealth: 1,
     avatar: "img/plant1.png",
     canAttack: false,
     text: (state, index, array) => { return `When Played: summon a 2/2 Pot Growths`   },

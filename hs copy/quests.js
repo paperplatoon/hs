@@ -88,23 +88,29 @@ let quests = [
 
   let gainLifeReward = {
     name: "Reward 2",
-    elementType: "earth",
+    elementType: "fire",
     cardType: "minion",
     tribe: "none",
     baseCost: 3,
-    attack: 2,
-    currentHealth: 5,
-    maxHealth: 5,
+    attack: 4,
+    currentHealth: 2,
+    maxHealth: 2,
     avatar: "img/waterpuddle.png",
     hpToGain: 1,
     canAttack: false,
-    text: (state, index, array) => { return `Play: Draw 3 cards` },
+    text: (state, index, array) => { return `Play: Deal 4 damage to all enemy demons` },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {
-      for (let c=0; c < 3; c++) {
-        stateObj = await drawACard(stateObj, stateObj[playerObj.name])
+      const mLength = (playerObj.name === "player") ? stateObj.opponent.monstersInPlay.length : stateObj.player.monstersInPlay.length
+      for (let e=0;  e < mLength; e++) {
+        stateObj = immer.produce(stateObj, (newState) => {
+          const mArray = (playerObj.name === "player") ? newState.opponent.monstersInPlay : newState.player.monstersInPlay
+          mArray[e].currentHealth -= 4
+          console.log(mArray[e].name + "has taken 4 damage and is now at " + mArray[e].currentHealth)
+        })
       }
+      stateObj = await changeState(stateObj)
       return stateObj;
     }
   };

@@ -432,15 +432,13 @@ let seedling = {
     maxHealth: 3,
     avatar: "img/plant1.png",
     canAttack: false,
-    text: (state, index, array, playerObj) => {return `End Turn: ` + playerObj.name +  ` loses Life equal to this minion's Health`},
+    text: (state, index, array, playerObj) => {
+      let playerText = (playerObj.name === "player") ? "opponent" : "You"
+      return `End Turn: ` + playerText +  ` loses Life equal to this minion's Health`},
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },  
     endOfTurn: async (stateObj, index, array, playerObj) => {
-        stateObj = immer.produce(stateObj, (newState) => {
-            let playerInside = (playerObj.name === "player") ? newState.player : newState.opponent
-            let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
-            opponent.currentLife -= playerInside.monstersInPlay[index].currentHealth // + stateObj.playerInside.earthDamage
-        })
+        stateObj = await dealFaceDamage(stateObj, stateObj[playerObj.name], attackerIndex, array[index].currentHealth)
         stateObj = await changeState(stateObj)
         return stateObj;
       },
@@ -456,15 +454,13 @@ let seedling = {
     maxHealth: 4,
     avatar: "img/plant1.png",
     canAttack: false,
-    text: (state, index, array, playerObj) => {return `End Turn: ` + playerObj.name +  ` loses Life equal to this minion's Health`},
+    text: (state, index, array, playerObj) => {
+      let playerText = (playerObj.name === "player") ? "opponent" : "You"
+      return `End Turn: ` + playerText +  ` loses Life equal to this minion's Health`},
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },  
     endOfTurn: async (stateObj, index, array, playerObj) => {
-        stateObj = immer.produce(stateObj, (newState) => {
-            let playerInside = (playerObj.name === "player") ? newState.player : newState.opponent
-            let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
-            opponent.currentLife -= playerInside.monstersInPlay[index].currentHealth // + stateObj.playerInside.earthDamage
-        })
+        stateObj = await dealFaceDamage(stateObj, stateObj[playerObj.name], attackerIndex, array[index].currentHealth)
         stateObj = await changeState(stateObj)
         return stateObj;
       },
@@ -609,8 +605,8 @@ let seedling = {
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; }, 
     action: async (stateObj, index, array, playerObj) => {
-        stateObj = await gainLife(stateObj, player, array[index].lifeGain)
-        stateObj = await gainLife(stateObj, opponent, array[index].lifeGain)
+        stateObj = await gainLife(stateObj, stateObj.player, array[index].lifeGain)
+        stateObj = await gainLife(stateObj, stateObj.opponent, array[index].lifeGain)
         return stateObj;
     },
   };

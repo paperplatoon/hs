@@ -94,9 +94,9 @@ let heroPowers = [
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
         `Deal ${stateObj[playerObj.name].heroPower.HPBuff} damage directly to your opponent` : `Deal 1 damage directly to your opponent` },
       action: async (stateObj, playerObj) => {
+        stateObj = await dealFaceDamage(stateObj, stateObj[playerObj.name], attackerIndex="player", 1)
         stateObj = immer.produce(stateObj, (newState) => {
-          let opponent = (playerObj.name === "player") ? newState.opponent : newState.player
-          opponent.currentLife -= stateObj[playerObj.name].heroPower.HPBuff
+          newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
         })
         stateObj = await changeState(stateObj)
         return stateObj;
