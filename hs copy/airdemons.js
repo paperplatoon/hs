@@ -1,3 +1,5 @@
+//DISCOVER A NEW QUEST MINION HOLY SHIT OMG 
+
 let minorefrit = {
     name: "Minor Efrit",
     type: "air",
@@ -165,6 +167,28 @@ let minorefrit = {
       stateObj = immer.produce(stateObj, (newState) => {
         newState[playerObj.name].heroPower.baseCost -= 1;
       })
+      stateObj = await changeState(stateObj);
+      return stateObj;
+    }
+  }
+
+  let questdjinn = {
+    name: "Quest Djinn",
+    elementType: "air",
+    cardType: "minion",
+    baseCost: 0,
+    attack: 1,
+    currentHealth: 3,
+    maxHealth: 3,
+    avatar: "img/fireMonster.png",
+    canAttack: false,
+    text: (state, index, array) => { return `When Played: advance your quest by 1`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+    action: async (stateObj, index, array, playerObj) => {
+      if (stateObj[playerObj.name].quest) {
+        stateObj = await updateQuest(stateObj, stateObj[playerObj.name])
+      }
       stateObj = await changeState(stateObj);
       return stateObj;
     }

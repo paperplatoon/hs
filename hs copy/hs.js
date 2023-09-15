@@ -57,11 +57,11 @@ let gameStartState = {
     onDeathMultiplier: 1,
     whenPlayedMultiplier: 1,
     heroPower: false,
-    quest: {...quests[3]},
+    quest: {...quests[6]},
 
     cardsPerTurn: 0,
 
-    currentEnergy: 1,
+    currentEnergy: 10,
     turnEnergy: 2,
 
     encounterDraw: [],
@@ -76,7 +76,7 @@ let gameStartState = {
 
     currentEnergy: 1,
     turnEnergy: 2,
-    quest: false,
+    quest: {title: false},
 
     encounterDraw: [],
     monstersInPlay: [],
@@ -181,10 +181,8 @@ async function dealFaceDamage(stateObj, playerDealing, attackerIndex, value=fals
     let oppTarget = (playerDealing.name === "player") ? newState.opponent : newState.player
     oppTarget.currentLife -= damage
   })
-  if (stateObj[playerDealing.name].quest) {
-    if (stateObj[playerDealing.name].quest.title === "Face Damage") {
+  if (stateObj[playerDealing.name].quest.title === "Face Damage") {
       stateObj = await updateQuest(stateObj, stateObj[playerDealing.name], damage)
-    }
   }
   return stateObj
 }
@@ -235,6 +233,10 @@ async function playDemonFromHand(stateObj, cardObj, playerSummoning, pauseTime=1
   })
 
   stateObj = await summonDemon(stateObj, cardObj, playerSummoning, pauseTime, stateChange)
+
+  if (playerSummoning.quest.title === "Play Demons") {
+    stateObj = await updateQuest(stateObj, stateObj.player)    
+  }
   return stateObj;
 }
 
@@ -275,7 +277,13 @@ async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=1000, p
         newState.canPlay = true
     })
   }
-
+  if (playerSummoning.quest.title === "Summon Demons") {
+    stateObj = await updateQuest(stateObj, stateObj.player)    
+  }
+  if (playerSummoning.quest.title === "Have Demons" 
+  && stateObj[playerSummoning.name].monstersInPlay.length >= stateObj[playerSummoning.name].quest.target) {
+    stateObj = await updateQuest(stateObj, stateObj.player, stateObj[playerSummoning.name].quest.target)    
+  }
   if (stateChange) {
     stateObj = await changeState(stateObj)
   }
@@ -339,13 +347,11 @@ async function giveDemonStats(stateObj, playerObj, index, stat1Name, stat1Value,
     }
   })
   if (stat2Name) {
-    if (stat2Name === "maxHealth" && stateObj[playerObj.name].quest) {
-      if (stateObj[playerObj.name].quest.title === "Grant Health") {
+    if (stat2Name === "maxHealth" && stateObj[playerObj.name].quest.title === "Grant Health") {
         console.log('updating grant health with ' + updateAmount)
         stateObj = await updateQuest(stateObj, stateObj[playerObj.name], updateAmount) 
       }
     }
-  }
   await changeState(stateObj)
   return stateObj;
 }
@@ -1421,39 +1427,6 @@ async function drawACard(stateObj, playerDrawing) {
 }
 
 
-
-async function updateQuest(stateObj, playerObj, value=1) {
-  if (playerObj.quest.title === "Draw Cards") {
-    stateObj = immer.produce(stateObj, (newState) => {
-      newState.player.quest.target -= value;
-    });
-    if (stateObj.player.quest.target <= 0) {
-      stateObj = await triggerQuest(stateObj, stateObj.player)
-    }
-  } else if (playerObj.quest.title === "Gain Life") {
-    stateObj = immer.produce(stateObj, (newState) => {
-      newState.player.quest.target -= value;
-    });
-    if (stateObj.player.quest.target <= 0) {
-      stateObj = await triggerQuest(stateObj, stateObj.player)
-    }
-  } else if (playerObj.quest.title === "Face Damage") {
-    stateObj = immer.produce(stateObj, (newState) => {
-      newState.player.quest.target -= value;
-    });
-    if (stateObj.player.quest.target <= 0) {
-      stateObj = await triggerQuest(stateObj, stateObj.player)
-    }
-  } else if (playerObj.quest.title === "Grant Health") {
-    stateObj = immer.produce(stateObj, (newState) => {
-      newState.player.quest.target -= value;
-    });
-    if (stateObj.player.quest.target <= 0) {
-      stateObj = await triggerQuest(stateObj, stateObj.player)
-    }
-  }
-  return stateObj
-}
 
 async function updateQuest(stateObj, playerObj, value=1) {
   stateObj = immer.produce(stateObj, (newState) => {

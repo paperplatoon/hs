@@ -31,10 +31,10 @@ let quests = [
 //2
     {
       title: "Face Damage",
-      target: 5,
+      target: 7,
       conditionMet: false,
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
-        `Deal ${playerObj.quest.target} damage to opponent's Life` : `Deal 5 damage to opponent's Life` },
+        `Deal ${playerObj.quest.target} damage to opponent's Life` : `Deal 7 damage to opponent's Life` },
         action: async (stateObj, playerObj) => {
           stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], dealDamageReward)
           return stateObj;
@@ -43,12 +43,48 @@ let quests = [
 //3
     {
       title: "Grant Health",
+      target: 5,
+      conditionMet: false,
+      text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
+        `Give ${playerObj.quest.target} Health to friendly demons` : `Give 5 Health to friendly demons` },
+        action: async (stateObj, playerObj) => {
+          stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], grantHealthReward)
+          return stateObj;
+        },
+    },
+//4
+    {
+      title: "Play Demons",
+      target: 5,
+      conditionMet: false,
+      text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
+        `Play ${playerObj.quest.target} cards` : `Play 5 cards` },
+        action: async (stateObj, playerObj) => {
+          stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], grantHealthReward)
+          return stateObj;
+        },
+    },
+//5
+    {
+      title: "Summon Demons",
+      target: 7,
+      conditionMet: false,
+      text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
+        `Summon ${playerObj.quest.target} demons` : `Summon 7 demons` },
+        action: async (stateObj, playerObj) => {
+          stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], grantHealthReward)
+          return stateObj;
+        },
+    },
+
+    {
+      title: "Have Demons",
       target: 4,
       conditionMet: false,
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
-        `Give ${playerObj.quest.target} Health to friendly demons` : `Give 4 Health to friendly demons` },
+        `Control ${playerObj.quest.target} demons at once (${playerObj.monstersInPlay.length}/${playerObj.quest.target}) `: `Control 4 demons at once` },
         action: async (stateObj, playerObj) => {
-          stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], grantHealthReward)
+          stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], dealDamageReward)
           return stateObj;
         },
     },
