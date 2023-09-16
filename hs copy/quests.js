@@ -8,7 +8,7 @@ let quests = [
     {
       title: "Draw Cards",
       id: 0,
-      target: 7,
+      target: 4,
       conditionMet: false,
       reward:  0,
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
@@ -88,7 +88,7 @@ let quests = [
         return stateObj;
       },
     },
-
+//6
     {
       title: "Have Demons",
       id: 6,
@@ -97,6 +97,20 @@ let quests = [
       reward: 1,
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
         `Control ${playerObj.quest.target} demons at once (${playerObj.monstersInPlay.length}/${playerObj.quest.target}) `: `Control 4 demons at once` },
+      action: async (stateObj, playerObj) => {
+        stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], dealDamageReward)
+        return stateObj;
+      },
+    },
+//7
+    {
+      title: "Summon Elementals",
+      id: 7,
+      target: 3,
+      conditionMet: false,
+      reward: 1,
+      text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
+        `Summon ${playerObj.quest.target} elementals`: `Summon 3 elementals` },
       action: async (stateObj, playerObj) => {
         stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], dealDamageReward)
         return stateObj;

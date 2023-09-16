@@ -58,7 +58,7 @@ let gameStartState = {
     onDeathMultiplier: 1,
     whenPlayedMultiplier: 1,
     heroPower: false,
-    quest: {...quests[6]},
+    quest: {...quests[0]},
 
     cardsPerTurn: 0,
 
@@ -279,6 +279,10 @@ async function summonDemon(stateObj, cardObj, playerSummoning, pauseTime=1000, p
     })
   }
   if (playerSummoning.quest.title === "Summon Demons") {
+    stateObj = await updateQuest(stateObj, stateObj.player)    
+  }
+
+  if (playerSummoning.quest.title === "Summon Elementals" && cardObj.tribe === "elemental") {
     stateObj = await updateQuest(stateObj, stateObj.player)    
   }
   if (playerSummoning.quest.title === "Have Demons" 
