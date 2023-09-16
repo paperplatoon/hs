@@ -896,13 +896,19 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
     box-shadow: 0 0 30px rgb(154, 15, 15);
   }
   
-  .deck-to-choose:hover, .hero-power-to-choose:hover, .end-turn-button:hover {
+.deck-to-choose:hover, .hero-power-to-choose:hover, .quest:hover, .end-turn-button:hover {
     cursor: pointer;
     box-shadow: 0 0 20px rgb(254, 254, 254); 
     color: rgb(192, 255, 255);
     background-color: #006c6f;
     animation: fadeIn 2s forwards;
-  }
+}
+
+.quest:hover .card {
+  color: rgb(103, 0, 0);
+}
+
+
   #drawPile:hover #drawDiv,
 #discardPile:hover #discardDiv,
 #playerDeckPile:hover #deckDiv {
@@ -1039,7 +1045,26 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
   filter: contrast(0) sepia(100%) hue-rotate(100deg);
 }
 
+.quest-choice-div {
+  background-color: crimson;
+  display: flex;
+  flex-direction: row;
+  height: 98vh;
+  width: 98vw;
+  justify-content: space-evenly;
+  align-items: center;
+}
 
+.quest {
+  display: flex;
+  flex-direction: column;
+  width: 15vw;
+  height: 60vh;
+  border: 1px solid black;
+  text-align: center;
+  justify-content: space-evenly;
+  align-items: center;
+}
 
 @keyframes minionDeath {
   0% { opacity: 1;  }
@@ -1272,7 +1297,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
 }
 
 .scale-down-75 {
-  transform: scale(0.75)
+  transform: scale(0.85)
 }
 
 @keyframes questCard {

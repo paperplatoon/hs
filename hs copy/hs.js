@@ -678,17 +678,7 @@ function renderEnemyMonstersToChoose(stateObj) {
   }
 }
 
-async function renderQuestDivArray(stateObj) {
-  // let pMonsters = document.getElementById("playerMonstersInPlay")
-  // pMonsters.innerHTML = "";
-  let questDivArray = []
-  let shuffledQuests = shuffleArray(quests).splice(0,4);
-  for (let i = 0; i < shuffledQuests.length; i++) {
-    quest = await renderQuest(stateObj, shuffledQuests[i], functionToAdd=chooseThisQuest);
-    questDivArray.push(quest)
-  }
-    return questDivArray
-  }
+
 
 async function renderDivs(stateObj) {
   if (stateObj.fightStarted === false) {
@@ -755,15 +745,27 @@ async function renderWonFight(stateObj) {
   document.getElementById("app").innerHTML = "<p>You won the fight!</p> <button onClick=changeState(gameStartState)> Click me to retry</button>"
 }
 
+async function renderQuestDivArray(stateObj) {
+  let questDivArray = []
+  let shuffledQuests = shuffleArray(quests).splice(0,4);
+  for (let i = 0; i < shuffledQuests.length; i++) {
+    quest = await renderQuest(stateObj, shuffledQuests[i], functionToAdd=chooseThisQuest);
+    questDivArray.push(quest)
+  }
+  return questDivArray
+}
+
 async function renderQuest(stateObj, questObj, functionToAdd=false) {
   let questDiv = document.createElement("Div");
   questDiv.classList.add("quest");
   let questText = document.createElement("p");
-  questText.textContent = questObj.text(stateObj, stateObj.player)
+  questText.textContent = `Quest: ${questObj.text(stateObj, stateObj.player)}`
   questDiv.append(questText)
   let questReward = await renderCard(stateObj, questRewards, questObj.reward, stateObj.player);
   questReward.classList.add("scale-down-75")
-  questDiv.append(questReward)
+  let questRewardText = document.createElement("p");
+  questRewardText.textContent = `Reward:`
+  questDiv.append(questRewardText, questReward)
   if (functionToAdd) {
     questDiv.addEventListener("click", function () {
       functionToAdd(stateObj, questObj.id);
@@ -922,7 +924,7 @@ async function renderCard(stateObj, cardArray, index, playerObj, divName=false, 
                       
                       if (cardId && cardId[0] === "p") {
                         str = cardId.charAt(cardId.length-1) 
-                        completeAttack(stateObj, 0, 99);
+                        completeAttack(stateObj, str, 99);
                         event.stopImmediatePropagation();
                       }
                       event.preventDefault();
