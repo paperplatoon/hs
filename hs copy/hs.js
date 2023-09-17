@@ -62,7 +62,7 @@ let gameStartState = {
 
     cardsPerTurn: 0,
 
-    currentEnergy: 10,
+    currentEnergy: 1,
     turnEnergy: 2,
 
     encounterDraw: [],
@@ -570,13 +570,15 @@ function createConjurerTrickButton(stateObj, playerObj) {
   ConjurerTrickButton.classList.add("conjurer-trick-button")
   ConjurerTrickButton.textContent = `{${stateObj[playerObj.name].heroPower.cost(stateObj, stateObj[playerObj.name])} mana}: ` + stateObj[playerObj.name].heroPower.text(stateObj, playerObj)
   if (playerObj.name === "player") {
-    if (stateObj.canPlay === true && stateObj.player.currentEnergy >= stateObj.player.heroPower.cost(stateObj, playerObj)) {
-      ConjurerTrickButton.classList.add("conjurer-trick-button-playable")
-      ConjurerTrickButton.addEventListener("click", function() {
-        stateObj.player.heroPower.action(stateObj, stateObj.player)
-      })
-    } else {
+    if (stateObj[playerObj.name].heroPower.used === true) {
       ConjurerTrickButton.classList.add("conjurer-trick-button-greyed-out")
+    } else {
+      if (stateObj.canPlay === true && stateObj.player.currentEnergy >= stateObj.player.heroPower.cost(stateObj, playerObj)) {
+        ConjurerTrickButton.classList.add("conjurer-trick-button-playable")
+        ConjurerTrickButton.addEventListener("click", function() {
+          stateObj.player.heroPower.action(stateObj, stateObj.player)
+        })
+      }
     }
   }
   
@@ -753,6 +755,7 @@ async function renderQuestDivArray(stateObj) {
   let questDivArray = []
   let shuffledQuests = shuffleArray(quests).splice(0,4);
   for (let i = 0; i < shuffledQuests.length; i++) {
+    console.log("rendering quest " + shuffledQuests[i].title)
     quest = await renderQuest(stateObj, shuffledQuests[i], functionToAdd=chooseThisQuest);
     questDivArray.push(quest)
   }
@@ -760,6 +763,7 @@ async function renderQuestDivArray(stateObj) {
 }
 
 async function renderQuest(stateObj, questObj, functionToAdd=false) {
+  console.log("firing renderquest with quest " + questObj.title)
   let questDiv = document.createElement("Div");
   questDiv.classList.add("quest");
   let questText = document.createElement("p");
@@ -775,7 +779,9 @@ async function renderQuest(stateObj, questObj, functionToAdd=false) {
       functionToAdd(stateObj, questObj.id);
     });
   }
+  console.log('finishing render quest')
   return questDiv
+
 }
 
 async function renderCard(stateObj, cardArray, index, playerObj, divName=false, functionToAdd=false) {
@@ -1481,13 +1487,15 @@ async function drawACard(stateObj, playerDrawing) {
 
 
 async function updateQuest(stateObj, playerObj, value=1) {
-  stateObj = immer.produce(stateObj, (newState) => {
-    newState[playerObj.name].quest.target -= value;
-  })
-  if (stateObj[playerObj.name].quest.target <= 0) {
-    stateObj = await triggerQuest(stateObj, stateObj.player)
+  if (stateObj[playerObj.name].quest.title) {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState[playerObj.name].quest.target -= value;
+    })
+    if (stateObj[playerObj.name].quest.target <= 0) {
+      stateObj = await triggerQuest(stateObj, stateObj.player)
+    }
+    stateObj = await updateState(stateObj)
   }
-  stateObj = await updateState(stateObj)
   return stateObj
 }
 

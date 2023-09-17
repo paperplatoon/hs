@@ -2,6 +2,8 @@
 //summon 7 minions
 //grant other minions +4 HP
 
+//draw cards quest - possible rewards: 
+
 
 let quests = [
   //0
@@ -14,7 +16,7 @@ let quests = [
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
         `Draw ${playerObj.quest.target} cards` : `Draw 7 cards` },
       action: async (stateObj, playerObj) => {
-        stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], drawcardsReward)
+        stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], reduceCostReward)
         return stateObj;
       },
     },
@@ -24,7 +26,7 @@ let quests = [
       id: 1,
       target: 7,
       conditionMet: false,
-      reward:  3,
+      reward:  4,
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
         `Gain ${playerObj.quest.target} Life` : `Gain 7 life` },
         action: async (stateObj, playerObj) => {
@@ -42,7 +44,7 @@ let quests = [
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
         `Deal ${playerObj.quest.target} damage to opponent's Life` : `Deal 7 damage to opponent's Life` },
         action: async (stateObj, playerObj) => {
-          stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], dealDamageReward)
+          stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], drawCardsReward)
           return stateObj;
         },
     },
@@ -56,7 +58,7 @@ let quests = [
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ? 
         `Give ${playerObj.quest.target} Health to friendly demons` : `Give 5 Health to friendly demons` },
       action: async (stateObj, playerObj) => {
-        stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], grantHealthReward)
+        stateObj = await addQuestReward(stateObj, stateObj[playerObj.name], summonCopyReward)
         return stateObj;
       },
     },
@@ -118,7 +120,16 @@ let quests = [
     },
   ]
 
-  let drawcardsReward = {
+
+
+
+
+
+
+
+
+
+  let reduceCostReward = {
     name: "Reward 1",
     elementType: "air",
     cardType: "minion",
@@ -145,7 +156,7 @@ let quests = [
     }
   };
 
-  let dealDamageReward = {
+  let drawCardsReward = {
     name: "Reward 2",
     elementType: "earth",
     cardType: "minion",
@@ -168,7 +179,7 @@ let quests = [
     }
   };
 
-  let gainLifeReward = {
+  let dealDamageReward = {
     name: "Reward 2",
     elementType: "fire",
     cardType: "minion",
@@ -197,7 +208,29 @@ let quests = [
     }
   };
 
-  let grantHealthReward = {
+  let gainLifeReward = {
+    name: "Reward 2",
+    elementType: "fire",
+    cardType: "minion",
+    tribe: "none",
+    baseCost: 3,
+    attack: 4,
+    currentHealth: 2,
+    maxHealth: 2,
+    avatar: "img/waterpuddle.png",
+    hpToGain: 1,
+    canAttack: false,
+    text: (state, index, array) => { return `Play: Gain 7 Life` },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },
+    action: async (stateObj, index, array, playerObj) => {
+      stateObj = await gainLife(stateObj, stateObj[playerObj.name], 7)
+      stateObj = await changeState(stateObj)
+      return stateObj;
+    }
+  };
+
+  let summonCopyReward = {
     name: "Health Reward",
     elementType: "water",
     cardType: "minion",
@@ -229,4 +262,4 @@ let quests = [
     }
   };
 
-let questRewards = [drawcardsReward, dealDamageReward, grantHealthReward, gainLifeReward]
+  let questRewards = [reduceCostReward, drawCardsReward, dealDamageReward, gainLifeReward, summonCopyReward]

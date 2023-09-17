@@ -851,6 +851,7 @@ https://blog.logrocket.com/css-style-button-accessibility/*/
     cursor: not-allowed;
   }
 
+
   .clickable-square:hover .monster-hp {
     border-image: radial-gradient(rgb(255, 225, 0) 69%,#0000 70%) 84.5% fill/100%;
   }

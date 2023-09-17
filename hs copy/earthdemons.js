@@ -1,24 +1,26 @@
-//common - 5
-//waverider - 1/1, +1HP eot
-//oysterspirit - 1/1, +1 life
-//tidepool lurker - 2 2/2, eot +1 hp
-//kelp spirit - 1 1/2, eot give another +1
-//great oyster spirit - 2 1/2, eot +2 Life
-
-//rare - 4
-//tiderider - 1/2, +1HP eot
-// 4 mana - 4/4 Restore all minions to full health
-//sacrificial sprite - 2 3/1, on death: +2 life
-//healing spring - 3 3/3, on play: heal all minions to full
-
-//epic - 2
-//poseidon - 4 3/4, all minions end of turn +1
-//deity of light - 4 4/5; on play: hael all friendly minions to full
+//1 - raise your own life total
+//2 - grant other demons high HP; high HP demons
+//3 - direct face damage HP cards
+//4 - set attack to health (would be nice to be able to target all minions)
 
 
-//legendary - 2
-//oyster god - 3 1/6, end of turn Summoner  gains 5 HP
-//purifiedoverlord  - 6 5/8, end of turn heal all friendly minions to full 
+//water synergy - gain life if you have enough minions
+//lifesteal?
+//deal damage to both you and opponent? - fire
+//4 - heal demons?
+//5 - trade life?
+//6 - sacrifice demons to gain life?
+//7 - deal damage to opponent based on life totals? 
+
+//synergies 
+//water summons minions if health is high enough
+//water summons copies of high-health minions
+
+
+//fire deals damage to both players - earth helps stay alive
+//fire deals damage 
+
+//air - card that gains health based on hand size
 
 let seedling = {
     name: "Seedling",

@@ -1,4 +1,21 @@
+//1 - summon on death
+//2 - add cards to hand
+//3 - summon 1/1 flood, 2/2 flood, etc
+//4 - gain effects when board has lots of minions
+//
 
+//gain attack/health for each other minion (for earth and fire)
+
+//earth-water synergies:
+//water summons minions if health is high enough
+//water summons copies of high-health minions
+
+//earth has cards that gain health for each minion
+//earth has cards that gain health when other minions are summoned
+
+//fire has cards that gain attack for each minion
+//fire has cards that gain attack when other minions are summoned
+//fire has cards that deal damage when minions are sacrificed
 
 let beaverspirit = {
     name: "Beaver Spirit",
@@ -133,7 +150,7 @@ let tinyhydra = {
   };
 
   let gnometwins = {
-    name: "Gnome Twins",
+    name: "Twin Eels",
     elementType: "water",
     cardType: "minion",
     baseCost: 1,
@@ -143,7 +160,7 @@ let tinyhydra = {
     potCounter: 0,
     avatar: "img/plant1.png",
     canAttack: false,
-    text: (state, index, array) => { return `When Played: summon another Gnome Twin`   },
+    text: (state, index, array) => { return `When Played: summon another Twin Eel`   },
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },
     action: async (stateObj, index, array, playerObj) => {

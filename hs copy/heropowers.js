@@ -3,6 +3,7 @@ let heroPowers = [
     {
       cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
       baseCost: 2,
+      used: false,
       title: "Gain Life",
       HPBuff: 2,
       priority: 0,
@@ -22,6 +23,7 @@ let heroPowers = [
     {
       cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
       baseCost: 1,
+      used: false,
       title: "Small Shield",
       HPBuff: 1,
       priority: 0,
@@ -44,6 +46,7 @@ let heroPowers = [
     {
       cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
       baseCost: 3,
+      used: false,
       title: "Summon Growth",
       HPBuff: 1,
       priority: 1,
@@ -65,6 +68,7 @@ let heroPowers = [
     {
       cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
       baseCost: 1,
+      used: false,
       title: "Gain Attack",
       HPBuff: 1,
       priority: 0,
@@ -87,6 +91,7 @@ let heroPowers = [
     {
       cost: (stateObj, playerObj) => { return stateObj[playerObj.name].heroPower.baseCost },
       baseCost: 1,
+      used: false,
       title: "Sting",
       HPBuff: 1,
       priority: 0,
@@ -106,6 +111,7 @@ let heroPowers = [
     {
       cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost + (stateObj[playerObj.name].heroPower.HPBuff*2)) },
       baseCost: 4,
+      used: false,
       title: "Erase",
       HPBuff: 1,
       priority: 0,
@@ -140,6 +146,7 @@ let heroPowers = [
     {
       cost: (stateObj, playerObj) => { return stateObj[playerObj.name].heroPower.baseCost },
       baseCost: 2,
+      used: false,
       title: "Analyze",
       HPBuff: 1,
       priority: 0,
