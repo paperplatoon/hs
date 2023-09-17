@@ -1,7 +1,7 @@
 //skill costs less 6 - ritualimp, ritualdjinn, ritualifrit, ritualifrit2, ritualmarid, ritualmarid2
 //advance quest 6 - questimp, questdjinn, questifrit, questifrit2, questmarid, questmarid2
 //new quest 2 - newquestmarid, newquestmarid2,
-//buff HP 1 - dark ritual imp
+//buff HP 6 - darkritualimp, darkritualimp2, darkritualdjinn, darkritualifrit, darkritualifrit2, darkritualmarid, 
 
 //DISCOVER A NEW QUEST MINION HOLY SHIT OMG 
 let newquestmarid = {
@@ -335,7 +335,29 @@ let questmarid2 = {
 
 
 
-let darkritualImp = {
+let darkritualimp = {
+  name: "Dark Ritual Imp",
+  elementType: "air",
+  cardType: "minion",
+  baseCost: 2,
+  attack: 1,
+  currentHealth: 1,
+  maxHealth: 1,
+  avatar: "img/fireMonster.png",
+  canAttack: false,
+  text: (state, index, array, playerObj) => { return `When Played: ${playerObj.heroPower.buffText(1)}` },
+  minReq: (state, index, array) => { return array[index].baseCost; },
+  cost:  (state, index, array) => { return array[index].baseCost; },
+  action: async (stateObj, index, array, playerObj) => {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState[playerObj.name].heroPower.HPBuff += 1;
+    })
+    stateObj = await changeState(stateObj);
+    return stateObj;
+  }
+}
+
+let darkritualimp2 = {
   name: "Dark Ritual Imp",
   elementType: "air",
   cardType: "minion",
@@ -346,6 +368,94 @@ let darkritualImp = {
   avatar: "img/fireMonster.png",
   canAttack: false,
   text: (state, index, array, playerObj) => { return `When Played: ${playerObj.heroPower.buffText(1)}` },
+  minReq: (state, index, array) => { return array[index].baseCost; },
+  cost:  (state, index, array) => { return array[index].baseCost; },
+  action: async (stateObj, index, array, playerObj) => {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState[playerObj.name].heroPower.HPBuff += 1;
+    })
+    stateObj = await changeState(stateObj);
+    return stateObj;
+  }
+}
+
+let darkritualdjinn = {
+  name: "Dark Ritual Djinn",
+  elementType: "air",
+  cardType: "minion",
+  baseCost: 3,
+  attack: 3,
+  currentHealth: 2,
+  maxHealth: 2,
+  avatar: "img/fireMonster.png",
+  canAttack: false,
+  text: (state, index, array, playerObj) => { return `When Played: ${playerObj.heroPower.buffText(1)}` },
+  minReq: (state, index, array) => { return array[index].baseCost; },
+  cost:  (state, index, array) => { return array[index].baseCost; },
+  action: async (stateObj, index, array, playerObj) => {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState[playerObj.name].heroPower.HPBuff += 1;
+    })
+    stateObj = await changeState(stateObj);
+    return stateObj;
+  }
+}
+
+let darkritualifrit = {
+  name: "Dark Ritual Ifrit",
+  elementType: "air",
+  cardType: "minion",
+  baseCost: 4,
+  attack: 3,
+  currentHealth: 5,
+  maxHealth: 5,
+  avatar: "img/fireMonster.png",
+  canAttack: false,
+  text: (state, index, array, playerObj) => { return `When Played: ${playerObj.heroPower.buffText(1)}` },
+  minReq: (state, index, array) => { return array[index].baseCost; },
+  cost:  (state, index, array) => { return array[index].baseCost; },
+  action: async (stateObj, index, array, playerObj) => {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState[playerObj.name].heroPower.HPBuff += 1;
+    })
+    stateObj = await changeState(stateObj);
+    return stateObj;
+  }
+}
+
+let darkritualifrit2 = {
+  name: "Dark Ritual Ifrit",
+  elementType: "air",
+  cardType: "minion",
+  baseCost: 4,
+  attack: 2,
+  currentHealth: 4,
+  maxHealth: 4,
+  avatar: "img/fireMonster.png",
+  canAttack: false,
+  text: (state, index, array, playerObj) => { return `When Played: ${playerObj.heroPower.buffText(2)}` },
+  minReq: (state, index, array) => { return array[index].baseCost; },
+  cost:  (state, index, array) => { return array[index].baseCost; },
+  action: async (stateObj, index, array, playerObj) => {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState[playerObj.name].heroPower.HPBuff += 2;
+    })
+    stateObj = await changeState(stateObj);
+    return stateObj;
+  }
+}
+
+let darkritualmarid = {
+  name: "Dark Ritual Marid",
+  elementType: "air",
+  cardType: "minion",
+  baseCost: 5,
+  attack: 2,
+  currentHealth: 6,
+  maxHealth: 6,
+  avatar: "img/fireMonster.png",
+  canAttack: false,
+  text: (state, index, array, playerObj) => { return `When Played: ${playerObj.heroPower.buffText(3)}` },
   minReq: (state, index, array) => { return array[index].baseCost; },
   cost:  (state, index, array) => { return array[index].baseCost; },
   action: async (stateObj, index, array, playerObj) => {

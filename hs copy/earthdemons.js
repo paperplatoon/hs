@@ -440,7 +440,7 @@ let seedling = {
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },  
     endOfTurn: async (stateObj, index, array, playerObj) => {
-        stateObj = await dealFaceDamage(stateObj, stateObj[playerObj.name], attackerIndex, array[index].currentHealth)
+        stateObj = await dealFaceDamage(stateObj, stateObj[playerObj.name], index, array[index].currentHealth)
         stateObj = await changeState(stateObj)
         return stateObj;
       },
@@ -462,7 +462,7 @@ let seedling = {
     minReq: (state, index, array) => { return array[index].baseCost; },
     cost:  (state, index, array) => { return array[index].baseCost; },  
     endOfTurn: async (stateObj, index, array, playerObj) => {
-        stateObj = await dealFaceDamage(stateObj, stateObj[playerObj.name], attackerIndex, array[index].currentHealth)
+        stateObj = await dealFaceDamage(stateObj, stateObj[playerObj.name], index, array[index].currentHealth)
         stateObj = await changeState(stateObj)
         return stateObj;
       },

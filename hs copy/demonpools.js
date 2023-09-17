@@ -66,7 +66,7 @@ let enemyEarth1highLife = {
         ashamedmama, ashamedmama, elementalIV
     ],
 
-    heroPower: 0 //gainLife
+    heroPower: 1 //gainLife
 }
 
 let enemyEarth1HighHP = {
@@ -80,8 +80,49 @@ let enemyEarth1HighHP = {
         //3
         proudmama, proudmama, elementalIV, elementalIV
     ],
+    heroPower: 1 //gainLife
+}
 
-    heroPower: 0 //gainLife
+let enemyHeroPowerReduce = {
+    deck: [
+        //4
+        fireelementalI, fireelementalI, fireelementalI, fireelementalI,
+        //4
+        ritualimp, ritualimp, fireelementalII, waterelementalII,
+        //4
+        ritualdjinn, ritualdjinn, elementalIII, elementalIII, 
+        //3
+        fireelementalIV, waterelementalIV, elementalIV, elementalIV
+    ],
+    heroPower: 5 //gainLife
+}
+
+let enemyHeroPowerBuff = {
+    deck: [
+        //4
+        elementalI, fireelementalI, waterelementalI, earthelementalI,
+        //4
+        darkritualimp, darkritualimp, darkritualimp2, waterelementalII,
+        //4
+        darkritualdjinn, earthelementalIII, elementalIII, waterelementalIII, 
+        //3
+        darkritualifrit, darkritualifrit2, elementalIV, elementalIV
+    ],
+    heroPower: 3 //gainLife
+}
+
+let enemyHeroPowerBuff2 = {
+    deck: [
+        //4
+        elementalI, fireelementalI, waterelementalI, earthelementalI,
+        //4
+        darkritualimp, darkritualimp, darkritualimp2, waterelementalII,
+        //4
+        darkritualdjinn, earthelementalIII, elementalIII, waterelementalIII, 
+        //3
+        darkritualifrit, darkritualifrit2, elementalIV, elementalIV
+    ],
+    heroPower: 4 //gainLife
 }
 
 let testEnemy = {
@@ -97,7 +138,7 @@ let newPlayer = {
         //5
         waterelementalI, waterelementalI, earthelementalI, earthelementalI, healerimp,
         //4
-        darkritualImp, darkritualImp, waterelementalII, earthelementalII,
+        darkritualimp, darkritualimp, waterelementalII, earthelementalII,
         //5
         waterelementalIII, waterelementalIII, earthelementalIII, earthelementalIII, risingtsunami,
         //1
@@ -150,5 +191,5 @@ let testPlayer = {
 }
 
 
-let potentialEnemies = [enemyEarth1highLife, enemyEarth1HighHP]
+let potentialEnemies = [enemyEarth1highLife, enemyEarth1HighHP, enemyHeroPowerReduce, enemyHeroPowerBuff, enemyHeroPowerBuff2]
 let potentialPlayers = [playerEarthGainLife1, playerEarthHighHPPoisonous, newPlayer, testPlayer]

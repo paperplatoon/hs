@@ -1,5 +1,5 @@
 let heroPowers = [
-    //1
+    //0
     {
       cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
       baseCost: 2,
@@ -19,7 +19,7 @@ let heroPowers = [
         return stateObj;
       },
     },
-  //2
+  //1
     {
       cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
       baseCost: 1,
@@ -42,7 +42,7 @@ let heroPowers = [
         return stateObj;
       },
     },
-  //3
+  //2
     {
       cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
       baseCost: 3,
@@ -64,7 +64,7 @@ let heroPowers = [
         return stateObj;
       },
     },
-  //4
+  //3
     {
       cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost) },
       baseCost: 1,
@@ -87,7 +87,7 @@ let heroPowers = [
         return stateObj;
       },
     },
-  //5
+  //4
     {
       cost: (stateObj, playerObj) => { return stateObj[playerObj.name].heroPower.baseCost },
       baseCost: 1,
@@ -107,7 +107,7 @@ let heroPowers = [
         return stateObj;
       },
     },
-  //6
+  //5
     {
       cost: (stateObj, playerObj) => { return (stateObj[playerObj.name].heroPower.baseCost + (stateObj[playerObj.name].heroPower.HPBuff*2)) },
       baseCost: 4,
@@ -142,7 +142,7 @@ let heroPowers = [
           return stateObj;
       },
     },
-    //7 2 mana - draw a card
+    //6 2 mana - draw a card
     {
       cost: (stateObj, playerObj) => { return stateObj[playerObj.name].heroPower.baseCost },
       baseCost: 2,

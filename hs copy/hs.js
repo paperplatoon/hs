@@ -1134,7 +1134,7 @@ async function renderClickableCardList(stateObj, cardArray, divName, functionToA
 }
 
 async function renderChooseEncounterCardReward(stateObj) {
-  let shuffledCardPool = fisherYatesShuffle(playerElementals);
+  let shuffledCardPool = fisherYatesShuffle(playerMinionsTest);
   let sampledCardPool = shuffledCardPool.slice(0, 3);
 
   document.getElementById("app").innerHTML = ""
