@@ -3,6 +3,23 @@
 //3 - direct face damage HP cards
 //4 - set attack to health (would be nice to be able to target all minions)
 
+//EARTH
+//gain 1 HP for card in hand - when played
+//swap two friendly minions' health
+//set a random friendly minion HP
+//Play: Set this minion's HP to that of your 
+//A random friendly minion gains HP equal to your hand size
+//
+
+//legendary - Gain HP equal to half your life total ()
+
+
+
+
+//AIR
+//If you have at least 20 Life, draw 3 cards
+//
+
 
 //water synergy - gain life if you have enough minions
 //lifesteal?
@@ -785,3 +802,77 @@ let seedling = {
         return stateObj;
     },
   };
+
+  let minispectre = {
+    name: "Mini Specture",
+    elementType: "earth",
+    cardType: "minion",
+    baseCost: 2,
+    attack: 1,
+    currentHealth: 3,
+    maxHealth: 3,
+    avatar: "img/waterpuddle.png", 
+    canAttack: false,
+    text: (state, index, array) => { return `When Played: Set HP of a random friendly minion to that of your highest HP minion`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },    
+    action: async (stateObj, index, array, playerObj) => {
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        if (player.monstersInPlay.length > 2) {
+            let maxHealthIndex = false;
+            let maxHealth = 0;
+            for (let i=0; i < player.monstersInPlay.length-1; i++) {
+                if (player.monstersInPlay[i].currentHealth > maxHealth) {
+                    maxHealth = player.monstersInPlay[i].currentHealth
+                    maxHealthIndex = i
+                }
+            }
+            let availableMinionIndexes = []
+            for (let i=0; i < player.monstersInPlay.length-1; i++) {
+                if (i !== maxHealthIndex) {
+                  availableMinionIndexes.push(i);
+                }   
+            }
+            let otherMinionIndex = availableMinionIndexes[Math.floor(Math.random() * availableMinionIndexes.length)]
+            let amountToGain = maxHealth - player.monstersInPlay[otherMinionIndex].currentHealth
+            stateObj = await giveDemonStats(stateObj, playerObj, otherMinionIndex,  "currentHealth", amountToGain, false, "maxHealth", amountToGain)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+  let copycat = {
+    name: "Copy Cat",
+    elementType: "earth",
+    cardType: "minion",
+    baseCost: 1,
+    attack: 3,
+    currentHealth: 3,
+    maxHealth: 3,
+    avatar: "img/waterpuddle.png", 
+    canAttack: false,
+    text: (state, index, array) => { return `When Played: Set this minion's HP to that of your highest HP minion`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },    
+    action: async (stateObj, index, array, playerObj) => {
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        if (player.monstersInPlay.length > 1) {
+            let maxHealth = 0;
+            for (let i=0; i < player.monstersInPlay.length-1; i++) {
+                if (player.monstersInPlay[i].currentHealth > maxHealth) {
+                    maxHealth = player.monstersInPlay[i].currentHealth
+                }
+            }
+            let amountToGain = maxHealth - 3
+            stateObj = await giveDemonStats(stateObj, playerObj, stateObj[playerObj.name].monstersInPlay.length-1,  "currentHealth", amountToGain, false, "maxHealth", amountToGain)
+        }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+
+
+  //gain 1 HP for card in hand - when played
+//A random friendly minion gains HP equal to your hand size

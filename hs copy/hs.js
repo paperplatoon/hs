@@ -502,15 +502,18 @@ async function healMinion(stateObj, playerSummoning, index, HPToHeal) {
 async function handleDeathsForPlayer(stateObj, playerObj) {
   if (playerObj.monstersInPlay.length > 0) {
     let indexesToDelete = [];
-    playerObj.monstersInPlay.forEach(function (monster, index) {
+    for (let i = 0; i < stateObj[playerObj.name].monstersInPlay.length; i++) {
+      let monster = stateObj[playerObj.name].monstersInPlay[i]
       if (monster.currentHealth <= 0) {
         console.log(playerObj.name + "'s " + monster.name + " has died.")
-        console.log(index)
-        indexesToDelete.push(index);
+        console.log(i)
+        indexesToDelete.push(i);
       }
-    });
+    };
+
     //if a monster has died
     if (indexesToDelete.length > 0) {
+      console.log("second part of itd")
       indexesToDelete.reverse()
       //await opponentDeathAnimation(indexesToDelete)
       for (let i = 0; i < indexesToDelete.length; i++) {
@@ -523,15 +526,18 @@ async function handleDeathsForPlayer(stateObj, playerObj) {
           if (typeof(monsterObj.onDeath) === "function") {
             let mult = stateObj[playerObj.name].onDeathMultiplier
             for (let m = 0; m < mult; m++) {
+              console.log("internal loop")
               stateObj = await stateObj[playerObj.name].monstersInPlay[indexesToDelete[i]].onDeath(stateObj, indexesToDelete[i], playerObj.monstersInPlay, playerObj)
             }
           }
           stateObj = immer.produce(stateObj, (newState) => {
+            console.log("splicing")
             let player = (playerObj.name === "player") ? newState.player : newState.opponent
             player.monstersInPlay.splice(indexesToDelete[i], 1)
           })
           stateObj = await updateState(stateObj)
           await pause(200)
+          console.log("end of loop")
         }
     }
   }
@@ -1311,6 +1317,8 @@ async function endTurn(stateObj) {
     newState.player.monstersInPlay.forEach(function (monsterObj, index) {
       monsterObj.canAttack = true;
     })
+    newState.player.heroPower.used = false;
+    newState.opponent.heroPower.used = false;
   });
   await changeState(stateObj);
 

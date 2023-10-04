@@ -32,7 +32,7 @@ let newquestmarid2 = {
   elementType: "air",
   cardType: "minion",
   rarity: "legendary",
-  baseCost: 3,
+  baseCost: 1,
   attack: 1,
   currentHealth: 1,
   maxHealth: 1,
@@ -58,7 +58,7 @@ let ritualimp = {
   cardType: "minion",
   rarity: "common",
   baseCost: 2,
-  attack: 0,
+  attack: 1,
   currentHealth: 2,
   maxHealth: 2,
   avatar: "img/fireMonster.png",
@@ -82,7 +82,7 @@ let ritualdjinn = {
   cardType: "minion",
   rarity: "rare",
   baseCost: 3,
-  attack: 1,
+  attack: 2,
   currentHealth: 3,
   maxHealth: 3,
   avatar: "img/fireMonster.png",
@@ -375,6 +375,28 @@ let darkritualimp2 = {
       newState[playerObj.name].heroPower.HPBuff += 1;
     })
     stateObj = await changeState(stateObj);
+    return stateObj;
+  }
+}
+
+let darkritualimp3 = {
+  name: "Dark Ritual Imp",
+  elementType: "air",
+  cardType: "minion",
+  baseCost: 1,
+  attack: 1,
+  currentHealth: 1,
+  maxHealth: 1,
+  avatar: "img/fireMonster.png",
+  canAttack: false,
+  text: (state, index, array, playerObj) => { return `Die: ${playerObj.heroPower.buffText(1)}` },
+  minReq: (state, index, array) => { return array[index].baseCost; },
+  cost:  (state, index, array) => { return array[index].baseCost; },
+  onDeath: async (stateObj, index, array, playerObj) => {
+    stateObj = immer.produce(stateObj, (newState) => {
+      newState[playerObj.name].heroPower.HPBuff += 1;
+    })
+    stateObj = await updateState(stateObj);
     return stateObj;
   }
 }

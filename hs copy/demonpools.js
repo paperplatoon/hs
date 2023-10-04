@@ -183,8 +183,24 @@ let playerEarthGainLife1 = {
     text: "Raise your own life total and play powerful creatures!"
 }
 
+let playerAirBuffHP = {
+    deck: [
+        //4
+        darkritualimp3, darkritualimp3, waterelementalI, waterelementalI, 
+        //5
+        darkritualimp, darkritualimp, waterelementalII, waterelementalII, waterelementalII,
+        //3
+        darkritualdjinn, waterelementalIII, waterelementalIII, 
+        //1
+        darkritualifrit, darkritualifrit2, 
+    ],
+    heroPower: 0,
+    name: "Sting",
+    text: "Use your Hero Power to kill opponents"
+}
+
 let testPlayer = {
-    deck: [testKiller, testKiller, newquestmarid2, testKiller, testKiller2],
+    deck: [testKiller, testKiller2, copycat, minispectre, testKiller2],
     heroPower: 0,
     name: "Testing Mode",
     text: "Roleplay as a developer looking for bugs!"
@@ -192,4 +208,4 @@ let testPlayer = {
 
 
 let potentialEnemies = [enemyEarth1highLife, enemyEarth1HighHP, enemyHeroPowerReduce, enemyHeroPowerBuff, enemyHeroPowerBuff2]
-let potentialPlayers = [playerEarthGainLife1, playerEarthHighHPPoisonous, newPlayer, testPlayer]
+let potentialPlayers = [playerEarthGainLife1, playerEarthHighHPPoisonous, playerAirBuffHP, newPlayer, testPlayer]

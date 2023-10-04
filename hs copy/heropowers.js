@@ -14,6 +14,7 @@ let heroPowers = [
         stateObj = await gainLife(stateObj, stateObj[playerObj.name], stateObj[playerObj.name].heroPower.HPBuff)
         stateObj = immer.produce(stateObj, (newState) => {
           newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
+          newState[playerObj.name].heroPower.used = true;
         })
         stateObj = await changeState(stateObj)
         return stateObj;
@@ -37,6 +38,7 @@ let heroPowers = [
         }
         stateObj = immer.produce(stateObj, (newState) => {
           newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
+          newState[playerObj.name].heroPower.used = true;
         })
         stateObj = await changeState(stateObj)
         return stateObj;
@@ -59,6 +61,7 @@ let heroPowers = [
         stateObj = immer.produce(stateObj, (newState) => {
           newState[playerObj.name].currentEnergy -= newState[playerObj.name].heroPower.cost(stateObj, playerObj)
           newState[playerObj.name].heroPower.HPBuff += 1;
+          newState[playerObj.name].heroPower.used = true;
         })
         stateObj = await changeState(stateObj)
         return stateObj;
@@ -82,6 +85,7 @@ let heroPowers = [
         }
         stateObj = immer.produce(stateObj, (newState) => {
           newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
+          newState[playerObj.name].heroPower.used = true;
         })
         stateObj = await changeState(stateObj)
         return stateObj;
@@ -99,9 +103,10 @@ let heroPowers = [
       text: (stateObj, playerObj) => { return (stateObj.status === Status.inFight) ?  
         `Deal ${stateObj[playerObj.name].heroPower.HPBuff} damage directly to your opponent` : `Deal 1 damage directly to your opponent` },
       action: async (stateObj, playerObj) => {
-        stateObj = await dealFaceDamage(stateObj, stateObj[playerObj.name], attackerIndex="player", 1)
+        stateObj = await dealFaceDamage(stateObj, stateObj[playerObj.name], attackerIndex="player", stateObj[playerObj.name].heroPower.HPBuff )
         stateObj = immer.produce(stateObj, (newState) => {
           newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
+          newState[playerObj.name].heroPower.used = true;
         })
         stateObj = await changeState(stateObj)
         return stateObj;
@@ -136,6 +141,7 @@ let heroPowers = [
               mArray[t].currentHealth = 0;
             }
             newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
+            newState[playerObj.name].heroPower.used = true;
           })
           stateObj = await changeState(stateObj)
         }
@@ -161,6 +167,10 @@ let heroPowers = [
         `Draw ${stateObj[playerObj.name].heroPower.HPBuff} card` : `Draw 1 card` },
       action: async (stateObj, playerObj) => {
         stateObj = await drawACard(stateObj, stateObj[playerObj.name])
+        stateObj = immer.produce(stateObj, (newState) => {
+          newState[playerObj.name].currentEnergy -= stateObj[playerObj.name].heroPower.cost(stateObj, playerObj)
+          newState[playerObj.name].heroPower.used = true;
+        })
         stateObj = await changeState(stateObj)
         return stateObj;
       },
