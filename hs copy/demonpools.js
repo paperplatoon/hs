@@ -21,6 +21,21 @@ let waterMinions = [
     proudmama, ashamedmama,
 ]
 
+let earthMinions = [
+    //1 - 6
+    seedling, nymphcultivator, woodsprite, lightspark, healerimp, sicklyifrit, 
+    //2 - 9
+    woodfairy, sapplingsprout, sacrificialsprite, forestnymph, toxicvapors, deepseasquid, hypedjinn, lightbornimp, minispectre,
+    //3 - 12
+    oystergod, naturedeity, wpdeity, ODdeity, healingspring, poisonousswamp, spreadingblessing, kindspirit, lifegiver, fragilespirit, copycat, handsizeHP,
+    //4 - 5
+    forestdeity, deityoflight, bellcasterdeity, empoweredspirit, cowardlyspirit, 
+    //5 - 2
+    risingtsunami, europesspectre, 
+    //6 - 2
+    purifiedoverlord, corruptingspirit,
+]
+
 let playerElementals = [
     earthelementalI, earthelementalII, earthelementalIII, earthelementalIV, earthelementalV,
     fireelementalI, fireelementalII, fireelementalIII, fireelementalIV, fireelementalV,
@@ -52,7 +67,7 @@ let highHPEarthMinions = [
      purifiedoverlord, risingtsunami, europesspectre, corruptingspirit,
 ]
 
-let playerMinionsTest = [...playerElementals, ...highHPEarthMinions, ...highHPEarthMinions]
+let playerMinionsTest = [...playerElementals, ...earthMinions]
 
 let enemyEarth1highLife = {
     deck: [
@@ -200,7 +215,7 @@ let playerAirBuffHP = {
 }
 
 let testPlayer = {
-    deck: [testKiller, testKiller2, copycat, minispectre, testKiller2],
+    deck: [testKiller, handsizeHP, handsizeHP, minispectre, testKiller2],
     heroPower: 0,
     name: "Testing Mode",
     text: "Roleplay as a developer looking for bugs!"

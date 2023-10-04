@@ -375,7 +375,7 @@ let seedling = {
     elementType: "earth",
     cardType: "minion",
     baseCost: 4,
-    attack: 20,
+    attack: 2,
     currentHealth: 5,
     maxHealth: 5,
     avatar: "img/plant1.png",
@@ -846,7 +846,7 @@ let seedling = {
     name: "Copy Cat",
     elementType: "earth",
     cardType: "minion",
-    baseCost: 1,
+    baseCost: 3,
     attack: 3,
     currentHealth: 3,
     maxHealth: 3,
@@ -867,6 +867,29 @@ let seedling = {
             let amountToGain = maxHealth - 3
             stateObj = await giveDemonStats(stateObj, playerObj, stateObj[playerObj.name].monstersInPlay.length-1,  "currentHealth", amountToGain, false, "maxHealth", amountToGain)
         }
+        stateObj = await changeState(stateObj)
+        return stateObj;
+    },
+  };
+
+  let handsizeHP = {
+    name: "hand size HP",
+    elementType: "earth",
+    cardType: "minion",
+    baseCost: 3,
+    attack: 3,
+    currentHealth: 1,
+    maxHealth: 1,
+    avatar: "img/waterpuddle.png", 
+    canAttack: false,
+    text: (state, index, array) => { return `When Played: Gain 1 HP for each other card in your hand`  },
+    minReq: (state, index, array) => { return array[index].baseCost; },
+    cost:  (state, index, array) => { return array[index].baseCost; },    
+    action: async (stateObj, index, array, playerObj) => {
+        let player = (playerObj.name === "player") ? stateObj.player : stateObj.opponent
+        let amountToGain = player.encounterHand.length
+        stateObj = await giveDemonStats(stateObj, playerObj, stateObj[playerObj.name].monstersInPlay.length-1,  "currentHealth", amountToGain, false, "maxHealth", amountToGain)
+  
         stateObj = await changeState(stateObj)
         return stateObj;
     },
