@@ -2,33 +2,51 @@ import { Players } from '../state.js';
 import { canPlayCard, playCardFromHand, declareAttack, attackTarget, endTurn } from '../engine/actions.js';
 import { takeOpponentTurn } from '../ai/simple.js';
 import { initFx } from './fx.js';
+import { CARDS, CardType, createMinionInstance, createSpellInstance } from '../cards/schema.js';
 
 export function mount(root, getState, setState) {
   root.innerHTML = '';
-  const container = document.createElement('div');
-  container.id = 'battlefield-v2';
-  container.style.display = 'grid';
-  container.style.gridTemplateRows = 'auto auto auto auto';
-  container.style.gap = '12px';
-  container.style.position = 'relative';
 
-  const enemyLane = document.createElement('div');
-  enemyLane.className = 'zone board-lane';
-  enemyLane.id = 'enemy-lane';
-  const controlLane = document.createElement('div');
-  controlLane.className = 'zone control-lane';
-  controlLane.id = 'control-lane';
-  const playerLane = document.createElement('div');
-  playerLane.className = 'zone board-lane';
-  playerLane.id = 'player-lane';
+  // Battle view container
+  const battleContainer = document.createElement('div');
+  battleContainer.id = 'battlefield-v2';
+  battleContainer.style.display = 'grid';
+  battleContainer.style.gridTemplateRows = 'auto auto auto';
+  battleContainer.style.gap = '12px';
+  battleContainer.style.position = 'relative';
+
+  const enemyZone = document.createElement('div');
+  enemyZone.className = 'zone enemy-zone';
+  enemyZone.id = 'enemy-zone';
+  const playerZone = document.createElement('div');
+  playerZone.className = 'zone player-zone';
+  playerZone.id = 'player-zone';
   const handTray = document.createElement('div');
   handTray.className = 'hand-tray';
   handTray.id = 'hand-tray';
 
-  container.append(enemyLane, controlLane, playerLane, handTray);
-  root.append(container);
+  battleContainer.append(enemyZone, playerZone, handTray);
 
-  // Aim overlay SVG
+  // Gallery view container
+  const galleryContainer = document.createElement('div');
+  galleryContainer.id = 'gallery-view';
+  galleryContainer.style.display = 'none';
+
+  // View toggle button
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'view-toggle-btn';
+  toggleBtn.textContent = '📋';
+  toggleBtn.title = 'Toggle card gallery';
+  toggleBtn.addEventListener('click', () => {
+    setState((s) => {
+      s.viewMode = s.viewMode === 'battle' ? 'gallery' : 'battle';
+      return s;
+    });
+  });
+
+  root.append(battleContainer, galleryContainer, toggleBtn);
+
+  // Aim overlay SVG (for battle view)
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('id', 'aim-overlay');
   svg.setAttribute('width', '100%');
@@ -37,34 +55,44 @@ export function mount(root, getState, setState) {
   const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
   arrow.setAttribute('class', 'arrow');
   svg.append(path, arrow);
-  container.append(svg);
-  const fx = initFx(container);
+  battleContainer.append(svg);
+  const fx = initFx(battleContainer);
 
   let mouse = { x: 0, y: 0 };
   // For summon/death FX: remember previous positions and uids
   let lastPositions = new Map(); // uid -> {x,y}
   let lastUids = new Set();
   const onMove = (e) => {
-    const rect = container.getBoundingClientRect();
+    const rect = battleContainer.getBoundingClientRect();
     mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     drawAimIfNeeded();
   };
   document.addEventListener('pointermove', onMove);
 
   function rerender() {
-    snapshotPositions();
     const state = getState();
-    // Auto-run opponent turn if needed
-    if (state.activePlayer === Players.OPPONENT && !state.pending.aiDoneTurn) {
-      setState((s) => takeOpponentTurn(s));
-      return; // next rerender will happen
+
+    // Toggle view display
+    if (state.viewMode === 'gallery') {
+      battleContainer.style.display = 'none';
+      galleryContainer.style.display = 'block';
+      renderGallery(galleryContainer, state);
+    } else {
+      battleContainer.style.display = 'grid';
+      galleryContainer.style.display = 'none';
+
+      snapshotPositions();
+      // Auto-run opponent turn if needed
+      if (state.activePlayer === Players.OPPONENT && !state.pending.aiDoneTurn) {
+        setState((s) => takeOpponentTurn(s));
+        return; // next rerender will happen
+      }
+      renderEnemyZone(enemyZone, state, setState, animateAttack);
+      renderPlayerZone(playerZone, state, setState, animateAttack);
+      renderHand(handTray, state, setState);
+      drawAimIfNeeded();
+      diffAndEmitFx();
     }
-    renderBoardLane(enemyLane, state, Players.OPPONENT, setState, animateAttack);
-    renderControls(controlLane, state, setState, animateAttack);
-    renderBoardLane(playerLane, state, Players.PLAYER, setState, animateAttack);
-    renderHand(handTray, state, setState);
-    drawAimIfNeeded();
-    diffAndEmitFx();
   }
 
   return { rerender };
@@ -73,7 +101,7 @@ export function mount(root, getState, setState) {
   function snapshotPositions() {
     lastPositions.clear();
     lastUids.clear();
-    const cRect = container.getBoundingClientRect();
+    const cRect = battleContainer.getBoundingClientRect();
     document.querySelectorAll('[data-uid]').forEach((el) => {
       const r = el.getBoundingClientRect();
       const x = r.left - cRect.left + r.width / 2;
@@ -117,7 +145,7 @@ export function mount(root, getState, setState) {
       attackerEl.classList.add('u-windup');
       setTimeout(() => attackerEl.classList.remove('u-windup'), 140);
 
-      const cRect = container.getBoundingClientRect();
+      const cRect = battleContainer.getBoundingClientRect();
       const a = attackerEl.getBoundingClientRect();
       const t = targetEl.getBoundingClientRect();
       const sx = a.left - cRect.left + a.width / 2;
@@ -132,7 +160,7 @@ export function mount(root, getState, setState) {
       ghost.style.pointerEvents = 'none';
       ghost.style.willChange = 'transform, opacity';
       ghost.style.opacity = '0.95';
-      container.appendChild(ghost);
+      battleContainer.appendChild(ghost);
 
       const angle = Math.atan2(ey - sy, ex - sx);
       const dx = ex - sx; const dy = ey - sy;
@@ -205,26 +233,187 @@ export function mount(root, getState, setState) {
       if (valid) n.classList.add('u-aim-target');
       else n.classList.add('u-aim-invalid');
     });
-    // Enemy hero plate target when no taunt
-    const heroPlate = document.querySelector('.hero-plate.enemy');
-    if (heroPlate) {
-      heroPlate.classList.remove('u-aim-target', 'u-aim-invalid');
-      if (!hasTaunt) heroPlate.classList.add('u-aim-target');
-      else heroPlate.classList.add('u-aim-invalid');
+    // Enemy hero target when no taunt
+    const heroAvatar = document.querySelector('.hero-avatar.enemy');
+    if (heroAvatar) {
+      heroAvatar.classList.remove('u-aim-target', 'u-aim-invalid');
+      if (!hasTaunt) heroAvatar.classList.add('u-aim-target');
+      else heroAvatar.classList.add('u-aim-invalid');
     }
   }
 }
 
-function renderBoardLane(el, state, playerId, setState, animateAttack) {
-  const p = state.players[playerId];
+function renderEnemyZone(el, state, setState, animateAttack) {
   el.innerHTML = '';
+
+  const avatar = renderHeroAvatar(state, Players.OPPONENT, setState, animateAttack);
+  const creatureLane = renderCreatureLane(state, Players.OPPONENT, setState, animateAttack);
+  const handCounter = renderHandCounter(state, Players.OPPONENT);
+
+  el.append(avatar, creatureLane, handCounter);
+}
+
+function renderPlayerZone(el, state, setState, animateAttack) {
+  el.innerHTML = '';
+
+  const avatar = renderHeroAvatar(state, Players.PLAYER, setState, animateAttack);
+  const creatureLane = renderCreatureLane(state, Players.PLAYER, setState, animateAttack);
+
+  // End turn button
+  const endTurnContainer = document.createElement('div');
+  endTurnContainer.className = 'end-turn-zone';
+  const endBtn = document.createElement('button');
+  endBtn.className = 'btn btn--end btn-ring';
+  endBtn.textContent = 'End Turn';
+  endBtn.addEventListener('click', () => {
+    endBtn.classList.add('u-sweep');
+    setTimeout(() => endBtn.classList.remove('u-sweep'), 620);
+    setState((s) => endTurn(s));
+  });
+  endTurnContainer.append(endBtn);
+
+  el.append(avatar, creatureLane, endTurnContainer);
+}
+
+function renderGallery(container, state) {
+  container.innerHTML = '';
+
+  const header = document.createElement('h1');
+  header.textContent = 'Card Gallery';
+  header.style.textAlign = 'center';
+  header.style.margin = '20px 0';
+  header.style.color = '#e6e6e6';
+  container.append(header);
+
+  // Minions section
+  const minionSection = document.createElement('div');
+  minionSection.className = 'gallery-section';
+
+  const minionHeader = document.createElement('h2');
+  minionHeader.textContent = 'Minions';
+  minionHeader.style.color = '#e6e6e6';
+  minionHeader.style.marginBottom = '12px';
+  minionSection.append(minionHeader);
+
+  const minionGrid = document.createElement('div');
+  minionGrid.className = 'card-gallery-grid';
+
+  const minions = Object.values(CARDS).filter(card => card.type === CardType.MINION);
+  minions.forEach(cardDef => {
+    const cardInstance = createMinionInstance(cardDef);
+    const cardEl = renderMinionCard(cardInstance, state, null, null, null);
+    minionGrid.append(cardEl);
+  });
+
+  minionSection.append(minionGrid);
+  container.append(minionSection);
+
+  // Spells section
+  const spellSection = document.createElement('div');
+  spellSection.className = 'gallery-section';
+
+  const spellHeader = document.createElement('h2');
+  spellHeader.textContent = 'Spells';
+  spellHeader.style.color = '#e6e6e6';
+  spellHeader.style.marginBottom = '12px';
+  spellSection.append(spellHeader);
+
+  const spellGrid = document.createElement('div');
+  spellGrid.className = 'card-gallery-grid';
+
+  const spells = Object.values(CARDS).filter(card => card.type === CardType.SPELL);
+  spells.forEach(cardDef => {
+    const cardInstance = createSpellInstance(cardDef);
+    const cardEl = renderHandCard(cardInstance, state, null, null, null);
+    spellGrid.append(cardEl);
+  });
+
+  spellSection.append(spellGrid);
+  container.append(spellSection);
+}
+
+function renderHandCounter(state, playerId) {
+  const player = state.players[playerId];
+  const counter = document.createElement('div');
+  counter.className = 'hand-counter';
+
+  const icon = document.createElement('div');
+  icon.className = 'hand-counter-icon';
+  icon.textContent = '\u{1F0A0}'; // Playing card unicode
+
+  const count = document.createElement('div');
+  count.className = 'hand-counter-count';
+  count.textContent = player.hand.length;
+
+  counter.append(icon, count);
+  return counter;
+}
+
+function renderHeroAvatar(state, playerId, setState, animateAttack) {
+  const player = state.players[playerId];
+  const isEnemy = playerId === Players.OPPONENT;
+
+  const avatar = document.createElement('div');
+  avatar.className = `hero-avatar ${isEnemy ? 'enemy' : 'player'}`;
+
+  // Health badge
+  const health = document.createElement('div');
+  health.className = 'badge heart';
+  health.textContent = player.life;
+
+  // Mana badge
+  const mana = document.createElement('div');
+  mana.className = 'badge mana';
+  mana.textContent = player.mana.current;
+
+  // Hero portrait area
+  const portrait = document.createElement('div');
+  portrait.className = 'hero-portrait';
+  portrait.textContent = isEnemy ? 'Enemy' : 'You';
+
+  // Hero power button (placeholder for now)
+  const heroPower = document.createElement('button');
+  heroPower.className = 'btn btn--power';
+  heroPower.textContent = 'Hero Power';
+  heroPower.disabled = true; // TODO: Enable when hero powers are implemented
+  heroPower.style.opacity = '0.5';
+
+  avatar.append(portrait, health, mana, heroPower);
+
+  // Enemy avatar is targetable for attacks
+  if (isEnemy) {
+    avatar.dataset.cardOwner = playerId;
+    avatar.style.cursor = 'pointer';
+    avatar.title = 'Click to target enemy hero';
+    avatar.addEventListener('click', () => {
+      const sel = state.pending.selection;
+      if (sel && sel.type === 'attack') {
+        const hasTaunt = state.players[playerId].board.some((m) => m.keywords?.taunt);
+        if (hasTaunt) return;
+        const attackerEl = document.querySelector(`[data-card-owner="${sel.playerId}"][data-card-index="${sel.attackerIndex}"]`);
+        animateAttack(attackerEl, avatar).then(() => {
+          setState((s) => attackTarget(s, sel.playerId, sel.attackerIndex, { type: 'hero' }));
+        });
+      }
+    });
+  }
+
+  return avatar;
+}
+
+function renderCreatureLane(state, playerId, setState, animateAttack) {
+  const p = state.players[playerId];
+  const lane = document.createElement('div');
+  lane.className = 'creature-lane';
+
   p.board.forEach((m, idx) => {
-    const wrap = renderMinionCard(m);
+    const wrap = renderMinionCard(m, state, playerId, 'board', idx);
     if (m.uid) wrap.dataset.uid = m.uid;
     wrap.dataset.zone = 'board';
     wrap.dataset.cardOwner = playerId;
     wrap.dataset.cardIndex = String(idx);
     wrap.dataset.hasTaunt = m.keywords?.taunt ? 'true' : 'false';
+
     if (playerId === Players.PLAYER && m.canAttack && !m.summoningSickness) {
       wrap.classList.add('ready', 'u-breathe');
       wrap.title = 'Click then target to attack';
@@ -232,6 +421,7 @@ function renderBoardLane(el, state, playerId, setState, animateAttack) {
         setState((s) => declareAttack(s, playerId, idx));
       });
     }
+
     if (playerId === Players.OPPONENT) {
       wrap.style.cursor = 'pointer';
       wrap.title = 'Target for attack';
@@ -245,65 +435,18 @@ function renderBoardLane(el, state, playerId, setState, animateAttack) {
         }
       });
     }
-    el.appendChild(wrap);
-  });
-}
 
-function renderControls(el, state, setState, animateAttack) {
-  el.innerHTML = '';
-  const enemyPlate = document.createElement('div');
-  enemyPlate.className = 'hero-plate enemy';
-  enemyPlate.title = 'Click to target enemy hero';
-  const eHeart = document.createElement('div'); eHeart.className = 'badge heart'; eHeart.textContent = state.players.opponent.life;
-  const eMana = document.createElement('div'); eMana.className = 'badge mana'; eMana.textContent = state.players.opponent.mana.current;
-  enemyPlate.append(eHeart, eMana);
-  enemyPlate.addEventListener('click', () => {
-    const sel = state.pending.selection;
-    if (sel && sel.type === 'attack') {
-      const hasTaunt = state.players.opponent.board.some((m) => m.keywords?.taunt);
-      if (hasTaunt) return;
-      const attackerEl = document.querySelector(`[data-card-owner="${sel.playerId}"][data-card-index="${sel.attackerIndex}"]`);
-      animateAttack(attackerEl, enemyPlate).then(() => {
-        setState((s) => attackTarget(s, sel.playerId, sel.attackerIndex, { type: 'hero' }));
-      });
-    }
+    lane.appendChild(wrap);
   });
 
-  const center = document.createElement('div');
-  center.className = 'u-center';
-  const endBtn = document.createElement('button');
-  endBtn.className = 'btn btn--end btn-ring';
-  endBtn.textContent = 'End Turn';
-  endBtn.addEventListener('click', () => {
-    // shine sweep feedback
-    endBtn.classList.add('u-sweep');
-    setTimeout(() => endBtn.classList.remove('u-sweep'), 620);
-    setState((s) => endTurn(s));
-  });
-  center.append(endBtn);
-
-  const playerPlate = document.createElement('div');
-  playerPlate.className = 'hero-plate';
-  const pHeart = document.createElement('div'); pHeart.className = 'badge heart'; pHeart.textContent = state.players.player.life;
-  const pMana = document.createElement('div'); pMana.className = 'badge mana'; pMana.textContent = `${state.players.player.mana.current}`;
-  playerPlate.append(pHeart, pMana);
-
-  el.append(enemyPlate, center, playerPlate);
-
-  // Compact log under center
-  const log = document.createElement('div');
-  log.className = 'log-panel';
-  state.log.slice(-6).forEach((e) => {
-    const p = document.createElement('div'); p.textContent = e.message; log.append(p);
-  });
-  center.append(log);
+  return lane;
 }
 
 function renderHand(el, state, setState) {
   el.innerHTML = '';
   const p = state.players.player;
   p.hand.forEach((c, i) => {
-    const card = renderHandCard(c);
+    const card = renderHandCard(c, state, Players.PLAYER, 'hand', i);
     const playable = canPlayCard(state, Players.PLAYER, i);
     card.style.opacity = playable ? '1' : '0.5';
     card.style.cursor = playable ? 'pointer' : 'default';
@@ -315,36 +458,13 @@ function renderHand(el, state, setState) {
   });
 }
 
-function renderInfo(el, state, getState, setState) {
-  el.innerHTML = '';
-  const row = document.createElement('div');
-  row.className = 'u-row';
-  row.style.justifyContent = 'space-between';
+function describeCard(card, state, owner, zone, index) {
+  // If card has text function, call it
+  if (typeof card.text === 'function') {
+    return card.text(state, owner, zone, index);
+  }
 
-  const left = document.createElement('div');
-  left.textContent = `Turn ${state.turn} — ${state.activePlayer}`;
-  const right = document.createElement('div');
-  const btn = document.createElement('button');
-  btn.className = 'btn btn--end btn-ring';
-  btn.textContent = 'End Turn';
-  btn.addEventListener('click', () => setState((s) => endTurn(s)));
-  right.append(btn);
-
-  row.append(left, right);
-  el.append(row);
-
-  const log = document.createElement('div');
-  log.style.maxHeight = '160px';
-  log.style.overflow = 'auto';
-  state.log.slice(-10).forEach((e) => {
-    const p = document.createElement('div');
-    p.textContent = e.message;
-    log.append(p);
-  });
-  el.append(log);
-}
-
-function describeCard(card) {
+  // Otherwise generate from keywords/triggers
   const parts = [];
   const kw = card.keywords || {};
   const tr = card.triggers || {};
@@ -366,6 +486,17 @@ function describeCard(card) {
   if (tr.endOfTurn && kw.growing) {
     const g = kw.growing; parts.push(`End of turn: +${g.attack}/+${g.health}`);
   }
+  if (tr.endOfTurn?.some?.((t) => t.keyword === 'spawn')) {
+    const t = tr.endOfTurn.find((x) => x.keyword === 'spawn');
+    const c = t?.params?.count || 1;
+    parts.push(`End of turn: Summon ${c} token${c>1?'s':''}`);
+  }
+  if (tr.onSummon?.some?.((t) => t.keyword === 'warcry') && kw.warcry) {
+    const w = kw.warcry; parts.push(`Warcry: Random ally +${w.attack} attack`);
+  }
+  if (tr.onSummon?.some?.((t) => t.keyword === 'snipe') && kw.snipe) {
+    const s = kw.snipe; parts.push(`Snipe: ${s.damage} dmg to weakest enemy`);
+  }
   if (tr.onDeath?.some?.((t) => t.keyword === 'spawn')) {
     const t = tr.onDeath.find((x) => x.keyword === 'spawn');
     const c = t?.params?.count || 1;
@@ -383,7 +514,7 @@ function hasBoardSpellDamage() {
   } catch (_) { return false; }
 }
 
-function renderMinionCard(m) {
+function renderMinionCard(m, state, owner, zone, index) {
   const wrap = document.createElement('div');
   wrap.className = 'card-wrap';
   const card = document.createElement('div');
@@ -407,28 +538,28 @@ function renderMinionCard(m) {
   if (m.keywords?.windfury) chips.append(chip('Windfury', 'Can attack twice each turn.'));
   if (m.keywords?.divineShield) chips.append(chip('Shield', 'Prevents the next damage taken.'));
   if (m.keywords?.spellDamage) chips.append(chip(`SD+${m.keywords.spellDamage}`, 'Your spells deal extra damage.'));
-  const tags = document.createElement('div');
-  tags.className = 'cm-tags';
-  if (typeof m.remainingAttacks === 'number') tags.textContent = `atk:${m.remainingAttacks}`;
   const rules = document.createElement('div');
   rules.className = 'cm-text';
-  rules.textContent = describeCard(m);
+  rules.textContent = describeCard(m, state, owner, zone, index);
 
-  portrait.append(name, chips, tags, rules);
+  portrait.append(name, chips, rules);
   card.append(portrait);
   wrap.append(card);
 
+  const cost = document.createElement('div');
+  cost.className = 'cm-orb cost';
+  cost.textContent = m.cost ?? 0;
   const atk = document.createElement('div');
   atk.className = 'cm-orb atk';
   atk.textContent = m.attack;
   const hp = document.createElement('div');
   hp.className = 'cm-orb hp';
   hp.textContent = Math.max(0, m.health);
-  wrap.append(atk, hp);
+  wrap.append(cost, atk, hp);
   return wrap;
 }
 
-function renderHandCard(c) {
+function renderHandCard(c, state, owner, zone, index) {
   const wrap = document.createElement('div');
   wrap.className = 'card-wrap';
   const card = document.createElement('div');
@@ -436,10 +567,6 @@ function renderHandCard(c) {
   const name = document.createElement('div');
   name.className = 'cm-name';
   name.textContent = `${c.name}`;
-  const cost = document.createElement('div');
-  cost.className = 'cm-tags';
-  const k = c.cost ?? c.stats?.cost ?? 0;
-  cost.textContent = `Cost ${k}`;
   const portrait = document.createElement('div');
   portrait.className = 'cm-portrait';
   if (c.art) {
@@ -447,16 +574,25 @@ function renderHandCard(c) {
     img.src = c.art; img.alt = c.name; img.style.width = '100%'; img.style.height = '100%'; img.style.objectFit = 'cover'; img.style.opacity = '.9';
     portrait.append(img);
   }
-  portrait.append(name, cost);
+  portrait.append(name);
+  // Add rules text
+  const rules = document.createElement('div'); rules.className = 'cm-text'; rules.textContent = describeCard(c, state, owner, zone, index);
+  portrait.append(rules);
   card.append(portrait);
   wrap.append(card);
+
+  // Cost orb
+  const costVal = c.cost ?? c.stats?.cost ?? 0;
+  const cost = document.createElement('div');
+  cost.className = 'cm-orb cost';
+  cost.textContent = costVal;
+  wrap.append(cost);
+
   // Always try to show A/H if available (minions)
   const aVal = (c.stats && c.stats.attack != null) ? c.stats.attack : (c.attack != null ? c.attack : null);
   const hVal = (c.stats && c.stats.health != null) ? c.stats.health : (c.health != null ? c.health : null);
   if (aVal != null) { const atk = document.createElement('div'); atk.className = 'cm-orb atk'; atk.textContent = aVal; wrap.append(atk); }
   if (hVal != null) { const hp = document.createElement('div'); hp.className = 'cm-orb hp'; hp.textContent = hVal; wrap.append(hp); }
-  // Add rules text
-  const rules = document.createElement('div'); rules.className = 'cm-text'; rules.textContent = describeCard(c);
-  portrait.append(rules);
+
   return wrap;
 }

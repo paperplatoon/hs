@@ -1,23 +1,35 @@
-import { Players, Phases, withState, pushLog } from '../state.js';
+import { Players, Phases, withState, pushLog, onCombatVictory } from '../state.js';
 import { CARDS, createCardInstance } from '../cards/schema.js';
 import { runEndOfTurnTriggers, runStartOfTurnTriggers, runOnSummonTriggers, runOnDeathTriggers, runOnAttackTriggers, runOnDamageTriggers } from '../triggers/registry.js';
 
-export function startGame(state) {
+export function startGame(state, playerDeckCardIds = null) {
   let s = state;
-  // Seed simple decks
+  // Seed decks
   s = withState(s, (ns) => {
-    ns.players.player.deck = [
-      createCardInstance('minion:growing-sprite'),
-      createCardInstance('minion:taunt-2-2'),
-      createCardInstance('minion:lifesteal-2-2'),
-      createCardInstance('minion:deathrattle-wisp'),
-      createCardInstance('minion:windfury-1-3'),
-      createCardInstance('minion:shield-3-1'),
-      createCardInstance('minion:spellpower-1'),
-      createCardInstance('minion:berserker'),
-      createCardInstance('spell:bolt'),
-      createCardInstance('minion:vanilla-2-3'),
-    ].map((c) => ({ ...c, owner: Players.PLAYER }));
+    // Player deck: prioritize explicit param, then state.run.playerDeck, then default
+    let deckSource = playerDeckCardIds || ns.run?.playerDeck;
+
+    if (deckSource && deckSource.length > 0) {
+      ns.players.player.deck = deckSource
+        .map(cardId => createCardInstance(cardId))
+        .map((c) => ({ ...c, owner: Players.PLAYER }));
+    } else {
+      // Default deck for testing (only if no deck source available)
+      ns.players.player.deck = [
+        createCardInstance('minion:growing-sprite'),
+        createCardInstance('minion:taunt-2-2'),
+        createCardInstance('minion:lifesteal-2-2'),
+        createCardInstance('minion:deathrattle-wisp'),
+        createCardInstance('minion:windfury-1-3'),
+        createCardInstance('minion:shield-3-1'),
+        createCardInstance('minion:spellpower-1'),
+        createCardInstance('minion:berserker'),
+        createCardInstance('spell:bolt'),
+        createCardInstance('minion:vanilla-2-3'),
+      ].map((c) => ({ ...c, owner: Players.PLAYER }));
+    }
+
+    // Opponent deck (always default for now)
     ns.players.opponent.deck = [
       createCardInstance('minion:vanilla-2-3'),
       createCardInstance('minion:taunt-2-2'),
@@ -25,12 +37,13 @@ export function startGame(state) {
       createCardInstance('minion:shield-3-1'),
       createCardInstance('minion:vanilla-2-3'),
     ].map((c) => ({ ...c, owner: Players.OPPONENT }));
+
     // Simple shuffle
     ns.players.player.deck = shuffle(ns.players.player.deck);
     ns.players.opponent.deck = shuffle(ns.players.opponent.deck);
   });
-  s = drawCards(s, Players.PLAYER, 3);
-  s = drawCards(s, Players.OPPONENT, 3);
+  s = drawCards(s, Players.PLAYER, 5);
+  s = drawCards(s, Players.OPPONENT, 5);
   s = beginTurn(s, s.activePlayer);
   return s;
 }
@@ -43,7 +56,29 @@ export function drawCards(state, playerId, n = 1) {
 
 export function drawOne(state, playerId) {
   const player = state.players[playerId];
-  if (player.deck.length === 0) return state;
+
+  // Fatigue mechanic: if deck is empty, take increasing damage
+  if (player.deck.length === 0) {
+    const fatigueCount = player.effects.combat?.fatigueCount || 0;
+    const damage = fatigueCount + 1;
+
+    let s = dealDamageToHero(
+      state,
+      playerId,
+      damage,
+      `${playerId} takes ${damage} fatigue damage`
+    );
+
+    s = withState(s, (ns) => {
+      ns.players[playerId].effects.combat.fatigueCount = damage;
+    });
+
+    // Check if game is over after fatigue damage
+    s = checkGameOver(s);
+    return s;
+  }
+
+  // Normal draw logic
   const top = player.deck.shift();
   return withState(state, (ns) => {
     ns.players[playerId].hand.push(top);
@@ -68,6 +103,8 @@ export function beginTurn(state, playerId) {
     ns.pending.aiDoneTurn = false;
   });
   s = runStartOfTurnTriggers(s, playerId);
+  // Draw a card at the start of turn (or take fatigue damage if deck is empty)
+  s = drawOne(s, playerId);
   s = withState(s, (ns) => {
     ns.phase = Phases.MAIN;
   });
@@ -133,7 +170,10 @@ export function resolveSpell(state, playerId, spellInstance) {
   const spellPower = state.players[playerId].board.reduce((sum, m) => sum + (m.keywords?.spellDamage || 0), 0);
   const amount = base + spellPower;
   const enemyId = playerId === Players.PLAYER ? Players.OPPONENT : Players.PLAYER;
-  return dealDamageToHero(state, enemyId, amount, `${spellInstance.name} hits hero for ${amount}`);
+  let s = dealDamageToHero(state, enemyId, amount, `${spellInstance.name} hits hero for ${amount}`);
+  // Check if game is over after spell damage
+  s = checkGameOver(s);
+  return s;
 }
 
 export function dealDamageToHero(state, playerId, amount, msg) {
@@ -141,6 +181,25 @@ export function dealDamageToHero(state, playerId, amount, msg) {
     ns.players[playerId].life -= amount;
     pushLog(ns, msg || `${playerId} takes ${amount} damage`);
   });
+}
+
+// Check if game is over (victory or defeat)
+export function checkGameOver(state) {
+  // Check if opponent is defeated (victory)
+  if (state.players[Players.OPPONENT].life <= 0) {
+    pushLog(state, '🎉 Victory! The opponent has been defeated!');
+    return onCombatVictory(state);
+  }
+
+  // Check if player is defeated (defeat) - for now just log, could add defeat screen later
+  if (state.players[Players.PLAYER].life <= 0) {
+    pushLog(state, '💀 Defeat! You have been defeated.');
+    // For now, just return state - could add defeat screen later
+    return state;
+  }
+
+  // Game continues
+  return state;
 }
 
 export function healHero(state, playerId, amount, msg) {
@@ -231,6 +290,8 @@ export function attackTarget(state, playerId, attackerIndex, target) {
     }
     ns.pending.selection = null;
   });
+  // Check if game is over after attack
+  s = checkGameOver(s);
   return s;
 }
 

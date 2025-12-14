@@ -1,24 +1,24 @@
-import { createInitialState, withState } from './state.js';
-import { mount } from './render/render.js';
-import { startGame } from './engine/actions.js';
+import { createInitialState } from './state.js';
+import { renderCurrentScreen } from './screens.js';
 
 const root = document.getElementById('app');
 let state = createInitialState();
 
-function setState(updater) {
-  state = typeof updater === 'function' ? updater(state) : updater;
-  ui.rerender();
+function setState(newState) {
+  state = newState;
+  render();
 }
 
 function getState() {
   return state;
 }
 
-const ui = mount(root, getState, setState);
+function render() {
+  renderCurrentScreen(state, setState, root);
+}
 
-// Kick off a new game
-state = startGame(state);
-ui.rerender();
+// Initial render
+render();
 
 // Expose for quick debugging in console
 window.__getState = getState;
