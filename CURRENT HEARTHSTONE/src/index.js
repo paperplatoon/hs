@@ -4,8 +4,12 @@ import { renderCurrentScreen } from './screens.js';
 const root = document.getElementById('app');
 let state = createInitialState();
 
-function setState(newState) {
-  state = newState;
+function setState(newStateOrFn) {
+  if (typeof newStateOrFn === 'function') {
+    state = newStateOrFn(state);
+  } else {
+    state = newStateOrFn;
+  }
   render();
 }
 

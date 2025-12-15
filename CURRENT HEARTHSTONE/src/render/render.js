@@ -4,8 +4,53 @@ import { takeOpponentTurn } from '../ai/simple.js';
 import { initFx } from './fx.js';
 import { CARDS, CardType, createMinionInstance, createSpellInstance } from '../cards/schema.js';
 
-export function mount(root, getState, setState) {
-  root.innerHTML = '';
+// Module-level mouse tracking (shared across renders)
+let mouse = { x: 0, y: 0 };
+let mouseHandlerRegistered = false;
+
+// Module-level function to update aim line (called by mouse handler)
+function updateAimLine() {
+  // Get current state from global (set during render)
+  const state = window.__getState?.();
+  if (!state) return;
+
+  const sel = state.pending?.selection;
+  const path = document.querySelector('#aim-overlay path');
+  const arrow = document.querySelector('#aim-overlay polygon');
+
+  if (!path || !arrow) return;
+
+  if (!sel || sel.type !== 'attack') {
+    path.setAttribute('d', '');
+    arrow.setAttribute('points', '');
+    return;
+  }
+
+  const battlefield = document.getElementById('battlefield-v2');
+  const attacker = document.querySelector(`[data-card-owner="${sel.playerId}"][data-card-index="${sel.attackerIndex}"]`);
+  if (!attacker || !battlefield) return;
+
+  const aRect = attacker.getBoundingClientRect();
+  const cRect = battlefield.getBoundingClientRect();
+  const ax = aRect.left - cRect.left + aRect.width / 2;
+  const ay = aRect.top - cRect.top + aRect.height * 0.2;
+  const mx = mouse.x, my = mouse.y;
+  const cx = (ax + mx) / 2;
+  const cy = Math.min(ay, my) - 60;
+  const d = `M ${ax},${ay} Q ${cx},${cy} ${mx},${my}`;
+  path.setAttribute('d', d);
+
+  // Arrow head
+  const angle = Math.atan2(my - cy, mx - cx);
+  const size = 10;
+  const p1 = `${mx},${my}`;
+  const p2 = `${mx - size * Math.cos(angle - Math.PI / 6)},${my - size * Math.sin(angle - Math.PI / 6)}`;
+  const p3 = `${mx - size * Math.cos(angle + Math.PI / 6)},${my - size * Math.sin(angle + Math.PI / 6)}`;
+  arrow.setAttribute('points', `${p1} ${p2} ${p3}`);
+}
+
+export function renderCombatUI(container, state, setState) {
+  container.innerHTML = '';
 
   // Battle view container
   const battleContainer = document.createElement('div');
@@ -44,7 +89,7 @@ export function mount(root, getState, setState) {
     });
   });
 
-  root.append(battleContainer, galleryContainer, toggleBtn);
+  container.append(battleContainer, galleryContainer, toggleBtn);
 
   // Aim overlay SVG (for battle view)
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -58,44 +103,45 @@ export function mount(root, getState, setState) {
   battleContainer.append(svg);
   const fx = initFx(battleContainer);
 
-  let mouse = { x: 0, y: 0 };
   // For summon/death FX: remember previous positions and uids
   let lastPositions = new Map(); // uid -> {x,y}
   let lastUids = new Set();
-  const onMove = (e) => {
-    const rect = battleContainer.getBoundingClientRect();
-    mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    drawAimIfNeeded();
-  };
-  document.addEventListener('pointermove', onMove);
 
-  function rerender() {
-    const state = getState();
-
-    // Toggle view display
-    if (state.viewMode === 'gallery') {
-      battleContainer.style.display = 'none';
-      galleryContainer.style.display = 'block';
-      renderGallery(galleryContainer, state);
-    } else {
-      battleContainer.style.display = 'grid';
-      galleryContainer.style.display = 'none';
-
-      snapshotPositions();
-      // Auto-run opponent turn if needed
-      if (state.activePlayer === Players.OPPONENT && !state.pending.aiDoneTurn) {
-        setState((s) => takeOpponentTurn(s));
-        return; // next rerender will happen
+  // Register mouse handler once (uses module-level mouse variable)
+  if (!mouseHandlerRegistered) {
+    document.addEventListener('pointermove', (e) => {
+      const battlefield = document.getElementById('battlefield-v2');
+      if (battlefield) {
+        const rect = battlefield.getBoundingClientRect();
+        mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        updateAimLine(); // Redraw aim line when mouse moves
       }
-      renderEnemyZone(enemyZone, state, setState, animateAttack);
-      renderPlayerZone(playerZone, state, setState, animateAttack);
-      renderHand(handTray, state, setState);
-      drawAimIfNeeded();
-      diffAndEmitFx();
-    }
+    });
+    mouseHandlerRegistered = true;
   }
 
-  return { rerender };
+  // Render logic (formerly in rerender function)
+  // Toggle view display
+  if (state.viewMode === 'gallery') {
+    battleContainer.style.display = 'none';
+    galleryContainer.style.display = 'block';
+    renderGallery(galleryContainer, state);
+  } else {
+    battleContainer.style.display = 'grid';
+    galleryContainer.style.display = 'none';
+
+    snapshotPositions();
+    // Auto-run opponent turn if needed
+    if (state.activePlayer === Players.OPPONENT && !state.pending.aiDoneTurn) {
+      setState((s) => takeOpponentTurn(s));
+      return; // next render will happen
+    }
+    renderEnemyZone(enemyZone, state, setState, animateAttack);
+    renderPlayerZone(playerZone, state, setState, animateAttack);
+    renderHand(handTray, state, setState);
+    drawAimIfNeeded(state);
+    diffAndEmitFx();
+  }
 
   // Helpers
   function snapshotPositions() {
@@ -188,19 +234,18 @@ export function mount(root, getState, setState) {
       };
     });
   }
-  function drawAimIfNeeded() {
-    const s = getState();
-    const sel = s.pending.selection;
+  function drawAimIfNeeded(state) {
+    const sel = state.pending.selection;
     if (!sel || sel.type !== 'attack') {
       path.setAttribute('d', '');
       arrow.setAttribute('points', '');
-      markTargets(null);
+      markTargets(null, state);
       return;
     }
     const attacker = document.querySelector(`[data-card-owner="${sel.playerId}"][data-card-index="${sel.attackerIndex}"]`);
     if (!attacker) return;
     const aRect = attacker.getBoundingClientRect();
-    const cRect = container.getBoundingClientRect();
+    const cRect = battleContainer.getBoundingClientRect();
     const ax = aRect.left - cRect.left + aRect.width / 2;
     const ay = aRect.top - cRect.top + aRect.height * 0.2;
     const mx = mouse.x, my = mouse.y;
@@ -217,15 +262,15 @@ export function mount(root, getState, setState) {
     arrow.setAttribute('points', `${p1} ${p2} ${p3}`);
 
     // Highlight valid targets
-    markTargets(sel);
+    markTargets(sel, state);
   }
 
-  function markTargets(sel) {
+  function markTargets(sel, state) {
     const targetables = document.querySelectorAll('[data-card-owner="player"],[data-card-owner="opponent"]');
     targetables.forEach((n) => { n.classList.remove('u-aim-target', 'u-aim-invalid'); });
     if (!sel) return;
     const enemy = sel.playerId === 'player' ? 'opponent' : 'player';
-    const hasTaunt = getState().players[enemy].board.some((m) => m.keywords?.taunt);
+    const hasTaunt = state.players[enemy].board.some((m) => m.keywords?.taunt);
     const enemyCards = document.querySelectorAll(`[data-card-owner="${enemy}"][data-zone="board"]`);
     enemyCards.forEach((n) => {
       const isTaunt = n.getAttribute('data-has-taunt') === 'true';

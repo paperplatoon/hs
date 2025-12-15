@@ -1,14 +1,10 @@
 // Screen router - renders the appropriate screen based on state.currentScreen
 
 import { renderDeckBuilder } from './deckBuilder.js';
-import { mount } from './render/render.js';
+import { renderCombatUI } from './render/render.js';
 import { initializeRun, startNextCombat, withState } from './state.js';
 import { startGame } from './engine/actions.js';
 import { generateShopInventory, setShopInventory, renderShop, renderRemoveCardScreen as renderRemoveCardUI } from './shop.js';
-
-// Track if combat has been initialized for current fight
-let combatInitialized = false;
-let combatUI = null;
 
 // Main screen router
 export function renderCurrentScreen(state, setState, container) {
@@ -44,31 +40,24 @@ function renderDeckBuilderScreen(state, setState, container) {
     let s = initializeRun(state, selectedDeck);
     // Start the first combat
     s = startGame(s);
-    combatInitialized = true;
     setState(s);
   });
 }
 
 // Combat screen
 function renderCombatScreen(state, setState, container) {
-  // Initialize combat if entering for the first time this fight
-  if (!combatInitialized) {
+  // Check if combat needs initialization (empty deck/hand means fresh combat state)
+  const needsInit = state.players.player.deck.length === 0 && state.players.player.hand.length === 0;
+
+  if (needsInit) {
+    // Initialize combat state and trigger re-render
     let s = startGame(state);
-    combatInitialized = true;
     setState(s);
     return;
   }
 
-  // Mount combat UI if not already mounted
-  if (!combatUI) {
-    combatUI = mount(container, () => state, setState);
-  }
-  combatUI.rerender();
-}
-
-// Reset combat flag when leaving combat (called from shop/next fight)
-export function resetCombatFlag() {
-  combatInitialized = false;
+  // Render combat UI (pure function, rebuilds DOM every time)
+  renderCombatUI(container, state, setState);
 }
 
 // Shop screen
@@ -92,7 +81,6 @@ function renderShopScreen(state, setState, container) {
     },
     // onNextFight callback
     () => {
-      resetCombatFlag();
       setState(startNextCombat(state));
     }
   );

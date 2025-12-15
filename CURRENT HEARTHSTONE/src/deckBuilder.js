@@ -15,7 +15,9 @@ export function createDeckBuilderState() {
 // Add a card to the deck (max 2 copies)
 export function addCard(state, cardId) {
   const currentCount = state.selectedCards[cardId] || 0;
+  // Enforce per-card copy limit and overall deck size limit
   if (currentCount >= MAX_COPIES) return state; // Can't add more than 2
+  if (getTotalCardCount(state) >= DECK_SIZE) return state; // Deck full
 
   return {
     ...state,
@@ -55,7 +57,7 @@ export function getTotalCardCount(state) {
 // Check if we can add another copy of this card
 export function canAddCard(state, cardId) {
   const currentCount = state.selectedCards[cardId] || 0;
-  return currentCount < MAX_COPIES;
+  return currentCount < MAX_COPIES && getTotalCardCount(state) < DECK_SIZE;
 }
 
 // Check if deck is complete (exactly 15 cards)
@@ -397,14 +399,19 @@ export function renderDeckBuilder(container, onStartRun) {
   const availableCards = getAvailableCards();
   let galleryElement = null;
 
-  function setState(newState) {
+  function setState(newStateOrFn) {
     // Save scroll position of gallery before re-render
     let savedScrollTop = 0;
     if (galleryElement) {
       savedScrollTop = galleryElement.scrollTop;
     }
 
-    state = newState;
+    // Support both setState(object) and setState(fn) patterns
+    if (typeof newStateOrFn === 'function') {
+      state = newStateOrFn(state);
+    } else {
+      state = newStateOrFn;
+    }
     render();
 
     // Restore scroll position after re-render

@@ -226,6 +226,53 @@ state = resetCombatModifiers(state);
 - **CSS custom properties**: Use `var(--glow)`, `var(--hp)` etc. for theming
 - **Utility classes**: `.u-glow`, `.u-pulse`, `.u-shake` for reusable animations
 
+### Rendering Philosophy: Always Re-render on State Change
+
+**Core Rule**: Every state change triggers a complete DOM rebuild of the current screen.
+
+**Why:**
+- Impossible to have state/UI desync bugs
+- No lifecycle management complexity (`mounted`, `initialized` flags)
+- No stale closures or cached references
+- Dead simple to debug: state wrong? Fix state. Screen wrong? Fix render function.
+- Declarative: screen is a pure function of state
+
+**Pattern:**
+```javascript
+// GOOD: Pure render function, called every time
+function renderCombatScreen(state, setState, container) {
+  // Rebuild entire screen from scratch
+  const battlefield = createBattlefield(state, setState);
+  const hand = createHand(state, setState);
+  container.append(battlefield, hand);
+}
+
+// BAD: Caching UI elements, conditional mounting
+let cachedUI = null;
+function renderCombatScreen(state, setState, container) {
+  if (!cachedUI) {
+    cachedUI = mount(container, setState);
+  }
+  cachedUI.update(state); // ❌ Updates orphaned elements
+}
+```
+
+**Performance Consideration:**
+- Turn-based games render ~10-30 times per combat
+- Modern browsers handle 50-100 DOM elements trivially
+- Premature optimization here causes more bugs than it prevents
+- **Simplicity > Performance** for this game scale
+
+**Exceptions:**
+- Animations that are in-flight promises (attack animations) complete before `setState()` is called, so DOM recreation doesn't interrupt them
+- Canvas-based effects (particles) are stateless and recreated each frame
+
+**Current Status:**
+- Deck builder: ✅ Follows pure render pattern
+- Shop screen: ✅ Follows pure render pattern
+- Combat screen: ✅ Converted to pure render (Chunk 1 complete)
+- Remove card screen: ✅ Follows pure render pattern
+
 ## Code Style
 
 - Use arrow functions for short handlers
@@ -286,3 +333,45 @@ for (let i = 0; i < triggerCount; i++) {
 - More complex targeting (spells, choose targets)
 - Bubble protection keyword
 - More trigger types (onHeal, beforeAttack, etc.)
+
+## TODO: Finish Rewriting Render Functions
+
+The combat screen has been converted to pure rendering (Chunk 1 complete). Remaining work:
+
+### Chunk 2: Clean Up Game Initialization (Priority: Important)
+
+**Goal**: Separate "initialize game state" from "render screen"
+
+**Changes Needed:**
+1. **In `src/screens.js`:**
+   - Deck builder's `onStartRun` callback should fully initialize combat state
+   - Remove initialization logic from `renderCombatScreen` entirely
+   - `renderCombatScreen` should ONLY render, never initialize state
+
+2. **In `src/state.js` (if needed):**
+   - Consider adding `initializeCombat(state)` helper that wraps `startGame()`
+   - Makes it clear when combat is being set up vs rendered
+
+**Why This Matters:**
+- Separates state transitions from rendering (clean architecture)
+- Makes it clear where game logic lives (state layer, not render layer)
+- Prevents accidental double-initialization
+
+**Current Workaround:**
+- `renderCombatScreen` checks if deck/hand are empty to detect uninitialized state
+- This works but mixes concerns (render function shouldn't decide when to initialize)
+
+### Chunk 3: Verify Shop/Remove Screens (Priority: Low)
+
+**Goal**: Ensure other screens follow the same pure pattern
+
+**Changes Needed:**
+1. Review `renderShopScreen` and `renderRemoveCardScreen`
+2. Ensure they don't cache elements
+3. Ensure they rebuild DOM each call
+4. Document any intentional deviations
+
+**Why This Matters:**
+- Consistency across codebase
+- Prevents future bugs from creeping in
+- Sets pattern for new screens (treasure rooms, quest selection, etc.)
