@@ -146,19 +146,23 @@ export function getGalleryGroupedByCost(cardIds) {
 import { createCardInstance } from './cards/schema.js';
 import { createInitialState } from './state.js';
 
-// Render a card for the gallery with click handler and visual feedback
-function renderGalleryCard(cardId, state, setState) {
+// Render a full card visual (generic, reusable across screens)
+export function renderFullCard(cardId, options = {}) {
   const cardDef = CARDS[cardId];
   if (!cardDef) return null;
 
-  const cardInstance = createCardInstance(cardId);
-  const selectedCount = state.selectedCards[cardId] || 0;
-  const canAdd = canAddCard(state, cardId);
+  const {
+    badge = null,           // Optional badge text (e.g., "(2)" for count)
+    disabled = false,       // Whether card should appear disabled
+    onClick = null,         // Optional click handler
+    className = ''          // Additional classes
+  } = options;
 
   // Create card wrapper
   const wrap = document.createElement('div');
-  wrap.className = 'card-wrap gallery-card-wrap';
-  if (!canAdd) wrap.classList.add('card-disabled');
+  wrap.className = `card-wrap gallery-card-wrap ${className}`;
+  if (disabled) wrap.classList.add('card-disabled');
+  if (onClick) wrap.style.cursor = 'pointer';
 
   // Create card element (reuse existing minion card rendering)
   const card = document.createElement('div');
@@ -227,26 +231,40 @@ function renderGalleryCard(cardId, state, setState) {
   costOrb.textContent = cardDef.stats?.cost ?? 0;
   card.appendChild(costOrb);
 
-  // Selected count badge
-  if (selectedCount > 0) {
-    const badge = document.createElement('div');
-    badge.className = 'gallery-count-badge';
-    badge.textContent = `(${selectedCount})`;
-    card.appendChild(badge);
+  // Optional badge
+  if (badge) {
+    const badgeEl = document.createElement('div');
+    badgeEl.className = 'gallery-count-badge';
+    badgeEl.textContent = badge;
+    card.appendChild(badgeEl);
   }
 
   wrap.appendChild(card);
 
-  // Click handler to add card
-  if (canAdd) {
-    wrap.style.cursor = 'pointer';
+  // Click handler
+  if (onClick) {
     wrap.addEventListener('click', (e) => {
       e.preventDefault();
-      setState(addCard(state, cardId));
+      onClick(cardId);
     });
   }
 
   return wrap;
+}
+
+// Render a card for the gallery with click handler and visual feedback
+function renderGalleryCard(cardId, state, setState) {
+  const cardDef = CARDS[cardId];
+  if (!cardDef) return null;
+
+  const selectedCount = state.selectedCards[cardId] || 0;
+  const canAdd = canAddCard(state, cardId);
+
+  return renderFullCard(cardId, {
+    badge: selectedCount > 0 ? `(${selectedCount})` : null,
+    disabled: !canAdd,
+    onClick: canAdd ? () => setState(addCard(state, cardId)) : null
+  });
 }
 
 // Render the card gallery (left panel)

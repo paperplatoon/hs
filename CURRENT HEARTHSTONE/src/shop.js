@@ -2,6 +2,7 @@
 
 import { CARDS } from './cards/schema.js';
 import { withState } from './state.js';
+import { renderFullCard } from './deckBuilder.js';
 
 const CARD_PURCHASE_COST = 10;
 const CARD_REMOVE_COST = 25;
@@ -356,31 +357,10 @@ function renderRemovableCard(cardId, count, state, onSelect) {
   const cardDef = CARDS[cardId];
   if (!cardDef) return null;
 
-  const entry = document.createElement('div');
-  entry.className = 'remove-card-entry';
-  entry.style.cursor = 'pointer';
-
-  const cost = cardDef.stats?.cost ?? 0;
-  const costSpan = document.createElement('span');
-  costSpan.className = 'remove-card-cost';
-  costSpan.textContent = cost;
-
-  const nameSpan = document.createElement('span');
-  nameSpan.className = 'remove-card-name';
-  nameSpan.textContent = cardDef.name;
-
-  const countSpan = document.createElement('span');
-  countSpan.className = 'remove-card-count';
-  countSpan.textContent = count > 1 ? `(${count})` : '';
-
-  entry.appendChild(costSpan);
-  entry.appendChild(nameSpan);
-  entry.appendChild(countSpan);
-
-  // Click to select for removal
-  entry.addEventListener('click', () => onSelect(cardId, cardDef.name));
-
-  return entry;
+  return renderFullCard(cardId, {
+    badge: count > 1 ? `×${count}` : null,
+    onClick: () => onSelect(cardId, cardDef.name)
+  });
 }
 
 // Main remove card screen
@@ -459,11 +439,16 @@ export function renderRemoveCardScreen(state, setState, onBackToShop) {
       costHeader.textContent = `Cost ${cost}`;
       deckSection.appendChild(costHeader);
 
-      // Card entries
+      // Cards grid
+      const cardsGrid = document.createElement('div');
+      cardsGrid.className = 'card-gallery-grid';
+
       cards.forEach(({ id, count }) => {
         const entry = renderRemovableCard(id, count, state, showModal);
-        if (entry) deckSection.appendChild(entry);
+        if (entry) cardsGrid.appendChild(entry);
       });
+
+      deckSection.appendChild(cardsGrid);
     });
   }
 
