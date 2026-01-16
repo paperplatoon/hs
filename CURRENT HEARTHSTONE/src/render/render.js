@@ -1,8 +1,8 @@
 import { Players } from '../state.js';
 import { canPlayCard, playCardFromHand, declareAttack, attackTarget, endTurn } from '../engine/actions.js';
-import { takeOpponentTurn } from '../ai/simple.js';
 import { initFx } from './fx.js';
 import { CARDS, CardType, createMinionInstance, createSpellInstance } from '../cards/schema.js';
+import { animatedAttack, animatedEnemyTurn, animatedEndTurn } from '../animations/combat.js';
 
 // Module-level mouse tracking (shared across renders)
 let mouse = { x: 0, y: 0 };
@@ -131,16 +131,19 @@ export function renderCombatUI(container, state, setState) {
     galleryContainer.style.display = 'none';
 
     snapshotPositions();
-    // Auto-run opponent turn if needed
-    if (state.activePlayer === Players.OPPONENT && !state.pending.aiDoneTurn) {
-      setState((s) => takeOpponentTurn(s));
-      return; // next render will happen
-    }
+
+    // Always render the battlefield first
     renderEnemyZone(enemyZone, state, setState, animateAttack);
     renderPlayerZone(playerZone, state, setState, animateAttack);
     renderHand(handTray, state, setState);
     drawAimIfNeeded(state);
     diffAndEmitFx();
+
+    // Auto-run opponent turn AFTER rendering (so elements exist)
+    if (state.activePlayer === Players.OPPONENT && !state.pending.aiDoneTurn) {
+      // Use setTimeout to let the DOM settle before starting animations
+      setTimeout(() => animatedEnemyTurn(state, setState), 50);
+    }
   }
 
   // Helpers
@@ -313,7 +316,8 @@ function renderPlayerZone(el, state, setState, animateAttack) {
   endBtn.addEventListener('click', () => {
     endBtn.classList.add('u-sweep');
     setTimeout(() => endBtn.classList.remove('u-sweep'), 620);
-    setState((s) => endTurn(s));
+    // Use animated end turn for visual feedback on triggers
+    animatedEndTurn(state, setState);
   });
   endTurnContainer.append(endBtn);
 
@@ -435,10 +439,14 @@ function renderHeroAvatar(state, playerId, setState, animateAttack) {
       if (sel && sel.type === 'attack') {
         const hasTaunt = state.players[playerId].board.some((m) => m.keywords?.taunt);
         if (hasTaunt) return;
-        const attackerEl = document.querySelector(`[data-card-owner="${sel.playerId}"][data-card-index="${sel.attackerIndex}"]`);
-        animateAttack(attackerEl, avatar).then(() => {
-          setState((s) => attackTarget(s, sel.playerId, sel.attackerIndex, { type: 'hero' }));
-        });
+        // Clear aim line immediately
+        const aim = document.getElementById('aim-overlay');
+        if (aim) {
+          aim.querySelector('path')?.setAttribute('d', '');
+          aim.querySelector('polygon')?.setAttribute('points', '');
+        }
+        // Use animated attack
+        animatedAttack(state, sel.playerId, sel.attackerIndex, { type: 'hero' }, setState);
       }
     });
   }
@@ -473,10 +481,14 @@ function renderCreatureLane(state, playerId, setState, animateAttack) {
       wrap.addEventListener('click', () => {
         const sel = state.pending.selection;
         if (sel && sel.type === 'attack') {
-          const attackerEl = document.querySelector(`[data-card-owner="${sel.playerId}"][data-card-index="${sel.attackerIndex}"]`);
-          animateAttack(attackerEl, wrap).then(() => {
-            setState((s) => attackTarget(s, sel.playerId, sel.attackerIndex, { type: 'minion', index: idx }));
-          });
+          // Clear aim line immediately
+          const aim = document.getElementById('aim-overlay');
+          if (aim) {
+            aim.querySelector('path')?.setAttribute('d', '');
+            aim.querySelector('polygon')?.setAttribute('points', '');
+          }
+          // Use animated attack
+          animatedAttack(state, sel.playerId, sel.attackerIndex, { type: 'minion', index: idx }, setState);
         }
       });
     }

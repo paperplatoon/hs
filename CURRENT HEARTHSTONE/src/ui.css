@@ -30,6 +30,26 @@
 @keyframes breathe { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-1px);} }
 @keyframes shake { 0%{ transform: translate(0) } 25%{ transform: translate(2px, 0)} 50%{ transform: translate(-2px, 0)} 75%{ transform: translate(1px, 0)} 100%{ transform: translate(0) } }
 
+/* Animation primitives */
+.u-pulse-once { animation: pulse-once 0.4s ease-out 1; }
+@keyframes pulse-once { 0%{ transform: scale(1);} 50%{ transform: scale(1.08);} 100%{ transform: scale(1);} }
+
+.u-grow { animation: grow 0.4s ease-out 1; }
+@keyframes grow { 0%{ transform: scale(1);} 40%{ transform: scale(1.15);} 100%{ transform: scale(1);} }
+
+.u-bounce { animation: bounce 0.3s ease-out 1; }
+@keyframes bounce { 0%{ transform: translateY(0);} 40%{ transform: translateY(-8px);} 100%{ transform: translateY(0);} }
+
+.u-damage { animation: damage 0.2s ease-out 1; }
+@keyframes damage { 0%{ filter: brightness(1);} 50%{ filter: brightness(1.5) saturate(0.5);} 100%{ filter: brightness(1);} }
+
+/* Projectile styles */
+.projectile { width: 20px; height: 20px; border-radius: 50%; }
+.projectile--fireball { background: radial-gradient(circle, #fff 0%, var(--glow) 40%, #ff4500 100%); box-shadow: 0 0 15px var(--glow), 0 0 30px rgba(255,69,0,0.6); }
+.projectile--bolt { background: radial-gradient(circle, #fff 0%, #64b5f6 50%, #1976d2 100%); box-shadow: 0 0 12px #64b5f6, 0 0 24px rgba(25,118,210,0.5); }
+.projectile--heal { background: radial-gradient(circle, #fff 0%, var(--hp) 50%, #4caf50 100%); box-shadow: 0 0 12px var(--hp), 0 0 24px rgba(128,217,77,0.5); }
+.projectile--buff { background: radial-gradient(circle, #fff 0%, var(--shield) 50%, #ffc107 100%); box-shadow: 0 0 12px var(--shield), 0 0 24px rgba(255,212,81,0.5); }
+
 /* Battlefield v2 layout */
 #battlefield-v2 { position: relative; }
 #aim-overlay { position: absolute; inset: 0; pointer-events: none; }
